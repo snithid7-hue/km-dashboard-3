@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบกรอกแผนการจัดการความรู้ของสายงาน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --paper:#f6f4ef;
+  --card:#ffffff;
+  --ink:#1c2433;
+  --ink-soft:#56607a;
+  --line:#e4e0d6;
+  --navy:#142544;
+  --navy-2:#1f3a63;
+  --gold:#b08a4a;
+  --gold-soft:#d9c39a;
+  --c1:#7b6cc4;   /* section 1 accent */
+  --c1-bg:#efebfb;
+  --c2:#c79a36;   /* section 2 accent */
+  --c2-bg:#fbf2da;
+  --c3:#3f72a6;   /* section 3 accent */
+  --c3-bg:#e8f0f9;
+  --c4:#3f8f7a;   /* section 4 accent */
+  --c4-bg:#e6f3ee;
+  --danger:#b4453a;
+  --ok:#2f7d5b;
+  --radius:14px;
+  --shadow:0 1px 2px rgba(20,37,68,.05),0 8px 28px rgba(20,37,68,.07);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:"IBM Plex Sans Thai",system-ui,sans-serif;
+  background:
+    radial-gradient(1200px 600px at 85% -10%, #ece7f7 0%, transparent 55%),
+    radial-gradient(900px 500px at -5% 10%, #f4ecda 0%, transparent 50%),
+    var(--paper);
+  color:var(--ink);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:32px 22px 120px}
+
+/* ---------- Masthead ---------- */
+.mast{
+  position:relative;overflow:hidden;border-radius:20px;
+  background:linear-gradient(120deg,var(--navy) 0%,var(--navy-2) 70%);
+  color:#fff;padding:34px 36px;margin-bottom:26px;
+  box-shadow:var(--shadow);
+}
+.mast::after{
+  content:"";position:absolute;right:-60px;top:-60px;width:280px;height:280px;
+  background:radial-gradient(circle,rgba(217,195,154,.32),transparent 65%);
+}
+.mast .kicker{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-soft);font-weight:600;margin-bottom:6px}
+.mast h1{font-size:27px;font-weight:700;margin:0 0 4px;line-height:1.3}
+.mast p{margin:8px 0 0;color:#cdd6e6;font-size:14.5px;max-width:640px}
+.mast .seal{position:absolute;right:30px;bottom:24px;font-size:12px;color:#9fb0cc;letter-spacing:.05em}
+
+/* ---------- Division title field ---------- */
+.titlecard{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px 24px;margin-bottom:24px;box-shadow:var(--shadow);
+  display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px;
+}
+.titlecard .lab{font-weight:600;font-size:18px;color:var(--navy);white-space:nowrap}
+.titlecard .grow{flex:1;min-width:260px}
+.titlecard input{
+  width:100%;border:none;border-bottom:2px dotted var(--gold);
+  background:transparent;font-family:inherit;font-size:18px;font-weight:600;
+  color:var(--ink);padding:6px 4px;outline:none;transition:border-color .2s;
+}
+.titlecard input:focus{border-bottom-style:solid;border-bottom-color:var(--navy)}
+.titlecard .hint{font-size:12.5px;color:var(--ink-soft);width:100%}
+
+/* ---------- Sections ---------- */
+.section{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  margin-bottom:22px;box-shadow:var(--shadow);overflow:hidden;
+}
+.sec-head{display:flex;gap:14px;align-items:flex-start;padding:20px 24px 16px;border-bottom:1px solid var(--line)}
+.sec-no{
+  flex:none;width:42px;height:42px;border-radius:11px;display:grid;place-items:center;
+  font-weight:700;font-size:18px;color:#fff;
+}
+.sec-1 .sec-no{background:var(--c1)} .sec-2 .sec-no{background:var(--c2)}
+.sec-3 .sec-no{background:var(--c3)} .sec-4 .sec-no{background:var(--c4)}
+.sec-title{font-size:17px;font-weight:700;color:var(--navy);margin:2px 0 2px}
+.sec-sub{font-size:13px;color:var(--ink-soft)}
+.sec-body{padding:18px 24px 24px}
+
+/* field rows */
+.field{margin-bottom:16px}
+.field:last-child{margin-bottom:0}
+.field > label{display:block;font-weight:600;font-size:14.5px;margin-bottom:6px;color:var(--ink)}
+.field .num{color:var(--gold);font-weight:700;margin-right:6px}
+textarea,.txt{
+  width:100%;border:1px solid var(--line);border-radius:10px;background:#fcfbf8;
+  font-family:inherit;font-size:15px;color:var(--ink);padding:11px 13px;outline:none;
+  transition:border-color .15s,box-shadow .15s;resize:vertical;
+}
+textarea{min-height:54px;line-height:1.55}
+textarea:focus,.txt:focus{border-color:var(--c1);box-shadow:0 0 0 3px rgba(123,108,196,.13);background:#fff}
+.sec-2 textarea:focus{border-color:var(--c2);box-shadow:0 0 0 3px rgba(199,154,54,.15)}
+.sec-3 textarea:focus{border-color:var(--c3);box-shadow:0 0 0 3px rgba(63,114,166,.15)}
+.sec-4 textarea:focus{border-color:var(--c4);box-shadow:0 0 0 3px rgba(63,143,122,.15)}
+.invalid{border-color:var(--danger)!important;box-shadow:0 0 0 3px rgba(180,69,58,.18)!important;animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* ---------- Section 2 dynamic table ---------- */
+.kn-card{
+  border:1px solid var(--line);border-left:4px solid var(--c2);border-radius:11px;
+  padding:14px 16px 6px;margin-bottom:14px;background:#fefdfa;position:relative;
+}
+.kn-card .kn-idx{font-weight:700;color:var(--c2);font-size:14px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.kn-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.kn-grid .full{grid-column:1/-1}
+.kn-grid label{font-size:12.5px;font-weight:600;color:var(--ink-soft);display:block;margin-bottom:4px}
+.kn-del{position:absolute;top:12px;right:12px}
+
+/* repeatable simple items */
+.item-row{display:flex;gap:8px;margin-bottom:9px;align-items:flex-start}
+.item-row .bullet{flex:none;width:24px;height:24px;border-radius:50%;background:var(--c3-bg);color:var(--c3);font-weight:700;font-size:12px;display:grid;place-items:center;margin-top:8px}
+.sec-3 .item-row.eval .bullet{background:#efe6d6;color:var(--c2)}
+.item-row textarea{min-height:42px}
+
+.subblock{margin-bottom:18px}
+.subblock .sub-h{font-weight:600;font-size:14.5px;color:var(--navy);margin-bottom:4px}
+.subblock .sub-eg{font-size:12px;color:var(--ink-soft);background:#f3f1ea;border-radius:8px;padding:7px 11px;margin-bottom:11px;border-left:3px solid var(--gold-soft)}
+
+/* buttons */
+.btn{
+  font-family:inherit;font-weight:600;font-size:14px;border-radius:10px;cursor:pointer;
+  border:1px solid transparent;padding:9px 16px;display:inline-flex;align-items:center;gap:7px;
+  transition:transform .08s,background .15s,box-shadow .15s;
+}
+.btn:active{transform:translateY(1px)}
+.btn-add{background:transparent;border:1px dashed var(--c2);color:var(--c2)}
+.btn-add:hover{background:var(--c2-bg)}
+.sec-3 .btn-add{border-color:var(--c3);color:var(--c3)} .sec-3 .btn-add:hover{background:var(--c3-bg)}
+.btn-ghost-del{background:transparent;border:1px solid var(--line);color:var(--danger);padding:5px 9px;font-size:12px;border-radius:8px}
+.btn-ghost-del:hover{background:#fbeceb;border-color:#e2b6b2}
+
+/* attachments */
+.attach{border:1.5px dashed var(--c1);border-radius:12px;background:var(--c1-bg);padding:16px;text-align:center}
+.attach .att-cta{font-weight:600;color:var(--c1);font-size:14.5px}
+.attach .att-note{font-size:12px;color:var(--ink-soft);margin-top:3px}
+.file-list{margin-top:12px;display:flex;flex-direction:column;gap:8px;text-align:left}
+.file-chip{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-size:13px}
+.file-chip .fi{font-size:18px}
+.file-chip .fname{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-chip .fsize{color:var(--ink-soft);font-size:12px}
+.file-chip button{background:none;border:none;color:var(--danger);cursor:pointer;font-size:16px;line-height:1}
+
+/* ---------- Action bar ---------- */
+.actionbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;
+  background:rgba(255,255,255,.86);backdrop-filter:blur(12px);
+  border-top:1px solid var(--line);padding:14px 22px;
+  display:flex;justify-content:center;gap:12px;
+}
+.btn-preview{background:var(--navy);color:#fff;padding:12px 28px;font-size:15px;box-shadow:0 6px 18px rgba(20,37,68,.25)}
+.btn-preview:hover{background:var(--navy-2)}
+.btn-reset{background:#fff;border:1px solid var(--line);color:var(--ink-soft)}
+.btn-reset:hover{border-color:var(--ink-soft)}
+
+/* ---------- Preview modal ---------- */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(3px);z-index:60;display:none;overflow-y:auto;padding:26px 14px 40px}
+.overlay.open{display:block}
+.modal{max-width:880px;margin:0 auto;background:var(--paper);border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.4);overflow:hidden}
+.modal-top{display:flex;justify-content:space-between;align-items:center;padding:16px 22px;background:var(--navy);color:#fff;position:sticky;top:0;z-index:2}
+.modal-top h3{margin:0;font-size:16px;font-weight:600}
+.modal-top .x{background:rgba(255,255,255,.14);border:none;color:#fff;width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:18px}
+.modal-actions{display:flex;gap:10px;flex-wrap:wrap;padding:16px 22px;background:#fff;border-top:1px solid var(--line);position:sticky;bottom:0}
+.btn-pdf{background:var(--gold);color:#27200f}
+.btn-pdf:hover{background:#c79a52}
+.btn-send{background:var(--ok);color:#fff}
+.btn-send:hover{background:#25664a}
+.btn-send:disabled{opacity:.55;cursor:not-allowed}
+.modal-scroll{padding:22px}
+
+/* ---------- The official document (preview + pdf source) ---------- */
+.doc{
+  font-family:"Sarabun","IBM Plex Sans Thai",sans-serif;
+  background:#fff;color:#111;width:794px;margin:0 auto;padding:48px 46px 40px;
+  box-shadow:0 2px 14px rgba(0,0,0,.12);
+}
+.doc h2{text-align:center;font-size:21px;font-weight:700;margin:0 0 4px;color:#111}
+.doc .doc-div{text-align:center;font-size:18px;font-weight:600;margin-bottom:22px;color:#16325c}
+.doc table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:14px}
+.doc th,.doc td{border:1px solid #9aa3b2;padding:8px 10px;vertical-align:top;text-align:left}
+.doc thead th{background:#dfe6ef;color:#16325c;font-weight:700;text-align:center}
+.doc .cat{font-weight:700;text-align:center;width:30%}
+.doc .cat-note{font-weight:400;font-size:12px;color:#5a6678;display:block;margin-top:4px}
+.doc .topic{width:30%;font-weight:600}
+.doc .c1cat{background:#efebfb} .doc .c2cat{background:#fbf2da}
+.doc .c3cat{background:#e8f0f9} .doc .c4cat{background:#e6f3ee}
+.doc .val{white-space:pre-wrap}
+.doc .empty{color:#9aa3b2;font-style:italic}
+.doc .att-line{font-size:13px;color:#333;padding:2px 0}
+.doc .secband{background:#16325c;color:#fff;font-weight:700;padding:7px 12px;border-radius:6px;margin:22px 0 10px;font-size:15px}
+
+/* signature block */
+.sigwrap{margin-top:34px;display:flex;justify-content:flex-end}
+.sigbox{width:320px;border:1px solid #2a2a2a}
+.sigbox .sig-h{background:#e9e9e9;border-bottom:1px solid #2a2a2a;text-align:center;font-weight:700;padding:8px;font-size:15px}
+.sigbox .sig-sub{border-bottom:1px solid #2a2a2a;text-align:center;padding:8px 10px;font-size:13.5px}
+.sigbox .sig-space{height:62px}
+.sigbox .sig-line{text-align:center;letter-spacing:1px;font-size:14px;color:#222;padding:0 14px}
+.sigbox .sig-pos{text-align:center;font-size:14px;padding:10px 14px 16px}
+
+/* toast */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;
+  background:var(--navy);color:#fff;padding:13px 20px;border-radius:12px;font-size:14px;z-index:90;
+  box-shadow:0 10px 30px rgba(0,0,0,.3);transition:.3s;max-width:90%;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--danger)}
+.toast.ok{background:var(--ok)}
+
+.banner{display:none;background:#fff7e6;border:1px solid #f0d9a0;color:#7a5b13;border-radius:11px;padding:12px 15px;font-size:13.5px;margin-bottom:22px}
+.banner.show{display:block}
+.banner code{background:#f1e6c8;padding:1px 6px;border-radius:5px;font-size:12.5px}
+
+@media(max-width:560px){
+  .kn-grid{grid-template-columns:1fr}
+  .doc{width:100%;padding:26px 18px}
+  .mast h1{font-size:22px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="mast">
+    <div class="kicker">Knowledge Management Plan</div>
+    <h1>ระบบกรอกแผนการจัดการความรู้ของสายงาน</h1>
+    <p>กรอกข้อมูลตามหัวข้อด้านล่าง ระบบจะแสดงหน้าตัวอย่างให้ตรวจทานก่อนบันทึก สามารถส่งข้อมูลเข้าฐานข้อมูลกลางและส่งออกเป็นไฟล์ PDF พร้อมช่องลงนามผู้อำนวยการใหญ่</p>
+    <div class="seal">เอกสารสำหรับสายงาน</div>
+  </div>
+
+  <!-- TITLE / DIVISION -->
+  <div class="titlecard">
+    <span class="lab">แผนการจัดการความรู้ของสายงาน</span>
+    <span class="grow"><input type="text" id="division" placeholder=""></span>
+  </div>
+
+  <!-- SECTION 1 -->
+  <div class="section sec-1">
+    <div class="sec-head">
+      <div class="sec-no">1</div>
+      <div>
+        <div class="sec-title">การสื่อสารสร้างความเข้าใจและการมีส่วนร่วม</div>
+        <div class="sec-sub">เพื่อแสดงบทบาทการสื่อสาร / ความมุ่งมั่นของผู้บริหารระดับสูง</div>
+      </div>
+    </div>
+    <div class="sec-body" id="sec1Body">
+      <!-- fields injected -->
+      <div class="field" style="margin-top:4px">
+        <label><span class="num">7.</span>หลักฐาน / รูปภาพ / รายงาน</label>
+        <div class="attach" id="dropZone">
+          <div class="att-cta">＋ แนบไฟล์ (PDF, รูปภาพ, วิดีโอ)</div>
+          <div class="att-note">คลิกเพื่อเลือกไฟล์ — เพิ่มได้เรื่อย ๆ</div>
+          <input type="file" id="fileInput" multiple style="display:none" accept=".pdf,image/*,video/*">
+        </div>
+        <div class="file-list" id="fileList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="section sec-2">
+    <div class="sec-head">
+      <div class="sec-no">2</div>
+      <div>
+        <div class="sec-title">การนำไปใช้ในสายงาน</div>
+        <div class="sec-sub">เพื่อแสดงผลลัพธ์ของการจัดการความรู้สำคัญของสายงาน — แต่ละรายการตอบให้ครบทั้ง 5 ช่อง</div>
+      </div>
+    </div>
+    <div class="sec-body">
+      <div id="knList"></div>
+      <button class="btn btn-add" id="addKn">＋ เพิ่มรายการ Critical Knowledge / Case</button>
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="section sec-3">
+    <div class="sec-head">
+      <div class="sec-no">3</div>
+      <div>
+        <div class="sec-title">วัฒนธรรมการจัดการความรู้ของสายงาน</div>
+        <div class="sec-sub">กำหนดวัฒนธรรมและวิธีการประเมิน — เพิ่มหัวข้อได้เรื่อย ๆ</div>
+      </div>
+    </div>
+    <div class="sec-body">
+      <div class="subblock">
+        <div class="sub-h">3.1 กำหนดวัฒนธรรมการจัดการความรู้ของหน่วยงาน</div>
+        <div class="sub-eg">ตัวอย่าง: ทุกโครงการ/กิจกรรมสำคัญ ต้องมีการจัดทำ AAR, จัดให้มีวาระการถ่ายทอดความรู้ในการประชุมหน่วยงาน</div>
+        <div id="cultureList"></div>
+        <button class="btn btn-add" data-add="culture">＋ เพิ่มหัวข้อวัฒนธรรม</button>
+      </div>
+      <div class="subblock" style="margin-bottom:0">
+        <div class="sub-h">3.2 การประเมิน</div>
+        <div class="sub-eg">ตัวอย่าง: จำนวนที่เพิ่มขึ้นของ AAR แต่ละสายงาน, ผลจากการปรับปรุงกระบวนการที่เกิดจากการทำ AAR</div>
+        <div id="evalList"></div>
+        <button class="btn btn-add" data-add="eval">＋ เพิ่มหัวข้อการประเมิน</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="section sec-4">
+    <div class="sec-head">
+      <div class="sec-no">4</div>
+      <div>
+        <div class="sec-title">การติดตามผลการดำเนินการจัดการความรู้ของสายงาน</div>
+        <div class="sec-sub">ระบุวิธีการติดตามและความถี่</div>
+      </div>
+    </div>
+    <div class="sec-body">
+      <div class="field">
+        <label>วิธีการติดตาม / ความถี่</label>
+        <textarea id="followup" placeholder="เช่น ทบทวนความคืบหน้าทุกไตรมาสในที่ประชุมสายงาน . . ."></textarea>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ACTION BAR -->
+<div class="actionbar">
+  <button class="btn btn-reset" id="resetBtn">ล้างข้อมูล</button>
+  <button class="btn btn-preview" id="previewBtn">ดูตัวอย่างก่อนบันทึก / ส่งออก →</button>
+</div>
+
+<!-- PREVIEW MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-top">
+      <h3>หน้าตัวอย่างเอกสาร — โปรดตรวจทานก่อนส่งออก</h3>
+      <button class="x" id="closeModal">✕</button>
+    </div>
+    <div class="modal-scroll">
+      <div id="docRoot"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-reset" id="backEdit">← กลับไปแก้ไข</button>
+      <button class="btn btn-send" id="saveAll">💾 Save PDF / ยืนยันส่งข้อมูล</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ====================== CONFIG ====================== */
+const CONFIG = {
+  // วาง URL ของ Google Apps Script Web App (.../exec) ที่นี่ หลังติดตั้งตามคู่มือ
+  WEB_APP_URL: "https://script.google.com/macros/s/AKfycbyleSjA_iDrgZ44creUq4RPCgJfYuMpBy9CSJbIjfNpOtH8klWhzqF3OkJ71aq-Nuo/exec",
+  SHEET_URL:  "https://docs.google.com/spreadsheets/d/1YUKcfx50dyZacVhsThwVDT4FssRrqhzg5EmuW-bYi_E/edit",
+  DRIVE_FOLDER_URL: "https://drive.google.com/drive/folders/1M-oGqWvzPOR8As0hVipvtrPWyItu536b"
+};
+
+/* ====================== STATE ====================== */
+const SEC1_FIELDS = [
+  {key:"topic",   label:"ประเด็นที่สื่อสาร"},
+  {key:"target",  label:"กลุ่มเป้าหมาย"},
+  {key:"channel", label:"ช่องทางการสื่อสาร"},
+  {key:"format",  label:"รูปแบบการดำเนินการ"},
+  {key:"purpose", label:"วัตถุประสงค์การสื่อสาร"},
+  {key:"measure", label:"การวัดผล (การรับรู้ / ความเข้าใจ)"},
+];
+let knRows = [];      // section 2
+let cultureItems = [];// section 3.1
+let evalItems = [];   // section 3.2
+let files = [];       // attachments {name,size,type,dataUrl}
+
+const $ = s => document.querySelector(s);
+const esc = s => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+/* ---------- build Section 1 fields ---------- */
+(function buildSec1(){
+  const body = $("#sec1Body");
+  const frag = document.createDocumentFragment();
+  SEC1_FIELDS.forEach((f,i)=>{
+    const d = document.createElement("div"); d.className="field";
+    d.innerHTML = `<label><span class="num">${i+1}.</span>${f.label}</label>
+      <textarea data-s1="${f.key}" placeholder="กรอกข้อมูล . . ."></textarea>`;
+    frag.appendChild(d);
+  });
+  body.insertBefore(frag, body.firstChild);
+})();
+
+/* ---------- Section 2 rows ---------- */
+function knTemplate(idx){
+  return `<div class="kn-idx"><span>รายการที่ ${idx+1}</span>
+            <button class="btn-ghost-del kn-del" data-kndel="${idx}">ลบ</button></div>
+    <div class="kn-grid">
+      <div class="full"><label>กำหนด Critical Knowledge / Case</label>
+        <textarea data-kn="${idx}" data-f="ck" placeholder="ระบุองค์ความรู้สำคัญหรือกรณีศึกษา"></textarea></div>
+      <div><label>อยู่ที่กระบวนการ (Value Chain) ใด / ของหน่วยไหน</label>
+        <textarea data-kn="${idx}" data-f="vc"></textarea></div>
+      <div><label>ดำเนินการอะไร</label>
+        <textarea data-kn="${idx}" data-f="act"></textarea></div>
+      <div><label>ใช้เครื่องมือ / องค์ความรู้ KM อะไร</label>
+        <textarea data-kn="${idx}" data-f="tool"></textarea></div>
+      <div><label>ผลลัพธ์ / สิ่งที่ได้กลับมา (ลดขั้นตอน / ลดเวลา / เพิ่มกำไร ฯลฯ)</label>
+        <textarea data-kn="${idx}" data-f="result"></textarea></div>
+    </div>`;
+}
+function renderKn(){
+  const list = $("#knList"); list.innerHTML="";
+  knRows.forEach((row,i)=>{
+    const c=document.createElement("div"); c.className="kn-card"; c.innerHTML=knTemplate(i);
+    list.appendChild(c);
+    c.querySelectorAll("textarea").forEach(t=>{
+      t.value = row[t.dataset.f]||"";
+      t.addEventListener("input",e=>{ knRows[+e.target.dataset.kn][e.target.dataset.f]=e.target.value; });
+    });
+    c.querySelector("[data-kndel]").addEventListener("click",()=>{ knRows.splice(i,1); renderKn(); });
+  });
+}
+$("#addKn").addEventListener("click",()=>{ knRows.push({ck:"",vc:"",act:"",tool:"",result:""}); renderKn(); });
+
+/* ---------- Section 3 items ---------- */
+function renderItems(arr, mountSel, cls){
+  const m = $(mountSel); m.innerHTML="";
+  arr.forEach((val,i)=>{
+    const row=document.createElement("div"); row.className="item-row"+(cls?" "+cls:"");
+    row.innerHTML=`<div class="bullet">${i+1}</div>
+      <textarea placeholder="กรอกหัวข้อ . . ."></textarea>
+      <button class="btn-ghost-del" style="margin-top:6px">ลบ</button>`;
+    const ta=row.querySelector("textarea"); ta.value=val;
+    ta.addEventListener("input",e=>arr[i]=e.target.value);
+    row.querySelector("button").addEventListener("click",()=>{arr.splice(i,1);renderItems(arr,mountSel,cls);});
+    m.appendChild(row);
+  });
+}
+document.querySelectorAll("[data-add]").forEach(b=>{
+  b.addEventListener("click",()=>{
+    if(b.dataset.add==="culture"){cultureItems.push("");renderItems(cultureItems,"#cultureList");}
+    else{evalItems.push("");renderItems(evalItems,"#evalList","eval");}
+  });
+});
+
+/* ---------- Attachments ---------- */
+const ICONS={pdf:"📄",image:"🖼️",video:"🎬",other:"📎"};
+function fileIcon(t){if(t.includes("pdf"))return ICONS.pdf;if(t.startsWith("image"))return ICONS.image;if(t.startsWith("video"))return ICONS.video;return ICONS.other;}
+function humanSize(b){return b<1024?b+" B":b<1048576?(b/1024).toFixed(1)+" KB":(b/1048576).toFixed(2)+" MB";}
+$("#dropZone").addEventListener("click",()=>$("#fileInput").click());
+$("#fileInput").addEventListener("change",e=>{
+  [...e.target.files].forEach(f=>{
+    const r=new FileReader();
+    r.onload=ev=>{ files.push({name:f.name,size:f.size,type:f.type||"application/octet-stream",dataUrl:ev.target.result}); renderFiles(); };
+    r.readAsDataURL(f);
+  });
+  e.target.value="";
+});
+function renderFiles(){
+  const l=$("#fileList"); l.innerHTML="";
+  files.forEach((f,i)=>{
+    const c=document.createElement("div"); c.className="file-chip";
+    c.innerHTML=`<span class="fi">${fileIcon(f.type)}</span>
+      <span class="fname">${esc(f.name)}</span>
+      <span class="fsize">${humanSize(f.size)}</span>
+      <button title="ลบไฟล์">✕</button>`;
+    c.querySelector("button").addEventListener("click",()=>{files.splice(i,1);renderFiles();});
+    l.appendChild(c);
+  });
+}
+
+/* ---------- gather data ---------- */
+function gather(){
+  const s1={}; document.querySelectorAll("[data-s1]").forEach(t=>s1[t.dataset.s1]=t.value.trim());
+  return {
+    division: $("#division").value.trim(),
+    sec1: s1,
+    sec2: knRows.map(r=>({...r})),
+    culture: cultureItems.map(s=>s.trim()).filter(Boolean),
+    evals: evalItems.map(s=>s.trim()).filter(Boolean),
+    followup: $("#followup").value.trim(),
+    files: files,
+    timestamp: new Date().toISOString()
+  };
+}
+
+/* ---------- build official document HTML ---------- */
+function cellOrEmpty(v){ return v && v.trim() ? `<span class="val">${esc(v)}</span>` : `<span class="empty">—</span>`; }
+function buildDoc(d){
+  const divName = d.division || "...........................................";
+  // Section 1 rows
+  const s1rows = SEC1_FIELDS.map((f,i)=>`
+     <tr>${i===0?`<td class="cat c1cat" rowspan="7">1. การสื่อสารสร้างความเข้าใจและการมีส่วนร่วม
+        <span class="cat-note">เพื่อแสดงบทบาทการสื่อสาร / ความมุ่งมั่นของผู้บริหารระดับสูง</span></td>`:""}
+        <td class="topic">${i+1}. ${f.label}</td>
+        <td>${cellOrEmpty(d.sec1[f.key])}</td></tr>`).join("");
+  const filesCell = d.files.length
+      ? d.files.map(f=>`<div class="att-line">${fileIcon(f.type)} ${esc(f.name)} <span style="color:#888">(${humanSize(f.size)})</span></div>`).join("")
+      : `<span class="empty">— ยังไม่มีไฟล์แนบ —</span>`;
+  const s1files = `<tr><td class="topic">7. หลักฐาน / รูปภาพ / รายงาน</td><td>${filesCell}</td></tr>`;
+
+  // Section 2 table
+  let s2;
+  if(d.sec2.length){
+    const body = d.sec2.map((r,i)=>`<tr>
+        <td>${i+1}. ${cellOrEmpty(r.ck)}</td>
+        <td>${cellOrEmpty(r.vc)}</td>
+        <td>${cellOrEmpty(r.act)}</td>
+        <td>${cellOrEmpty(r.tool)}</td>
+        <td>${cellOrEmpty(r.result)}</td></tr>`).join("");
+    s2 = `<table><thead><tr>
+        <th>กำหนด Critical Knowledge / Case</th>
+        <th>อยู่ที่กระบวนการ (Value Chain) ใด / หน่วยไหน</th>
+        <th>ดำเนินการอะไร</th>
+        <th>ใช้เครื่องมือ / องค์ความรู้ KM อะไร</th>
+        <th>ผลลัพธ์ / สิ่งที่ได้กลับมา</th></tr></thead><tbody>${body}</tbody></table>`;
+  } else { s2 = `<p class="empty" style="padding:6px 2px">— ยังไม่มีรายการ —</p>`; }
+
+  const liList = arr => arr.length
+    ? `<table><tbody>${arr.map((t,i)=>`<tr><td style="width:34px;text-align:center;font-weight:600">${i+1}</td><td>${esc(t)}</td></tr>`).join("")}</tbody></table>`
+    : `<p class="empty" style="padding:4px 2px">— ยังไม่มีหัวข้อ —</p>`;
+
+  return `<div class="doc" id="docPaper">
+    <h2>แผนการจัดการความรู้ของสายงาน</h2>
+    <div class="doc-div">${esc(divName)}</div>
+
+    <table><thead><tr><th style="width:30%">หมวด</th><th style="width:30%">ประเด็น</th><th>ข้อมูล / รายละเอียด</th></tr></thead>
+      <tbody>${s1rows}${s1files}</tbody></table>
+
+    <div class="secband">2. การนำไปใช้ในสายงาน — ผลลัพธ์ของการจัดการความรู้สำคัญ</div>
+    ${s2}
+
+    <div class="secband">3. วัฒนธรรมการจัดการความรู้ของสายงาน</div>
+    <p style="font-weight:600;margin:6px 0 4px">3.1 กำหนดวัฒนธรรมการจัดการความรู้ของหน่วยงาน</p>
+    ${liList(d.culture)}
+    <p style="font-weight:600;margin:14px 0 4px">3.2 การประเมิน</p>
+    ${liList(d.evals)}
+
+    <div class="secband">4. การติดตามผลการดำเนินการจัดการความรู้ของสายงาน</div>
+    <table><tbody><tr><td class="topic c4cat" style="width:30%">วิธีการติดตาม / ความถี่</td>
+      <td>${cellOrEmpty(d.followup)}</td></tr></tbody></table>
+
+    <div class="sigwrap" id="docSig"><div class="sigbox">
+      <div class="sig-h">ผู้อำนวยการใหญ่</div>
+      <div class="sig-sub">ลงนามอนุมัติให้ความเห็นชอบ และให้ดำเนินการ</div>
+      <div class="sig-space"></div>
+      <div class="sig-line">.....................................................</div>
+      <div class="sig-pos">ตำแหน่ง.........................................</div>
+    </div></div>
+  </div>`;
+}
+
+/* ---------- validation (บังคับกรอกทุกหัวข้อ) ---------- */
+function flag(el){
+  if(!el) return;
+  el.scrollIntoView({behavior:"smooth",block:"center"});
+  el.classList.add("invalid");
+  if(el.focus) try{ el.focus({preventScroll:true}); }catch(e){ el.focus(); }
+  setTimeout(()=>el.classList.remove("invalid"),2200);
+}
+function fail(msg,el){ toast(msg,"err"); flag(el); return false; }
+function validateForm(){
+  // ชื่อสายงาน
+  if(!$("#division").value.trim()) return fail("กรุณากรอกชื่อสายงาน", $("#division"));
+  // หมวด 1 ทุกช่อง
+  const s1=document.querySelectorAll("[data-s1]");
+  for(let i=0;i<s1.length;i++){
+    if(!s1[i].value.trim()) return fail("กรุณากรอกหมวด 1 ให้ครบ: "+SEC1_FIELDS[i].label, s1[i]);
+  }
+  // หมวด 1 ข้อ 7 — ไฟล์แนบอย่างน้อย 1 ไฟล์
+  if(files.length===0) return fail("กรุณาแนบไฟล์หลักฐาน/รูปภาพ/รายงาน อย่างน้อย 1 ไฟล์ (หมวด 1 ข้อ 7)", $("#dropZone"));
+  // หมวด 2 — ทุกรายการ ทุกช่อง
+  if(knRows.length===0) return fail("กรุณาเพิ่มรายการในหมวด 2 อย่างน้อย 1 รายการ", $("#addKn"));
+  const FN={ck:"กำหนด Critical Knowledge/Case",vc:"Value Chain/หน่วย",act:"ดำเนินการอะไร",tool:"เครื่องมือ/KM",result:"ผลลัพธ์"};
+  for(let i=0;i<knRows.length;i++){
+    for(const f of ["ck","vc","act","tool","result"]){
+      if(!(knRows[i][f]||"").trim())
+        return fail("กรุณากรอกหมวด 2 รายการที่ "+(i+1)+" ให้ครบ: "+FN[f], document.querySelector(`[data-kn="${i}"][data-f="${f}"]`));
+    }
+  }
+  // หมวด 3.1
+  if(cultureItems.length===0) return fail("กรุณาเพิ่มหัวข้อวัฒนธรรม (หมวด 3.1) อย่างน้อย 1 หัวข้อ", document.querySelector('[data-add="culture"]'));
+  for(let i=0;i<cultureItems.length;i++){
+    if(!cultureItems[i].trim()) return fail("กรุณากรอกหมวด 3.1 หัวข้อที่ "+(i+1), $("#cultureList").querySelectorAll("textarea")[i]);
+  }
+  // หมวด 3.2
+  if(evalItems.length===0) return fail("กรุณาเพิ่มหัวข้อการประเมิน (หมวด 3.2) อย่างน้อย 1 หัวข้อ", document.querySelector('[data-add="eval"]'));
+  for(let i=0;i<evalItems.length;i++){
+    if(!evalItems[i].trim()) return fail("กรุณากรอกหมวด 3.2 หัวข้อที่ "+(i+1), $("#evalList").querySelectorAll("textarea")[i]);
+  }
+  // หมวด 4
+  if(!$("#followup").value.trim()) return fail("กรุณากรอกหมวด 4: วิธีการติดตาม / ความถี่", $("#followup"));
+  return true;
+}
+
+/* ---------- preview modal ---------- */
+function openPreview(){
+  if(!validateForm()) return;
+  const d=gather();
+  $("#docRoot").innerHTML = buildDoc(d);
+  $("#overlay").classList.add("open");
+  document.body.style.overflow="hidden";
+}
+function closePreview(){ $("#overlay").classList.remove("open"); document.body.style.overflow=""; }
+$("#previewBtn").addEventListener("click",openPreview);
+$("#closeModal").addEventListener("click",closePreview);
+$("#backEdit").addEventListener("click",closePreview);
+$("#overlay").addEventListener("click",e=>{ if(e.target.id==="overlay") closePreview(); });
+
+/* ---------- toast ---------- */
+let toastTimer;
+function toast(msg,kind=""){
+  const t=$("#toast"); t.textContent=msg; t.className="toast show "+kind;
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.className="toast",3200);
+}
+
+/* ---------- export PDF (ช่องลงนามไม่ถูกตัดข้ามหน้า) ---------- */
+async function doExportPdf(){
+  const paper=$("#docPaper"); if(!paper) return;
+  const sig=$("#docSig");
+  try{ if(document.fonts && document.fonts.ready) await document.fonts.ready; }catch(e){}
+
+  // 1) จับภาพเนื้อหา (ซ่อนช่องลงนามชั่วคราว) และจับภาพช่องลงนามแยกเป็นก้อนเดียว
+  sig.style.visibility="hidden"; sig.style.position="absolute"; sig.style.pointerEvents="none";
+  const bodyCanvas=await html2canvas(paper,{scale:2,useCORS:true,backgroundColor:"#ffffff"});
+  sig.style.visibility=""; sig.style.position=""; sig.style.pointerEvents="";
+  const sigCanvas=await html2canvas(sig,{scale:2,useCORS:true,backgroundColor:"#ffffff"});
+
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF("p","mm","a4");
+  const ph=297, margin=8, iw=210-margin*2, usableH=ph-margin*2;
+  const pxToMm=iw/bodyCanvas.width;
+  const bodyHmm=bodyCanvas.height*pxToMm;
+  const bodyImg=bodyCanvas.toDataURL("image/jpeg",0.95);
+
+  // วางเนื้อหาแบบหลายหน้า (เลื่อนภาพขึ้นทีละหน้า)
+  const pages=Math.max(1,Math.ceil((bodyHmm-0.5)/usableH));
+  for(let p=0;p<pages;p++){
+    if(p>0) pdf.addPage();
+    pdf.addImage(bodyImg,"JPEG",margin,margin-p*usableH,iw,bodyHmm);
+  }
+
+  // วางช่องลงนามเป็นก้อนเดียว — ถ้าหน้าสุดท้ายเหลือที่ไม่พอ ขึ้นหน้าใหม่
+  const sigWmm=sigCanvas.width*pxToMm;
+  const sigHmm=sigCanvas.height*pxToMm;
+  const sigX=margin+(bodyCanvas.width-sigCanvas.width)/2*pxToMm; // ชิดคอลัมน์เดียวกับเนื้อหา
+  const usedOnLast=bodyHmm-(pages-1)*usableH;
+  let sigY;
+  if(usableH-usedOnLast >= sigHmm+6){ sigY=margin+usedOnLast+6; }
+  else { pdf.addPage(); sigY=margin; }
+  pdf.addImage(sigCanvas.toDataURL("image/jpeg",0.95),"JPEG",sigX,sigY,sigWmm,sigHmm);
+
+  const name=("แผน_KM_"+($("#division").value.trim()||"สายงาน")).replace(/[\\/:*?"<>|]/g,"_");
+  pdf.save(name+".pdf");
+}
+
+/* ---------- send to Google Sheet / Drive ---------- */
+const IN_GAS = !!(window.google && google.script && google.script.run);
+function submitToBackend(d){
+  if(IN_GAS){
+    return new Promise((resolve,reject)=>{
+      google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).submitForm(d);
+    });
+  }
+  return fetch(CONFIG.WEB_APP_URL,{
+    method:"POST",
+    headers:{"Content-Type":"text/plain;charset=utf-8"}, // simple request -> เลี่ยง CORS preflight
+    body:JSON.stringify(d)
+  }).then(async res=>{ try{ return await res.json(); }catch(e){ return {status:"ok"}; } });
+}
+
+/* ---------- ปุ่มเดียว: Save PDF + ยืนยันส่งข้อมูล ---------- */
+$("#saveAll").addEventListener("click",async()=>{
+  const d=gather();
+  if(!d.division){ toast("กรุณากรอกชื่อสายงานก่อน","err"); return; }
+  if(!IN_GAS && !CONFIG.WEB_APP_URL){ toast("ยังไม่ได้ตั้งค่า WEB_APP_URL — โปรดดูคู่มือการติดตั้ง","err"); return; }
+  const btn=$("#saveAll"); const old=btn.textContent; btn.disabled=true;
+  try{
+    // 1) สร้าง/ดาวน์โหลด PDF
+    btn.textContent="กำลังสร้าง PDF . . .";
+    await doExportPdf();
+    // 2) ส่งข้อมูลเข้าระบบ
+    btn.textContent="กำลังส่งข้อมูล . . .";
+    const out = await submitToBackend(d) || {};
+    if(out.status==="ok" || out.result==="success"){
+      toast("บันทึก PDF และส่งข้อมูลเข้าระบบเรียบร้อย"+(out.folderUrl?" — สร้างโฟลเดอร์ไฟล์แนบแล้ว":""),"ok");
+    }else{
+      toast("ดาวน์โหลด PDF แล้ว และส่งข้อมูลแล้ว แต่ปลายทางตอบกลับไม่ครบ โปรดตรวจ Sheet","err");
+    }
+  }catch(err){
+    toast("ผิดพลาด: "+(err && err.message ? err.message : err),"err");
+  }finally{ btn.disabled=false; btn.textContent=old; }
+});
+
+/* ---------- reset ---------- */
+$("#resetBtn").addEventListener("click",()=>{
+  if(!confirm("ต้องการล้างข้อมูลทั้งหมดหรือไม่?")) return;
+  $("#division").value=""; $("#followup").value="";
+  document.querySelectorAll("[data-s1]").forEach(t=>t.value="");
+  knRows=[]; cultureItems=[]; evalItems=[]; files=[];
+  renderKn(); renderItems(cultureItems,"#cultureList"); renderItems(evalItems,"#evalList","eval"); renderFiles();
+  toast("ล้างข้อมูลแล้ว");
+});
+
+/* ---------- init ---------- */
+knRows.push({ck:"",vc:"",act:"",tool:"",result:""});
+cultureItems.push(""); evalItems.push("");
+renderKn(); renderItems(cultureItems,"#cultureList"); renderItems(evalItems,"#evalList","eval");
+</script>
+</body>
+</html>
