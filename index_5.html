@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ระบบแผนการจัดการความรู้ของสายงานประจำปี 2569</title>
+<title>ระบบแผนการจัดการความรู้ของสายงาน</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -239,7 +239,7 @@ textarea:focus,.txt:focus{border-color:var(--c1);box-shadow:0 0 0 3px rgba(123,1
 
   <div class="mast">
     <div class="kicker">Knowledge Management Plan</div>
-    <h1>ระบบแผนการจัดการความรู้ของสายงานประจำปี 2569</h1>
+    <h1>ระบบแผนการจัดการความรู้ของสายงาน</h1>
     <p>กรอกข้อมูลตามหัวข้อด้านล่าง ระบบจะแสดงหน้าตัวอย่างให้ตรวจทานก่อนบันทึก สามารถส่งข้อมูลเข้าฐานข้อมูลกลางและส่งออกเป็นไฟล์ PDF พร้อมช่องลงนามผู้อำนวยการใหญ่</p>
     <div class="seal">เอกสารสำหรับสายงาน</div>
   </div>
@@ -526,28 +526,38 @@ function buildDoc(d){
     : `<p class="empty" style="padding:4px 2px">— ยังไม่มีหัวข้อ —</p>`;
 
   return `<div class="doc" id="docPaper">
-    <h2>แผนการจัดการความรู้ของสายงาน</h2>
-    <div class="doc-div">${esc(divName)}</div>
+    <div class="pdf-block" data-keep="head">
+      <h2>แผนการจัดการความรู้ของสายงาน</h2>
+      <div class="doc-div">${esc(divName)}</div>
+    </div>
 
-    <table><thead><tr><th style="width:30%">หมวด</th><th style="width:30%">ประเด็น</th><th>ข้อมูล / รายละเอียด</th></tr></thead>
-      <tbody>${s1rows}${s1files}</tbody></table>
+    <div class="pdf-block">
+      <table><thead><tr><th style="width:30%">หมวด</th><th style="width:30%">ประเด็น</th><th>ข้อมูล / รายละเอียด</th></tr></thead>
+        <tbody>${s1rows}${s1files}</tbody></table>
+    </div>
 
-    <div class="secband">2. การนำไปใช้ในสายงาน — ผลลัพธ์ของการจัดการความรู้สำคัญ</div>
-    ${s2}
+    <div class="pdf-block">
+      <div class="secband">2. การนำไปใช้ในสายงาน — ผลลัพธ์ของการจัดการความรู้สำคัญ</div>
+      ${s2}
+    </div>
 
-    <div class="secband">3. วัฒนธรรมการจัดการความรู้ของสายงาน</div>
-    <p style="font-weight:600;margin:6px 0 4px">3.1 กำหนดวัฒนธรรมการจัดการความรู้ของหน่วยงาน</p>
-    ${liList(d.culture)}
-    <p style="font-weight:600;margin:14px 0 4px">3.2 การประเมิน</p>
-    ${liList(d.evals)}
+    <div class="pdf-block">
+      <div class="secband">3. วัฒนธรรมการจัดการความรู้ของสายงาน</div>
+      <p style="font-weight:600;margin:6px 0 4px">3.1 กำหนดวัฒนธรรมการจัดการความรู้ของหน่วยงาน</p>
+      ${liList(d.culture)}
+      <p style="font-weight:600;margin:14px 0 4px">3.2 การประเมิน</p>
+      ${liList(d.evals)}
+    </div>
 
-    <div class="secband">4. การติดตามผลการดำเนินการจัดการความรู้ของสายงาน</div>
-    <table><tbody><tr><td class="topic c4cat" style="width:30%">วิธีการติดตาม / ความถี่</td>
-      <td>${cellOrEmpty(d.followup)}</td></tr></tbody></table>
+    <div class="pdf-block">
+      <div class="secband">4. การติดตามผลการดำเนินการจัดการความรู้ของสายงาน</div>
+      <table><tbody><tr><td class="topic c4cat" style="width:30%">วิธีการติดตาม / ความถี่</td>
+        <td>${cellOrEmpty(d.followup)}</td></tr></tbody></table>
+    </div>
 
-    <div class="sigwrap" id="docSig"><div class="sigbox">
+    <div class="sigwrap pdf-block" id="docSig"><div class="sigbox">
       <div class="sig-h">ผู้อำนวยการใหญ่</div>
-      <div class="sig-sub">ลงนามอนุมัติให้ความเห็นชอบและให้ดำเนินการ</div>
+      <div class="sig-sub">ลงนามอนุมัติให้ความเห็นชอบ และให้ดำเนินการ</div>
       <div class="sig-space"></div>
       <div class="sig-line">.....................................................</div>
       <div class="sig-pos">ตำแหน่ง.........................................</div>
@@ -619,41 +629,47 @@ function toast(msg,kind=""){
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.className="toast",3200);
 }
 
-/* ---------- export PDF (ช่องลงนามไม่ถูกตัดข้ามหน้า) ---------- */
+/* ---------- export PDF (แต่ละหัวข้อไม่ถูกตัดข้ามหน้า) ---------- */
 async function doExportPdf(){
   const paper=$("#docPaper"); if(!paper) return;
-  const sig=$("#docSig");
   try{ if(document.fonts && document.fonts.ready) await document.fonts.ready; }catch(e){}
-
-  // 1) จับภาพเนื้อหา (ซ่อนช่องลงนามชั่วคราว) และจับภาพช่องลงนามแยกเป็นก้อนเดียว
-  sig.style.visibility="hidden"; sig.style.position="absolute"; sig.style.pointerEvents="none";
-  const bodyCanvas=await html2canvas(paper,{scale:2,useCORS:true,backgroundColor:"#ffffff"});
-  sig.style.visibility=""; sig.style.position=""; sig.style.pointerEvents="";
-  const sigCanvas=await html2canvas(sig,{scale:2,useCORS:true,backgroundColor:"#ffffff"});
 
   const {jsPDF}=window.jspdf;
   const pdf=new jsPDF("p","mm","a4");
-  const ph=297, margin=8, iw=210-margin*2, usableH=ph-margin*2;
-  const pxToMm=iw/bodyCanvas.width;
-  const bodyHmm=bodyCanvas.height*pxToMm;
-  const bodyImg=bodyCanvas.toDataURL("image/jpeg",0.95);
+  const pw=210, ph=297, margin=10, iw=pw-margin*2, usableH=ph-margin*2;
 
-  // วางเนื้อหาแบบหลายหน้า (เลื่อนภาพขึ้นทีละหน้า)
-  const pages=Math.max(1,Math.ceil((bodyHmm-0.5)/usableH));
-  for(let p=0;p<pages;p++){
-    if(p>0) pdf.addPage();
-    pdf.addImage(bodyImg,"JPEG",margin,margin-p*usableH,iw,bodyHmm);
+  const blocks=[...paper.querySelectorAll(".pdf-block")];
+  let cursorY=margin;   // ตำแหน่งแนวตั้งปัจจุบันบนหน้า (mm)
+  let firstOnPage=true;
+
+  for(const block of blocks){
+    const canvas=await html2canvas(block,{scale:2,useCORS:true,backgroundColor:"#ffffff"});
+    const pxToMm=iw/canvas.width;
+    const hmm=canvas.height*pxToMm;
+    const img=canvas.toDataURL("image/jpeg",0.95);
+
+    if(hmm<=usableH){
+      // บล็อกพอดีหนึ่งหน้า: ถ้าที่เหลือไม่พอ ยกทั้งบล็อกขึ้นหน้าใหม่
+      if(!firstOnPage && cursorY+hmm>margin+usableH+0.5){
+        pdf.addPage(); cursorY=margin; firstOnPage=true;
+      }
+      pdf.addImage(img,"JPEG",margin,cursorY,iw,hmm);
+      cursorY+=hmm+4;          // เว้นช่องว่างระหว่างบล็อกเล็กน้อย
+      firstOnPage=false;
+    }else{
+      // บล็อกสูงเกินหนึ่งหน้า (เช่น ตารางยาวมาก): เริ่มหน้าใหม่แล้วไหลข้ามหน้าเฉพาะบล็อกนี้
+      if(!firstOnPage){ pdf.addPage(); }
+      let placed=0;          // ส่วนที่วางไปแล้ว (mm)
+      while(placed<hmm-0.5){
+        pdf.addImage(img,"JPEG",margin,margin-placed,iw,hmm);
+        placed+=usableH;
+        if(placed<hmm-0.5) pdf.addPage();
+      }
+      const lastUsed=hmm-(Math.ceil(hmm/usableH)-1)*usableH;
+      cursorY=margin+lastUsed+4;
+      firstOnPage=false;
+    }
   }
-
-  // วางช่องลงนามเป็นก้อนเดียว — ถ้าหน้าสุดท้ายเหลือที่ไม่พอ ขึ้นหน้าใหม่
-  const sigWmm=sigCanvas.width*pxToMm;
-  const sigHmm=sigCanvas.height*pxToMm;
-  const sigX=margin+(bodyCanvas.width-sigCanvas.width)/2*pxToMm; // ชิดคอลัมน์เดียวกับเนื้อหา
-  const usedOnLast=bodyHmm-(pages-1)*usableH;
-  let sigY;
-  if(usableH-usedOnLast >= sigHmm+6){ sigY=margin+usedOnLast+6; }
-  else { pdf.addPage(); sigY=margin; }
-  pdf.addImage(sigCanvas.toDataURL("image/jpeg",0.95),"JPEG",sigX,sigY,sigWmm,sigHmm);
 
   const name=("แผน_KM_"+($("#division").value.trim()||"สายงาน")).replace(/[\\/:*?"<>|]/g,"_");
   pdf.save(name+".pdf");
