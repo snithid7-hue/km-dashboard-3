@@ -248,7 +248,6 @@ textarea:focus,.txt:focus{border-color:var(--c1);box-shadow:0 0 0 3px rgba(123,1
   <div class="titlecard">
     <span class="lab">แผนการจัดการความรู้ของสายงาน</span>
     <span class="grow"><input type="text" id="division" placeholder=""></span>
-    <span class="hint">* ชื่อสายงานจะถูกใช้เป็นชื่อโฟลเดอร์สำหรับจัดเก็บไฟล์แนบใน Google Drive</span>
   </div>
 
   <!-- SECTION 1 -->
@@ -351,8 +350,7 @@ textarea:focus,.txt:focus{border-color:var(--c1);box-shadow:0 0 0 3px rgba(123,1
     </div>
     <div class="modal-actions">
       <button class="btn btn-reset" id="backEdit">← กลับไปแก้ไข</button>
-      <button class="btn btn-pdf" id="exportPdf">⬇ ส่งออกเป็น PDF</button>
-      <button class="btn btn-send" id="sendData">☁ ส่งข้อมูลเข้าระบบ (Sheet + Drive)</button>
+      <button class="btn btn-send" id="saveAll">💾 Save PDF / ยืนยันส่งข้อมูล</button>
     </div>
   </div>
 </div>
@@ -547,7 +545,7 @@ function buildDoc(d){
     <table><tbody><tr><td class="topic c4cat" style="width:30%">วิธีการติดตาม / ความถี่</td>
       <td>${cellOrEmpty(d.followup)}</td></tr></tbody></table>
 
-    <div class="sigwrap"><div class="sigbox">
+    <div class="sigwrap" id="docSig"><div class="sigbox">
       <div class="sig-h">ผู้อำนวยการใหญ่</div>
       <div class="sig-sub">ลงนามอนุมัติให้ความเห็นชอบ และให้ดำเนินการ</div>
       <div class="sig-space"></div>
@@ -621,31 +619,45 @@ function toast(msg,kind=""){
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.className="toast",3200);
 }
 
-/* ---------- export PDF ---------- */
-$("#exportPdf").addEventListener("click",async()=>{
+/* ---------- export PDF (ช่องลงนามไม่ถูกตัดข้ามหน้า) ---------- */
+async function doExportPdf(){
   const paper=$("#docPaper"); if(!paper) return;
-  toast("กำลังสร้างไฟล์ PDF . . .");
+  const sig=$("#docSig");
   try{ if(document.fonts && document.fonts.ready) await document.fonts.ready; }catch(e){}
-  const canvas=await html2canvas(paper,{scale:2,useCORS:true,backgroundColor:"#ffffff"});
+
+  // 1) จับภาพเนื้อหา (ซ่อนช่องลงนามชั่วคราว) และจับภาพช่องลงนามแยกเป็นก้อนเดียว
+  sig.style.visibility="hidden"; sig.style.position="absolute"; sig.style.pointerEvents="none";
+  const bodyCanvas=await html2canvas(paper,{scale:2,useCORS:true,backgroundColor:"#ffffff"});
+  sig.style.visibility=""; sig.style.position=""; sig.style.pointerEvents="";
+  const sigCanvas=await html2canvas(sig,{scale:2,useCORS:true,backgroundColor:"#ffffff"});
+
   const {jsPDF}=window.jspdf;
   const pdf=new jsPDF("p","mm","a4");
-  const pw=210, ph=297, margin=8;
-  const iw=pw-margin*2;
-  const ih=canvas.height*iw/canvas.width;
-  const img=canvas.toDataURL("image/jpeg",0.95);
-  let left=ih, pos=0;
-  pdf.addImage(img,"JPEG",margin,margin,iw,ih);
-  left-=(ph-margin*2);
-  while(left>0){
-    pos-=(ph-margin*2);
-    pdf.addPage();
-    pdf.addImage(img,"JPEG",margin,margin+pos,iw,ih);
-    left-=(ph-margin*2);
+  const ph=297, margin=8, iw=210-margin*2, usableH=ph-margin*2;
+  const pxToMm=iw/bodyCanvas.width;
+  const bodyHmm=bodyCanvas.height*pxToMm;
+  const bodyImg=bodyCanvas.toDataURL("image/jpeg",0.95);
+
+  // วางเนื้อหาแบบหลายหน้า (เลื่อนภาพขึ้นทีละหน้า)
+  const pages=Math.max(1,Math.ceil((bodyHmm-0.5)/usableH));
+  for(let p=0;p<pages;p++){
+    if(p>0) pdf.addPage();
+    pdf.addImage(bodyImg,"JPEG",margin,margin-p*usableH,iw,bodyHmm);
   }
+
+  // วางช่องลงนามเป็นก้อนเดียว — ถ้าหน้าสุดท้ายเหลือที่ไม่พอ ขึ้นหน้าใหม่
+  const sigWmm=sigCanvas.width*pxToMm;
+  const sigHmm=sigCanvas.height*pxToMm;
+  const sigX=margin+(bodyCanvas.width-sigCanvas.width)/2*pxToMm; // ชิดคอลัมน์เดียวกับเนื้อหา
+  const usedOnLast=bodyHmm-(pages-1)*usableH;
+  let sigY;
+  if(usableH-usedOnLast >= sigHmm+6){ sigY=margin+usedOnLast+6; }
+  else { pdf.addPage(); sigY=margin; }
+  pdf.addImage(sigCanvas.toDataURL("image/jpeg",0.95),"JPEG",sigX,sigY,sigWmm,sigHmm);
+
   const name=("แผน_KM_"+($("#division").value.trim()||"สายงาน")).replace(/[\\/:*?"<>|]/g,"_");
   pdf.save(name+".pdf");
-  toast("ส่งออก PDF เรียบร้อย","ok");
-});
+}
 
 /* ---------- send to Google Sheet / Drive ---------- */
 const IN_GAS = !!(window.google && google.script && google.script.run);
@@ -661,23 +673,27 @@ function submitToBackend(d){
     body:JSON.stringify(d)
   }).then(async res=>{ try{ return await res.json(); }catch(e){ return {status:"ok"}; } });
 }
-$("#sendData").addEventListener("click",async()=>{
+
+/* ---------- ปุ่มเดียว: Save PDF + ยืนยันส่งข้อมูล ---------- */
+$("#saveAll").addEventListener("click",async()=>{
   const d=gather();
   if(!d.division){ toast("กรุณากรอกชื่อสายงานก่อน","err"); return; }
-  if(!IN_GAS && !CONFIG.WEB_APP_URL){
-    toast("ยังไม่ได้ตั้งค่า WEB_APP_URL — โปรดดูคู่มือการติดตั้ง","err");
-    return;
-  }
-  const btn=$("#sendData"); const old=btn.textContent; btn.disabled=true; btn.textContent="กำลังส่ง . . .";
+  if(!IN_GAS && !CONFIG.WEB_APP_URL){ toast("ยังไม่ได้ตั้งค่า WEB_APP_URL — โปรดดูคู่มือการติดตั้ง","err"); return; }
+  const btn=$("#saveAll"); const old=btn.textContent; btn.disabled=true;
   try{
+    // 1) สร้าง/ดาวน์โหลด PDF
+    btn.textContent="กำลังสร้าง PDF . . .";
+    await doExportPdf();
+    // 2) ส่งข้อมูลเข้าระบบ
+    btn.textContent="กำลังส่งข้อมูล . . .";
     const out = await submitToBackend(d) || {};
     if(out.status==="ok" || out.result==="success"){
-      toast("บันทึกข้อมูลเข้าระบบเรียบร้อย"+(out.folderUrl?" — สร้างโฟลเดอร์ไฟล์แนบแล้ว":""),"ok");
+      toast("บันทึก PDF และส่งข้อมูลเข้าระบบเรียบร้อย"+(out.folderUrl?" — สร้างโฟลเดอร์ไฟล์แนบแล้ว":""),"ok");
     }else{
-      toast("ส่งข้อมูลแล้ว แต่ระบบปลายทางตอบกลับไม่ครบ โปรดตรวจ Sheet","err");
+      toast("ดาวน์โหลด PDF แล้ว และส่งข้อมูลแล้ว แต่ปลายทางตอบกลับไม่ครบ โปรดตรวจ Sheet","err");
     }
   }catch(err){
-    toast("ส่งไม่สำเร็จ: "+(err && err.message ? err.message : err),"err");
+    toast("ผิดพลาด: "+(err && err.message ? err.message : err),"err");
   }finally{ btn.disabled=false; btn.textContent=old; }
 });
 
