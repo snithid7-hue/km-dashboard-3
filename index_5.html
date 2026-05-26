@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ระบบแผนการจัดการความรู้ของสายงานประจำปี 2569</title>
+<title>ระบบกรอกแผนการจัดการความรู้ของสายงาน</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -193,15 +193,15 @@ textarea:focus,.txt:focus{border-color:var(--c1);box-shadow:0 0 0 3px rgba(123,1
 }
 .doc h2{text-align:center;font-size:21px;font-weight:700;margin:0 0 4px;color:#111}
 .doc .doc-div{text-align:center;font-size:18px;font-weight:600;margin-bottom:22px;color:#16325c}
-.doc table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:14px}
-.doc th,.doc td{border:1px solid #9aa3b2;padding:8px 10px;vertical-align:top;text-align:left}
+.doc table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:14px;table-layout:fixed}
+.doc th,.doc td{border:1px solid #9aa3b2;padding:8px 10px;vertical-align:top;text-align:left;overflow-wrap:break-word;word-break:break-word;overflow:hidden}
 .doc thead th{background:#dfe6ef;color:#16325c;font-weight:700;text-align:center}
 .doc .cat{font-weight:700;text-align:center;width:30%}
 .doc .cat-note{font-weight:400;font-size:12px;color:#5a6678;display:block;margin-top:4px}
 .doc .topic{width:30%;font-weight:600}
 .doc .c1cat{background:#efebfb} .doc .c2cat{background:#fbf2da}
 .doc .c3cat{background:#e8f0f9} .doc .c4cat{background:#e6f3ee}
-.doc .val{white-space:pre-wrap}
+.doc .val{white-space:pre-wrap;overflow-wrap:break-word;word-break:break-word}
 .doc .empty{color:#9aa3b2;font-style:italic}
 .doc .att-line{font-size:13px;color:#333;padding:2px 0}
 .doc .secband{background:#16325c;color:#fff;font-weight:700;padding:7px 12px;border-radius:6px;margin:22px 0 10px;font-size:15px}
@@ -239,7 +239,7 @@ textarea:focus,.txt:focus{border-color:var(--c1);box-shadow:0 0 0 3px rgba(123,1
 
   <div class="mast">
     <div class="kicker">Knowledge Management Plan</div>
-    <h1>ระบบแผนการจัดการความรู้ของสายงานประจำปี 2569</h1>
+    <h1>ระบบกรอกแผนการจัดการความรู้ของสายงาน</h1>
     <p>กรอกข้อมูลตามหัวข้อด้านล่าง ระบบจะแสดงหน้าตัวอย่างให้ตรวจทานก่อนบันทึก สามารถส่งข้อมูลเข้าฐานข้อมูลกลางและส่งออกเป็นไฟล์ PDF พร้อมช่องลงนามผู้อำนวยการใหญ่</p>
     <div class="seal">เอกสารสำหรับสายงาน</div>
   </div>
@@ -265,7 +265,7 @@ textarea:focus,.txt:focus{border-color:var(--c1);box-shadow:0 0 0 3px rgba(123,1
         <label><span class="num">7.</span>หลักฐาน / รูปภาพ / รายงาน</label>
         <div class="attach" id="dropZone">
           <div class="att-cta">＋ แนบไฟล์ (PDF, รูปภาพ, วิดีโอ)</div>
-          <div class="att-note">คลิกเพื่อเลือกไฟล์ — เพิ่มได้มากกว่า 1</div>
+          <div class="att-note">คลิกเพื่อเลือกไฟล์ — เพิ่มได้เรื่อย ๆ</div>
           <input type="file" id="fileInput" multiple style="display:none" accept=".pdf,image/*,video/*">
         </div>
         <div class="file-list" id="fileList"></div>
@@ -294,7 +294,7 @@ textarea:focus,.txt:focus{border-color:var(--c1);box-shadow:0 0 0 3px rgba(123,1
       <div class="sec-no">3</div>
       <div>
         <div class="sec-title">วัฒนธรรมการจัดการความรู้ของสายงาน</div>
-        <div class="sec-sub">กำหนดวัฒนธรรมและวิธีการประเมิน — เพิ่มหัวข้อได้มากกว่า 1</div>
+        <div class="sec-sub">กำหนดวัฒนธรรมและวิธีการประเมิน — เพิ่มหัวข้อได้เรื่อย ๆ</div>
       </div>
     </div>
     <div class="sec-body">
@@ -547,7 +547,7 @@ function buildDoc(d){
 
     <div class="sigwrap" id="docSig"><div class="sigbox">
       <div class="sig-h">ผู้อำนวยการใหญ่</div>
-      <div class="sig-sub">ลงนามอนุมัติให้ความเห็นชอบ และให้ดำเนินการ</div>
+      <div class="sig-sub">ลงนามอนุมัติให้ความเห็นชอบและให้ดำเนินการ</div>
       <div class="sig-space"></div>
       <div class="sig-line">.....................................................</div>
       <div class="sig-pos">ตำแหน่ง.........................................</div>
