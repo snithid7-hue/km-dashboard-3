@@ -1,1 +1,1764 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบประเมินบทบาทแบบอย่างที่ดี (Role Model) สำหรับผู้บริหารระดับกลาง</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Serif:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ===========================================================
+   ROOT TOKENS — Minimalist Blue / Indigo
+   ปรับให้ปริ้นต์ขาว-ดำได้ชัดเจนด้วยน้ำหนัก/ความเข้ม
+   =========================================================== */
+:root{
+  --indigo-900:#1e1b4b;
+  --indigo-800:#312e81;
+  --indigo-700:#3730a3;
+  --indigo-600:#4338ca;
+  --indigo-500:#6366f1;
+  --indigo-100:#e0e7ff;
+  --indigo-50 :#eef2ff;
+  --blue-700  :#1d4ed8;
+  --blue-600  :#2563eb;
 
+  --ink       :#0f172a;
+  --ink-soft  :#334155;
+  --muted     :#64748b;
+  --line      :#e2e8f0;
+  --line-strong:#cbd5e1;
+  --bg        :#ffffff;
+  --bg-soft   :#f8fafc;
+  --bg-softer :#f1f5f9;
+
+  --ok        :#15803d;
+  --no        :#9ca3af;
+
+  --radius    :10px;
+  --radius-sm :6px;
+  --shadow-sm :0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.06);
+  --shadow-md :0 4px 12px rgba(15,23,42,.06), 0 2px 4px rgba(15,23,42,.04);
+
+  --sidebar-w :290px;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'IBM Plex Sans Thai','Sarabun',system-ui,-apple-system,sans-serif;
+  font-size:15px;
+  line-height:1.65;
+  color:var(--ink);
+  background:var(--bg-soft);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ===========================================================
+   LAYOUT — Sidebar + Main
+   =========================================================== */
+.app{
+  display:grid;
+  grid-template-columns:var(--sidebar-w) 1fr;
+  min-height:100vh;
+}
+
+/* Sidebar */
+.sidebar{
+  position:sticky;
+  top:0;
+  height:100vh;
+  background:linear-gradient(180deg,var(--indigo-900) 0%,var(--indigo-800) 100%);
+  color:#fff;
+  padding:28px 0 24px;
+  overflow-y:auto;
+  border-right:1px solid var(--indigo-700);
+}
+.sidebar::-webkit-scrollbar{width:6px}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px}
+
+.brand{
+  padding:0 24px 22px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+  margin-bottom:18px;
+}
+.brand .kicker{
+  font-size:10.5px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--indigo-100);
+  font-weight:500;
+  opacity:.85;
+}
+.brand .title{
+  font-family:'IBM Plex Serif',serif;
+  font-size:18px;
+  font-weight:600;
+  margin-top:6px;
+  line-height:1.35;
+  color:#fff;
+}
+.brand .sub{
+  font-size:12.5px;
+  color:var(--indigo-100);
+  opacity:.75;
+  margin-top:4px;
+}
+
+.nav-label{
+  padding:8px 24px;
+  font-size:10.5px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--indigo-100);
+  opacity:.7;
+  font-weight:500;
+}
+
+.nav{list-style:none;margin:0;padding:0 12px}
+.nav li{margin:2px 0}
+.nav a{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:var(--radius-sm);
+  color:rgba(255,255,255,.78);
+  text-decoration:none;
+  font-size:13.5px;
+  line-height:1.4;
+  transition:background .15s ease,color .15s ease;
+  cursor:pointer;
+  border-left:3px solid transparent;
+}
+.nav a:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav a.active{
+  background:rgba(255,255,255,.10);
+  color:#fff;
+  font-weight:500;
+  border-left-color:var(--indigo-100);
+}
+.nav-num{
+  flex-shrink:0;
+  width:22px;
+  height:22px;
+  background:rgba(255,255,255,.12);
+  border-radius:5px;
+  display:grid;
+  place-items:center;
+  font-size:11px;
+  font-weight:600;
+  margin-top:1px;
+}
+.nav a.active .nav-num{background:#fff;color:var(--indigo-800)}
+.nav-text{flex:1}
+
+.nav-divider{
+  height:1px;
+  background:rgba(255,255,255,.1);
+  margin:14px 16px;
+}
+
+/* Main */
+.main{
+  padding:32px 48px 80px;
+  max-width:1100px;
+  width:100%;
+  margin:0 auto;
+}
+
+/* Top bar */
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:28px;
+  gap:24px;
+  flex-wrap:wrap;
+}
+.crumb{
+  font-size:12px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+  font-weight:500;
+}
+
+.topbar-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.btn-export{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 18px;
+  background:var(--indigo-700);
+  color:#fff;
+  border:none;
+  border-radius:var(--radius-sm);
+  font-family:inherit;
+  font-size:13.5px;
+  font-weight:500;
+  cursor:pointer;
+  box-shadow:var(--shadow-sm);
+  transition:background .15s ease,transform .1s ease;
+}
+.btn-export:hover{background:var(--indigo-800)}
+.btn-export:active{transform:translateY(1px)}
+.btn-export svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+
+.btn-drive{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 18px;
+  background:#fff;
+  color:var(--indigo-700);
+  border:1.5px solid var(--indigo-700);
+  border-radius:var(--radius-sm);
+  font-family:inherit;
+  font-size:13.5px;
+  font-weight:500;
+  cursor:pointer;
+  text-decoration:none;
+  transition:background .15s ease,transform .1s ease;
+}
+.btn-drive:hover{background:var(--indigo-50)}
+.btn-drive:active{transform:translateY(1px)}
+.btn-drive svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* Section */
+.section{display:none;animation:fadeIn .25s ease}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.section-header{
+  border-bottom:2px solid var(--indigo-800);
+  padding-bottom:18px;
+  margin-bottom:24px;
+}
+.section-header .num{
+  display:inline-block;
+  font-family:'IBM Plex Serif',serif;
+  font-size:13px;
+  letter-spacing:.16em;
+  color:var(--indigo-700);
+  font-weight:600;
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+.section-header h1{
+  font-family:'IBM Plex Serif',serif;
+  font-size:22px;
+  font-weight:600;
+  margin:0;
+  color:var(--ink);
+  line-height:1.4;
+}
+
+/* HEADER FORM (info card) */
+.info-card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:28px 32px;
+  box-shadow:var(--shadow-sm);
+  margin-bottom:28px;
+}
+.info-card h2{
+  font-family:'IBM Plex Serif',serif;
+  font-size:17px;
+  font-weight:600;
+  margin:0 0 4px;
+  color:var(--indigo-900);
+}
+.info-card .desc{font-size:13px;color:var(--muted);margin-bottom:20px}
+.info-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px 24px;
+}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{
+  font-size:12px;
+  font-weight:600;
+  color:var(--ink-soft);
+  letter-spacing:.02em;
+}
+.field input[type="text"],
+.field input[type="date"]{
+  padding:10px 12px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius-sm);
+  font-family:inherit;
+  font-size:14px;
+  color:var(--ink);
+  background:#fff;
+  transition:border-color .15s ease,box-shadow .15s ease;
+}
+.field input:focus{
+  outline:none;
+  border-color:var(--indigo-600);
+  box-shadow:0 0 0 3px var(--indigo-100);
+}
+
+/* Indicator card */
+.indicator{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:24px 28px;
+  margin-bottom:18px;
+  box-shadow:var(--shadow-sm);
+  page-break-inside:avoid;
+  break-inside:avoid;
+}
+.indicator-head{
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+  padding-bottom:16px;
+  border-bottom:1px dashed var(--line);
+  margin-bottom:18px;
+}
+.indicator-code{
+  flex-shrink:0;
+  font-family:'IBM Plex Serif',serif;
+  font-size:13px;
+  font-weight:600;
+  color:#fff;
+  background:var(--indigo-700);
+  padding:4px 10px;
+  border-radius:4px;
+  min-width:40px;
+  text-align:center;
+  letter-spacing:.04em;
+}
+.indicator-title{
+  flex:1;
+  font-size:15.5px;
+  font-weight:600;
+  color:var(--ink);
+  line-height:1.5;
+}
+.indicator-points{
+  flex-shrink:0;
+  font-family:'IBM Plex Serif',serif;
+  font-size:12px;
+  font-weight:600;
+  color:var(--indigo-800);
+  background:var(--indigo-50);
+  border:1px solid var(--indigo-100);
+  padding:4px 10px;
+  border-radius:4px;
+  white-space:nowrap;
+  letter-spacing:.02em;
+}
+
+/* Section scoring rule banner */
+.score-rule{
+  background:linear-gradient(90deg,var(--indigo-50) 0%,#fff 100%);
+  border-left:3px solid var(--indigo-700);
+  padding:10px 16px;
+  margin:0 0 16px;
+  font-size:13px;
+  color:var(--ink-soft);
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+}
+.score-rule strong{color:var(--indigo-900);font-weight:600}
+
+.kv-grid{
+  display:grid;
+  grid-template-columns:1fr 220px;
+  gap:18px 24px;
+  margin-bottom:18px;
+}
+@media (max-width:780px){.kv-grid{grid-template-columns:1fr}}
+.kv-block{}
+.kv-block .k{
+  font-size:11.5px;
+  font-weight:600;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--indigo-700);
+  margin-bottom:6px;
+}
+.kv-block .v{
+  font-size:14px;
+  color:var(--ink-soft);
+  line-height:1.7;
+}
+.kv-block.expected .v{
+  display:inline-block;
+  background:var(--indigo-50);
+  color:var(--indigo-800);
+  padding:6px 12px;
+  border-radius:6px;
+  font-weight:600;
+  border:1px solid var(--indigo-100);
+}
+
+/* Result form */
+.result-block{
+  background:var(--bg-soft);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  padding:18px 20px;
+}
+.result-block .k{
+  font-size:11.5px;
+  font-weight:600;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--indigo-700);
+  margin-bottom:12px;
+}
+
+.choices{
+  display:flex;
+  gap:10px;
+  margin-bottom:14px;
+  flex-wrap:wrap;
+}
+.choice{
+  flex:1;
+  min-width:120px;
+  position:relative;
+  cursor:pointer;
+}
+.choice input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+.choice-box{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  background:#fff;
+  border:1.5px solid var(--line-strong);
+  border-radius:var(--radius-sm);
+  transition:all .15s ease;
+  font-size:14px;
+  font-weight:500;
+}
+.choice-box::before{
+  content:"";
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  border:2px solid var(--line-strong);
+  flex-shrink:0;
+  background:#fff;
+  transition:all .15s ease;
+}
+.choice:hover .choice-box{border-color:var(--indigo-500)}
+.choice input:checked + .choice-box{
+  border-color:var(--indigo-700);
+  background:var(--indigo-50);
+  color:var(--indigo-900);
+  font-weight:600;
+}
+.choice input:checked + .choice-box::before{
+  border:5px solid var(--indigo-700);
+  background:#fff;
+}
+.choice[data-val="no"] input:checked + .choice-box{
+  border-color:var(--ink-soft);
+  background:#f1f5f9;
+  color:var(--ink);
+}
+.choice[data-val="no"] input:checked + .choice-box::before{
+  border:5px solid var(--ink-soft);
+}
+
+/* Scale (quantity level) choices — shown after "มี" is selected */
+.scale-wrap{
+  margin-top:4px;
+  margin-bottom:14px;
+  padding:14px 16px;
+  background:#fff;
+  border:1px dashed var(--indigo-100);
+  border-radius:var(--radius-sm);
+}
+.scale-wrap .k{
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--indigo-700);
+  margin-bottom:10px;
+}
+.scale-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.scale-choice{
+  position:relative;
+  cursor:pointer;
+}
+.scale-choice input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+.scale-box{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 14px;
+  background:var(--bg-soft);
+  border:1.5px solid var(--line-strong);
+  border-radius:999px;
+  font-size:13px;
+  font-weight:500;
+  color:var(--ink-soft);
+  transition:all .15s ease;
+}
+.scale-choice:hover .scale-box{border-color:var(--indigo-500)}
+.scale-choice input:checked + .scale-box{
+  border-color:var(--indigo-700);
+  background:var(--indigo-700);
+  color:#fff;
+  font-weight:600;
+}
+.scale-choice[data-meets="true"] .scale-box::after{
+  content:"✓ ตามเป้าหมาย";
+  font-size:10px;
+  opacity:0;
+  margin-left:2px;
+  transition:opacity .15s ease;
+}
+.scale-choice[data-meets="true"] input:checked + .scale-box::after{
+  opacity:.85;
+}
+
+.field-hint{
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:6px;
+  font-style:italic;
+}
+textarea{
+  width:100%;
+  min-height:90px;
+  padding:10px 12px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius-sm);
+  font-family:inherit;
+  font-size:14px;
+  line-height:1.6;
+  color:var(--ink);
+  background:#fff;
+  resize:vertical;
+  transition:border-color .15s ease,box-shadow .15s ease;
+}
+textarea:focus{
+  outline:none;
+  border-color:var(--indigo-600);
+  box-shadow:0 0 0 3px var(--indigo-100);
+}
+
+.attach-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+.btn-attach{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 14px;
+  background:#fff;
+  border:1.5px solid var(--indigo-700);
+  color:var(--indigo-700);
+  border-radius:var(--radius-sm);
+  font-family:inherit;
+  font-size:13px;
+  font-weight:500;
+  cursor:pointer;
+  transition:all .15s ease;
+}
+.btn-attach:hover{background:var(--indigo-50)}
+.btn-attach svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+.attach-files{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  font-size:12.5px;
+  color:var(--ink-soft);
+}
+.attach-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 10px;
+  background:var(--indigo-50);
+  border:1px solid var(--indigo-100);
+  color:var(--indigo-800);
+  border-radius:4px;
+  font-size:12px;
+}
+.attach-chip button{
+  background:none;
+  border:none;
+  color:var(--indigo-800);
+  cursor:pointer;
+  padding:0;
+  font-size:14px;
+  line-height:1;
+  opacity:.6;
+}
+.attach-chip button:hover{opacity:1}
+
+/* SPIDER PAGE */
+.spider-wrap{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:32px;
+  box-shadow:var(--shadow-sm);
+  margin-bottom:24px;
+}
+.spider-header{
+  text-align:center;
+  margin-bottom:24px;
+  padding-bottom:18px;
+  border-bottom:1px solid var(--line);
+}
+.spider-header h2{
+  font-family:'IBM Plex Serif',serif;
+  font-size:22px;
+  margin:0 0 4px;
+  color:var(--indigo-900);
+}
+.spider-header p{margin:0;color:var(--muted);font-size:13.5px}
+
+.spider-grid{
+  display:grid;
+  grid-template-columns:1fr 320px;
+  gap:32px;
+  align-items:start;
+}
+@media (max-width:920px){.spider-grid{grid-template-columns:1fr}}
+
+.spider-canvas{
+  display:grid;
+  place-items:center;
+  padding:8px;
+}
+.spider-canvas svg{width:100%;max-width:540px;height:auto}
+
+.summary-card{
+  background:var(--bg-soft);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  padding:20px;
+}
+.summary-card h3{
+  font-family:'IBM Plex Serif',serif;
+  font-size:15px;
+  margin:0 0 14px;
+  color:var(--indigo-900);
+  padding-bottom:10px;
+  border-bottom:1px solid var(--line);
+}
+.score-list{list-style:none;margin:0;padding:0}
+.score-list li{
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:center;
+  gap:10px;
+  padding:8px 0;
+  border-bottom:1px dotted var(--line);
+  font-size:13px;
+}
+.score-list li:last-child{border-bottom:none}
+.score-list .label{color:var(--ink-soft);line-height:1.4}
+.score-list .val{
+  font-weight:600;
+  font-family:'IBM Plex Serif',serif;
+  font-size:14px;
+  color:var(--indigo-800);
+  white-space:nowrap;
+}
+.score-bar{
+  grid-column:1/-1;
+  height:4px;
+  background:var(--line);
+  border-radius:2px;
+  overflow:hidden;
+  margin-top:4px;
+}
+.score-bar-fill{
+  height:100%;
+  background:var(--indigo-700);
+  transition:width .4s ease;
+}
+
+.overall-score{
+  margin-top:18px;
+  padding:16px;
+  background:var(--indigo-900);
+  color:#fff;
+  border-radius:var(--radius-sm);
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+}
+.overall-score .lbl{font-size:12px;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+.overall-score .num{
+  font-family:'IBM Plex Serif',serif;
+  font-size:28px;
+  font-weight:600;
+}
+.overall-score .num small{font-size:14px;opacity:.7;font-weight:400}
+
+.notice{
+  font-size:12.5px;
+  color:var(--muted);
+  text-align:center;
+  margin-top:18px;
+  padding:10px;
+  background:var(--bg-soft);
+  border-radius:var(--radius-sm);
+  font-style:italic;
+}
+
+/* Single self-evaluator signature block */
+.signature-row{
+  display:grid;
+  grid-template-columns:minmax(0,360px);
+  justify-content:center;
+  gap:32px;
+  margin-top:28px;
+  padding-top:24px;
+  border-top:1px solid var(--line);
+}
+.sig-block{text-align:center}
+.sig-line{
+  border-bottom:1.5px solid var(--ink);
+  margin:42px 16px 8px;
+  height:1px;
+}
+.sig-block .role{font-size:12px;color:var(--muted)}
+.sig-block .name{font-size:13px;font-weight:600;color:var(--ink-soft);margin-top:4px}
+.sig-block .pos-line{
+  font-size:12.5px;
+  color:var(--ink-soft);
+  margin-top:8px;
+}
+.sig-block .pos-line .pos-input{
+  border:none;
+  border-bottom:1px dotted var(--line-strong);
+  background:transparent;
+  font-family:inherit;
+  font-size:12.5px;
+  color:var(--ink);
+  text-align:center;
+  padding:2px 6px;
+  min-width:160px;
+}
+.sig-block .pos-input:focus{outline:none;border-bottom-color:var(--indigo-600)}
+
+/* Coordinator card (ผู้ประสานงาน) — placed at the very end of the form */
+.coordinator-card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:24px 28px;
+  box-shadow:var(--shadow-sm);
+  margin-top:24px;
+}
+.coordinator-card h3{
+  font-family:'IBM Plex Serif',serif;
+  font-size:15px;
+  margin:0 0 14px;
+  color:var(--indigo-900);
+  padding-bottom:10px;
+  border-bottom:1px solid var(--line);
+}
+.coordinator-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px 24px;
+}
+@media (max-width:780px){.coordinator-grid{grid-template-columns:1fr}}
+
+/* Footer note for sections */
+.section-foot{
+  text-align:center;
+  font-size:12px;
+  color:var(--muted);
+  margin-top:24px;
+  padding-top:16px;
+  border-top:1px solid var(--line);
+  font-style:italic;
+}
+
+/* ===========================================================
+   PRINT STYLES — A4 Portrait
+   ตัด sidebar / export button / animations ออก
+   จัดเรียง section ทั้งหมดให้พิมพ์ต่อเนื่อง
+   =========================================================== */
+@page{
+  size:A4 portrait;
+  margin:14mm 14mm 16mm;
+}
+@media print{
+  body{background:#fff;font-size:11.5pt;color:#000}
+  .app{display:block}
+  .sidebar,.btn-export,.btn-drive,.section-foot,.notice{display:none !important}
+  .main{padding:0;max-width:none;margin:0}
+  .topbar{margin-bottom:6mm;padding-bottom:3mm;border-bottom:2px solid #000}
+  .crumb{font-size:9pt;color:#000}
+  .crumb::before{content:"แบบฟอร์มประเมินบทบาท Role Model — ผู้บริหารระดับกลาง"}
+  .crumb span{display:none}
+
+  /* แสดง section ทั้งหมด */
+  .section{display:block !important;animation:none}
+  .section + .section{
+    page-break-before:always;
+    break-before:page;
+    margin-top:0;
+    padding-top:6mm;
+  }
+
+  .section-header{margin-top:0;border-bottom:1.5pt solid #000;margin-bottom:5mm;padding-bottom:3mm}
+  .section-header .num{color:#000;font-size:9pt}
+  .section-header h1{font-size:14pt;color:#000}
+
+  .info-card,.indicator,.spider-wrap,.summary-card,.coordinator-card{
+    box-shadow:none;
+    border:1pt solid #000;
+    border-radius:4px;
+    padding:4mm 5mm;
+    margin-bottom:4mm;
+    background:#fff !important;
+  }
+  .info-card h2,.coordinator-card h3{font-size:12pt;color:#000}
+  .indicator-code{
+    background:#000 !important;
+    color:#fff !important;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  .indicator-title{font-size:11pt;color:#000}
+  .indicator-points{
+    background:#fff !important;
+    border:1pt solid #000;
+    color:#000;
+    font-weight:700;
+    -webkit-print-color-adjust:exact;
+  }
+  .score-rule{
+    background:#fff !important;
+    border:1pt solid #000;
+    border-left:3pt solid #000;
+    color:#000;
+    font-size:9.5pt;
+    padding:2mm 3mm;
+    margin-bottom:3mm;
+    -webkit-print-color-adjust:exact;
+  }
+  .kv-block .k,.result-block .k,.scale-wrap .k{color:#000;font-size:8.5pt}
+  .kv-block .v{color:#000;font-size:10pt}
+  .kv-block.expected .v{
+    background:#fff !important;
+    border:1pt solid #000;
+    color:#000;
+    -webkit-print-color-adjust:exact;
+  }
+  .result-block{background:#fafafa !important;border:1pt solid #444;-webkit-print-color-adjust:exact}
+
+  /* Choices: ใช้รูปทรง+ความเข้มแทนสี เพื่อ grayscale clarity */
+  .choice-box{border:1.2pt solid #000;background:#fff !important;color:#000}
+  .choice-box::before{border:1.5pt solid #000;background:#fff}
+  .choice input:checked + .choice-box{
+    background:#000 !important;
+    color:#fff !important;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+    font-weight:700;
+  }
+  .choice input:checked + .choice-box::before{
+    background:#fff;
+    border:3pt solid #fff;
+    box-shadow:0 0 0 1pt #000;
+  }
+  .choice[data-val="no"] input:checked + .choice-box{
+    background:#fff !important;
+    color:#000 !important;
+    border:2pt solid #000;
+    text-decoration:line-through;
+  }
+  .choice[data-val="no"] input:checked + .choice-box::before{
+    border:1.5pt solid #000;
+    background:#fff;
+  }
+
+  /* Scale choices in print */
+  .scale-wrap{border:1pt dashed #000;background:#fff !important;padding:2mm 3mm}
+  .scale-box{border:1.2pt solid #000;background:#fff !important;color:#000;font-size:9.5pt}
+  .scale-choice input:checked + .scale-box{
+    background:#000 !important;
+    color:#fff !important;
+    font-weight:700;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+
+  textarea{
+    border:1pt solid #444;
+    background:#fff !important;
+    min-height:60px;
+  }
+  .btn-attach{display:none}
+  .attach-files{margin-top:4px}
+  .attach-chip{
+    background:#fff !important;
+    border:1pt solid #000;
+    color:#000;
+    -webkit-print-color-adjust:exact;
+  }
+  .attach-chip button{display:none}
+
+  /* Spider page in print */
+  .spider-grid{grid-template-columns:1fr 240px;gap:14px}
+  .spider-header h2{font-size:14pt;color:#000}
+  .spider-canvas svg{max-width:100%}
+  .summary-card{padding:3mm 4mm}
+  .summary-card h3{color:#000;font-size:11pt}
+  .score-list li{font-size:9.5pt;padding:3pt 0}
+  .score-list .val{color:#000}
+  .score-bar{background:#ddd}
+  .score-bar-fill{
+    background:#000 !important;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  .overall-score{
+    background:#000 !important;
+    color:#fff !important;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  .sig-block .pos-input{border-bottom:1pt dotted #000;color:#000}
+
+  /* ป้องกันการตัดที่ไม่เหมาะ */
+  .indicator,.info-card,.spider-wrap,.coordinator-card{break-inside:avoid;page-break-inside:avoid}
+  .indicator-head{break-after:avoid}
+
+  /* SVG radar: ใช้สีดำล้วน + เส้น/น้ำหนักแยก layer */
+  .radar-grid{stroke:#bbb !important}
+  .radar-axis{stroke:#888 !important}
+  .radar-fill{fill:#000 !important;fill-opacity:.18 !important;-webkit-print-color-adjust:exact}
+  .radar-stroke{stroke:#000 !important;stroke-width:2 !important}
+  .radar-point{fill:#000 !important;stroke:#fff !important}
+  .radar-label{fill:#000 !important;font-weight:600}
+  .radar-tick{fill:#666 !important}
+}
+
+/* Mobile responsive */
+@media (max-width:880px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:static;height:auto;max-height:none}
+  .main{padding:24px 20px 60px}
+  .info-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ============= SIDEBAR ============= -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="kicker">Evaluation System</div>
+      <div class="title">Role Model<br>Assessment</div>
+      <div class="sub">ผู้บริหารระดับกลาง · รายบุคคล</div>
+    </div>
+
+    <div class="nav-label">ข้อมูลทั่วไป</div>
+    <ul class="nav" id="nav">
+      <li><a data-target="home"><span class="nav-num">i</span><span class="nav-text">หน้าแรก / ข้อมูลผู้รับการประเมิน</span></a></li>
+    </ul>
+
+    <div class="nav-divider"></div>
+    <div class="nav-label">หัวข้อประเมิน</div>
+    <ul class="nav">
+      <li><a data-target="s1"><span class="nav-num">๑</span><span class="nav-text">ปฏิบัติตนเป็นต้นแบบในการเรียนรู้อย่างต่อเนื่อง</span></a></li>
+      <li><a data-target="s2"><span class="nav-num">๒</span><span class="nav-text">เป็นต้นแบบในการนำเครื่องมือการจัดการความรู้ฯ</span></a></li>
+      <li><a data-target="s3"><span class="nav-num">๓</span><span class="nav-text">เป็นต้นแบบในการสร้างจิตสำนึกและทัศนคติที่ดี</span></a></li>
+      <li><a data-target="s4"><span class="nav-num">๔</span><span class="nav-text">มอบนโยบายและทิศทางการดำเนินงาน</span></a></li>
+      <li><a data-target="s5"><span class="nav-num">๕</span><span class="nav-text">สื่อสาร ติดตาม สนับสนุน และกำกับดูแล</span></a></li>
+      <li><a data-target="s6"><span class="nav-num">๖</span><span class="nav-text">สร้างการมีส่วนร่วมและส่งเสริมวัฒนธรรม KM</span></a></li>
+      <li><a data-target="s7"><span class="nav-num">๗</span><span class="nav-text">สร้างแรงจูงใจและยกย่องชมเชยบุคลากร</span></a></li>
+    </ul>
+
+    <div class="nav-divider"></div>
+    <div class="nav-label">สรุปผล</div>
+    <ul class="nav">
+      <li><a data-target="spider"><span class="nav-num">★</span><span class="nav-text">Spider Chart · ภาพรวมการประเมิน</span></a></li>
+    </ul>
+  </aside>
+
+  <!-- ============= MAIN ============= -->
+  <main class="main">
+
+    <!-- TOP BAR (Export button + Google Drive link) -->
+    <div class="topbar">
+      <div class="crumb"><span id="crumb">ข้อมูลผู้รับการประเมิน</span></div>
+      <div class="topbar-actions">
+        <a class="btn-drive" href="https://drive.google.com/drive/u/0/folders/1ajBoK9-KYBrjqWfxighjIizSxlm4BvlK" target="_blank" rel="noopener" title="เปิดโฟลเดอร์ Google Drive สำหรับจัดเก็บไฟล์ PDF ที่บันทึกแล้วเสร็จ">
+          <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+          โฟลเดอร์จัดเก็บไฟล์ (Google Drive)
+        </a>
+        <button class="btn-export" onclick="exportPDF()" title="พิมพ์ / บันทึกเป็น PDF (A4 แนวตั้ง) — ชื่อไฟล์จะตั้งตามตำแหน่งที่กรอกไว้">
+          <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+          Export to PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== HOME / HEADER FORM ===== -->
+    <section class="section active" id="home">
+      <div class="section-header">
+        <div class="num">FORM · INDIVIDUAL EVALUATION</div>
+        <h1>ตัวอย่าง แบบฟอร์มการประเมินบทบาทการเป็นแบบอย่างที่ดี (Role Model) สำหรับผู้บริหารระดับกลาง (รายบุคคล)</h1>
+      </div>
+
+      <div class="info-card">
+        <h2>ข้อมูลผู้รับการประเมิน</h2>
+        <p class="desc">กรอกข้อมูลของผู้บริหารและวันที่ประเมินให้ครบถ้วนก่อนเริ่มการประเมิน</p>
+        <div class="info-grid">
+          <div class="field">
+            <label>ชื่อ – นามสกุล</label>
+            <input type="text" id="f-name" placeholder="ระบุชื่อ – นามสกุล">
+          </div>
+          <div class="field">
+            <label>ตำแหน่ง</label>
+            <input type="text" id="f-pos" placeholder="ระบุตำแหน่ง (ใช้เป็นชื่อไฟล์ PDF อัตโนมัติ)">
+          </div>
+          <div class="field">
+            <label>วัน / เดือน / ปี ที่ประเมิน</label>
+            <input type="text" id="f-date" placeholder="เช่น ๑๕ มีนาคม ๒๕๖๘">
+          </div>
+          <div class="field">
+            <label>ลงนามผู้รับการประเมิน</label>
+            <input type="text" id="f-sig" placeholder="ระบุชื่อผู้ลงนาม">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h2>คำชี้แจงการใช้งาน</h2>
+        <p class="desc" style="margin-bottom:8px">
+          ระบบนี้ครอบคลุมการประเมินบทบาทการเป็นแบบอย่างที่ดี (Role Model) ด้านการจัดการความรู้
+          จำนวน <strong>๗ หัวข้อหลัก</strong> รวม <strong>๑๓ ตัวชี้วัด</strong>
+          ในแต่ละตัวชี้วัด ผู้ประเมินสามารถระบุผลการดำเนินการ (มี / ไม่มี) เมื่อเลือก &ldquo;มี&rdquo;
+          ระบบจะให้ระบุระดับ/จำนวนครั้งที่ทำได้จริง บันทึกรายละเอียด และแนบไฟล์หลักฐานประกอบ
+          จากนั้นไปยังหน้า <em>Spider Chart</em> เพื่อดูภาพรวมผลการประเมิน
+        </p>
+        <p class="desc" style="margin:8px 0 0">
+          <strong>เกณฑ์การคิดคะแนน:</strong> แต่ละหัวข้อหลักมีคะแนนเต็ม <strong>๑๐ คะแนน</strong>
+          แบ่งเท่ากันตามจำนวนตัวชี้วัดย่อย (เช่น หัวข้อที่ ๒ มี ๓ ตัวชี้วัดย่อย จะคิดข้อละ ๑๐÷๓ ≈ ๓.๓๓ คะแนน)
+          คะแนนเต็มรวมทั้งสิ้น <strong>๗๐ คะแนน</strong> โดยให้คะแนนตามค่าความคาดหวังของแต่ละข้อ ดังนี้
+          <strong>ทำไม่ถึงค่าความคาดหวัง&nbsp;=&nbsp;ไม่ได้คะแนน</strong>,
+          <strong>ทำได้ตามค่าความคาดหวัง&nbsp;=&nbsp;ได้คะแนนเต็มของข้อนั้น</strong>,
+          <strong>ทำเกินค่าความคาดหวัง&nbsp;=&nbsp;ได้คะแนนเต็มเท่ากัน</strong> (ไม่มีคะแนนพิเศษเพิ่ม)
+        </p>
+        <p class="desc" style="margin:8px 0 0">
+          เมื่อต้องการบันทึกเป็นเอกสาร ให้กดปุ่ม <strong>Export to PDF</strong> ที่มุมขวาบน
+          ระบบจะจัดเรียงเนื้อหาให้พอดีกับกระดาษ A4 แนวตั้ง โดยอัตโนมัติ และตั้งชื่อไฟล์ตาม &ldquo;ตำแหน่ง&rdquo; ที่กรอกไว้
+          จากนั้นนำไฟล์ PDF ที่บันทึกเสร็จแล้วไปจัดเก็บที่ปุ่ม <strong>โฟลเดอร์จัดเก็บไฟล์ (Google Drive)</strong>
+        </p>
+      </div>
+
+      <div class="section-foot">— เลือกหัวข้อประเมินจากเมนูด้านซ้าย —</div>
+    </section>
+
+    <!-- container for indicator sections (rendered by JS) -->
+    <div id="indicator-sections"></div>
+
+    <!-- ===== SPIDER CHART ===== -->
+    <section class="section" id="spider">
+      <div class="section-header">
+        <div class="num">VISUAL SUMMARY · RADAR CHART</div>
+        <h1>ภาพรวมผลการประเมิน — Spider Chart ๗ มิติ</h1>
+      </div>
+
+      <div class="spider-wrap">
+        <div class="spider-header">
+          <h2>สรุปคะแนนตามหัวข้อประเมินบทบาทการเป็นแบบอย่างที่ดี</h2>
+          <p>คะแนนเต็มหัวข้อละ ๑๐ คะแนน แบ่งเท่ากันตามจำนวนตัวชี้วัดย่อย — รวมคะแนนเต็ม ๗๐ คะแนน</p>
+        </div>
+
+        <div class="spider-grid">
+          <div class="spider-canvas" id="radar-host"></div>
+
+          <div>
+            <div class="summary-card">
+              <h3>คะแนนรายหัวข้อ</h3>
+              <ul class="score-list" id="score-list"></ul>
+            </div>
+            <div class="overall-score">
+              <span class="lbl">คะแนนรวมทั้งสิ้น</span>
+              <span class="num" id="overall">๐<small>/๗๐</small></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Single self-evaluator signature -->
+        <div class="signature-row">
+          <div class="sig-block">
+            <div class="sig-line"></div>
+            <div class="role">ลงนามผู้ประเมินตนเอง</div>
+            <div class="name" id="sig-name">( ........................................ )</div>
+            <div class="pos-line">
+              ตำแหน่ง&nbsp;
+              <input type="text" class="pos-input" id="sig-pos" placeholder="ระบุตำแหน่ง">
+            </div>
+          </div>
+        </div>
+
+        <div class="notice">
+          กรุณานำส่ง พก.พส. — เอกสารฉบับนี้จัดทำขึ้นจากระบบประเมินผ่านสื่ออิเล็กทรอนิกส์
+        </div>
+
+        <!-- ผู้ประสานงาน — ท้ายแบบฟอร์ม (ตัวเลขในส่วนนี้คงเป็นเลขอารบิกตามการใช้งานทั่วไป) -->
+        <div class="coordinator-card">
+          <h3>ผู้ประสานงาน</h3>
+          <div class="coordinator-grid">
+            <div class="field">
+              <label>ชื่อ – นามสกุลผู้ประสานงาน</label>
+              <input type="text" id="co-name" placeholder="ระบุชื่อ – นามสกุล">
+            </div>
+            <div class="field">
+              <label>ตำแหน่ง</label>
+              <input type="text" id="co-pos" placeholder="ระบุตำแหน่งผู้ประสานงาน">
+            </div>
+            <div class="field">
+              <label>เบอร์โทรศัพท์</label>
+              <input type="text" id="co-phone" placeholder="เช่น 081-234-5678">
+            </div>
+            <div class="field">
+              <label>อีเมล</label>
+              <input type="text" id="co-email" placeholder="เช่น coordinator@aerothai.co.th">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* ===========================================================
+   DIGIT HELPER — แปลงเลขอารบิกเป็นเลขไทยสำหรับการแสดงผลทุกจุด
+   (ยกเว้นส่วนผู้ประสานงาน ซึ่งคงเลขอารบิกตามคำสั่งแก้ไข)
+   =========================================================== */
+const THAI_DIGITS = ['๐','๑','๒','๓','๔','๕','๖','๗','๘','๙'];
+function th(input){
+  return String(input).replace(/[0-9]/g, d => THAI_DIGITS[+d]);
+}
+
+/* ===========================================================
+   DATA — ทุกหัวข้อ ทุกตัวชี้วัด (คำพูดตามเอกสารต้นฉบับ)
+   - หัวข้อที่มีตัวชี้วัดย่อยเพียง ๑ ข้อ ใช้เลขข้อนั้นตรง ๆ ไม่มีจุดทศนิยม (๓ ๔ ๗)
+   - แต่ละตัวชี้วัดมี scale (ระดับ/จำนวนครั้ง) ที่แสดงขึ้นหลังเลือก "มี"
+     ระดับสุดท้าย (meets:true) คือค่าความคาดหวัง — ถ้าเลือกระดับนั้นได้คะแนนเต็มของข้อ
+     ถ้าเลือกระดับที่ต่ำกว่า (meets:false) ถือว่าทำไม่ถึงค่าความคาดหวัง ไม่ได้คะแนน
+   =========================================================== */
+const SECTIONS = [
+  {
+    id:"s1", num:"๑", title:"ปฏิบัติตนเป็นต้นแบบในการเรียนรู้อย่างต่อเนื่องตลอดเวลา",
+    indicators:[
+      {
+        code:"๑.๑",
+        title:"จำนวนครั้ง ที่ผู้บริหารเรียนรู้และพัฒนาตนเอง (นอกเหนือจาก พก.พส. ดำเนินการ)",
+        desc:"การเรียนรู้และพัฒนาตนเองอย่างต่อเนื่อง เช่น การเข้ารับการอบรม/พัฒนา การเรียนรู้ด้วยตนเอง (Self-Learning) ผ่านสื่อต่าง ๆ การอ่านหนังสือ เป็นต้น",
+        expected:"≥ ๓ ครั้ง / ปี",
+        hint:"อาทิ หัวข้อ/กิจกรรม วันที่ จำนวนชั่วโมง/วัน",
+        scale:[
+          {value:"1", label:"๑ ครั้ง / ปี", meets:false},
+          {value:"2", label:"๒ ครั้ง / ปี", meets:false},
+          {value:"3+", label:"≥ ๓ ครั้ง / ปี", meets:true}
+        ]
+      },
+      {
+        code:"๑.๒",
+        title:"จำนวนครั้งที่ผู้บริหารได้ถ่ายทอดความรู้/ประสบการณ์ในกิจกรรมต่าง ๆ ของหน่วยงานและ/หรือบริษัท",
+        desc:"การถ่ายทอดความรู้/ประสบการณ์ รวมถึงการเป็นวิทยากรบรรยายให้ความรู้ในกิจกรรมต่าง ๆ ของหน่วยงานและ/หรือภายใน/ภายนอกบริษัท",
+        expected:"≥ ๓ ครั้ง / ปี",
+        hint:"อาทิ หัวข้อ/กิจกรรม กลุ่มเป้าหมาย วันที่",
+        scale:[
+          {value:"1", label:"๑ ครั้ง / ปี", meets:false},
+          {value:"2", label:"๒ ครั้ง / ปี", meets:false},
+          {value:"3+", label:"≥ ๓ ครั้ง / ปี", meets:true}
+        ]
+      }
+    ]
+  },
+  {
+    id:"s2", num:"๒", title:"เป็นต้นแบบในการนำเครื่องมือการจัดการความรู้เพื่อใช้ในการบริหารจัดการงาน",
+    indicators:[
+      {
+        code:"๒.๑",
+        title:"จำนวนครั้งในการนำเครื่องมือการจัดการความรู้ไปใช้ในหน่วยงาน/ฝ่ายงาน",
+        desc:"การนำเครื่องมือการจัดการความรู้มาใช้ในการทำงานของฝ่ายงานอย่างเป็นรูปธรรม เช่น เครื่องมือ BAR AAR การถ่ายทอดความรู้ภายในหน่วยงาน การถอดบทเรียนรู้ การประชุม Brainstorm กิจกรรมการแลกเปลี่ยนเรียนรู้ เป็นต้น",
+        expected:"≥ ๓ ครั้ง / ปี",
+        hint:"อาทิ หัวข้อ/กิจกรรม วันที่",
+        scale:[
+          {value:"1", label:"๑ ครั้ง / ปี", meets:false},
+          {value:"2", label:"๒ ครั้ง / ปี", meets:false},
+          {value:"3+", label:"≥ ๓ ครั้ง / ปี", meets:true}
+        ]
+      },
+      {
+        code:"๒.๒",
+        title:"จำนวนบทเรียนรู้ (Lesson Learned / Best Practice) และ/หรือองค์ความรู้ที่มีการบันทึกและจัดเก็บรวบรวมภายในหน่วยงาน/ฝ่ายงาน",
+        desc:"การจัดทำบันทึกบทเรียนรู้ (Lesson Learned / Best Practice) ซึ่งได้มาจากการนำเครื่องมือการจัดการความรู้มาใช้ภายในฝ่ายงาน (ข้อมูลจากข้อ ๒.๑) เช่น บันทึกผลการปฏิบัติงานจากการทำ BAR AAR การประชุม Brainstorm และ/หรือการบันทึกความรู้จากการถ่ายทอดความรู้ภายในหน่วยงาน ตลอดจนการจัดทำองค์ความรู้ประจำปีตามกระบวนการ KM Core Process เป็นต้น",
+        expected:"≥ ๒ เรื่อง / ปี",
+        hint:"อาทิ ชื่อหัวข้อ วันที่ รูปแบบการบันทึก",
+        scale:[
+          {value:"1", label:"๑ เรื่อง / ปี", meets:false},
+          {value:"2+", label:"≥ ๒ เรื่อง / ปี", meets:true}
+        ]
+      },
+      {
+        code:"๒.๓",
+        title:"จำนวนกระบวนการทำงานของหน่วยงานในสังกัด/ของฝ่ายงาน ที่ได้รับการปรับปรุงที่ได้มาจากการจัดการความรู้",
+        desc:"การแสดงผลลัพธ์ที่เป็นรูปธรรมของการปรับปรุง/พัฒนากระบวนการทำงานด้วยการใช้การจัดการความรู้เป็นกลไกสำคัญร่วมกับเครื่องมือการปรับปรุง/พัฒนากระบวนการอื่น ๆ โดยเครื่องมือการจัดการความรู้ในการปรับปรุง/พัฒนากระบวนการทำงานตามขั้นตอน PDCA มีดังนี้ Plan เช่น รวบรวมความรู้ที่เกี่ยวข้องทั้งองค์ความรู้ วิธีปฏิบัติที่ดี และสารสนเทศ Do เช่น เครื่องมือ Before Action Review (BAR) Sharing Information ผู้เกี่ยวข้อง Check เช่น เครื่องมือ After Action Review (AAR) Act เช่น ถอดบทเรียนความสำเร็จ Best Practice และบทเรียนรู้ Lesson Learned เครื่องมือ Retrospect",
+        expected:"≥ ๒ กระบวนการ / ปี",
+        hint:"อาทิ ชื่อกระบวนการทำงานที่มีการพัฒนา/ปรับปรุง เครื่องมือ KM ที่นำมาใช้ ผลลัพธ์การพัฒนา/ปรับปรุงที่เป็นรูปธรรม",
+        scale:[
+          {value:"1", label:"๑ กระบวนการ / ปี", meets:false},
+          {value:"2+", label:"≥ ๒ กระบวนการ / ปี", meets:true}
+        ]
+      }
+    ]
+  },
+  {
+    id:"s3", num:"๓", title:"เป็นต้นแบบในการสร้างจิตสำนึกและทัศนคติที่ดีต่อการจัดการความรู้ให้แก่บุคลากร",
+    indicators:[
+      {
+        code:"๓",
+        title:"จำนวนครั้งที่ผู้บริหารสื่อสาร/กล่าวถึงประโยชน์และความสำคัญของการจัดการความรู้ในการประชุม/กิจกรรมของหน่วยงาน/ฝ่ายงาน/สายงาน/องค์กร",
+        desc:"การสื่อสารถึงประโยชน์และความสำคัญของการจัดการความรู้ให้แก่หน่วยงานในสังกัดได้รับทราบ เพื่อสร้างจิตสำนึกและทัศนคติที่ดี ตลอดจนการมีส่วนร่วมในด้านการจัดการความรู้ตามบทบาทหน้าที่ที่เหมาะสม",
+        expected:"≥ ๒ ครั้ง / ปี",
+        hint:"อาทิ ชื่อหัวข้อ/กิจกรรม วันที่",
+        scale:[
+          {value:"1", label:"๑ ครั้ง / ปี", meets:false},
+          {value:"2+", label:"≥ ๒ ครั้ง / ปี", meets:true}
+        ]
+      }
+    ]
+  },
+  {
+    id:"s4", num:"๔", title:"มอบนโยบายและทิศทางการดำเนินงานด้านการจัดการความรู้ทั้งในระดับองค์กรและระดับหน่วยงานอย่างชัดเจน",
+    indicators:[
+      {
+        code:"๔",
+        title:"จำนวนครั้งที่ผู้บริหารมอบนโยบายและให้ทิศทางต่อการจัดการความรู้ของหน่วยงาน",
+        desc:"การสื่อสารวิสัยทัศน์ นโยบาย เป้าหมายการจัดการความรู้ตลอดจนมอบหมายทิศทาง/แนวทางการดำเนินงานให้แก่หน่วยงานในสังกัดได้รับทราบ ครบตามแผนการสื่อสารที่บริษัทกำหนด เพื่อนำไปสู่การปฏิบัติที่เป็นรูปธรรมต่อไป",
+        expected:"≥ ๒ ครั้ง / ปี",
+        hint:"อาทิ ชื่อหัวข้อ/กิจกรรม วันที่",
+        scale:[
+          {value:"1", label:"๑ ครั้ง / ปี", meets:false},
+          {value:"2+", label:"≥ ๒ ครั้ง / ปี", meets:true}
+        ]
+      }
+    ]
+  },
+  {
+    id:"s5", num:"๕", title:"สื่อสาร ติดตาม สนับสนุนและกำกับดูแลการจัดการความรู้เพื่อให้บรรลุเป้าหมายและปรับปรุงทิศทางการดำเนินงานให้สอดคล้องกับการเปลี่ยนแปลงอยู่เสมอ",
+    indicators:[
+      {
+        code:"๕.๑",
+        title:"การมีแผนการจัดการความรู้ประจำปีของหน่วยงาน",
+        desc:"ผู้บริหารระดับกลางในฐานะคณะทำงานการจัดการความรู้ มีบทบาทพิจารณาการระบุองค์ความรู้ตามกระบวนการจัดการความรู้ของหน่วยงานในสังกัด สื่อสารวิสัยทัศน์ นโยบาย เป้าหมายการจัดการความรู้ ตลอดจนส่งเสริมวัฒนธรรมการเรียนรู้ภายในฝ่ายงาน โดยการพิจารณาและลงนามให้ความเห็นชอบแผนการจัดการความรู้ประจำปีของหน่วยงานในสังกัด (แบบฟอร์ม FM-KM-01) พร้อมทั้งนำเสนอสายงานพิจารณาให้ความชอบ ก่อนนำไปสู่การดำเนินการตามแผนต่อไป",
+        expected:"๑ แผน / ปี",
+        hint:"อาทิ วันที่พิจารณาอนุมัติแบบฟอร์ม FM-KM-01",
+        scale:[
+          {value:"1", label:"๑ แผน / ปี", meets:true}
+        ]
+      },
+      {
+        code:"๕.๒",
+        title:"การดำเนินการสำเร็จตามแผนการจัดการความรู้ที่หน่วยงานกำหนด",
+        desc:"สนับสนุนและติดตามกำกับดูแลหน่วยงานในสังกัดให้ดำเนินการจัดการความรู้สำเร็จครบตามแผนที่กำหนดไว้ (แบบฟอร์ม FM-KM-01)",
+        expected:"ร้อยละ ๑๐๐ / ปี",
+        hint:"การดำเนินการในการสนับสนุน ติดตามกำกับดูแล",
+        scale:[
+          {value:"100", label:"ร้อยละ ๑๐๐ / ปี", meets:true}
+        ]
+      },
+      {
+        code:"๕.๓",
+        title:"ผลลัพธ์การดำเนินการจัดการความรู้ตามกระบวนการจัดการความรู้ (KM Core Process) บรรลุตามแผนที่หน่วยงานกำหนดไว้",
+        desc:"สนับสนุน ติดตาม กำกับดูหน่วยงานในสังกัด ให้สามารถดำเนินการจัดการความรู้ตามกระบวนการจัดการความรู้ (KM Core Process) โดยแสดงผลลัพธ์ที่เป็นรูปธรรม",
+        expected:"ตามที่กำหนด / ปี",
+        hint:"หัวข้อการจัดการความรู้ ผลลัพธ์ในการนำองค์ความรู้ไปใช้อย่างเป็นรูปธรรม",
+        scale:null
+      }
+    ]
+  },
+  {
+    id:"s6", num:"๖", title:"สร้างการมีส่วนร่วมของบุคลากรดำเนินกิจกรรม / ส่งเสริมปลูกฝังให้เกิดวัฒนธรรมด้านการจัดการความรู้อย่างต่อเนื่อง",
+    indicators:[
+      {
+        code:"๖.๑",
+        title:"จำนวนกิจกรรมด้านการจัดการความรู้ที่ผู้บริหารสนับสนุนให้บุคลากรในสังกัดเข้าร่วม",
+        desc:"การมอบหมายและสนับสนุนให้หน่วยงานในสังกัดเข้าร่วมประชุม/กิจกรรมด้านการจัดการความรู้ที่บริษัทกำหนด เช่น การสัมมนาการจัดการความรู้ หลักสูตรพัฒนาศักยภาพ KF กิจกรรมการถ่ายทอดแลกเปลี่ยนเรียนรู้ภายในองค์กร (KM Show and Share) เป็นต้น",
+        expected:"≥ ๒ กิจกรรม / ปี",
+        hint:"ชื่อการประชุม/กิจกรรม วันที่ จำนวนบุคลากรที่เข้าร่วม",
+        scale:[
+          {value:"1", label:"๑ กิจกรรม / ปี", meets:false},
+          {value:"2+", label:"≥ ๒ กิจกรรม / ปี", meets:true}
+        ]
+      },
+      {
+        code:"๖.๒",
+        title:"ผู้บริหารเปิดโอกาสให้บุคลากรถ่ายทอดความรู้และประสบการณ์ภายในหน่วยงาน",
+        desc:"การเปิดโอกาส/มีเวทีกิจกรรมให้หน่วยงานในสังกัดได้ถ่ายทอดความรู้และประสบการณ์ เช่น การประชุมฝ่ายงาน การสัมมนาฝ่ายงาน และกิจกรรม Knowledge Sharing ของฝ่ายงาน เป็นต้น",
+        expected:"≥ ๔ ครั้ง / ปี",
+        hint:"ชื่อกิจกรรม หัวข้อการถ่ายทอด วันที่",
+        scale:[
+          {value:"1", label:"๑ ครั้ง / ปี", meets:false},
+          {value:"2", label:"๒ ครั้ง / ปี", meets:false},
+          {value:"3", label:"๓ ครั้ง / ปี", meets:false},
+          {value:"4+", label:"≥ ๔ ครั้ง / ปี", meets:true}
+        ]
+      }
+    ]
+  },
+  {
+    id:"s7", num:"๗", title:"สร้างแรงจูงใจและยกย่องชมเชยบุคลากรที่มีส่วนร่วมในการจัดการความรู้",
+    indicators:[
+      {
+        code:"๗",
+        title:"จำนวนครั้งที่ผู้บริหารเข้าร่วมเวที/กิจกรรมที่บุคลากรร่วมนำเสนอผลงานการจัดการความรู้และการจัดการนวัตกรรม",
+        desc:"การเข้าร่วมเวที/กิจกรรมที่เปิดโอกาสให้บุคลากรมีส่วนร่วมในด้านการจัดการความรู้และการจัดการนวัตกรรม เช่น การสัมมนา SMS การสัมมนา Stakeholder โครงการ KM Show and Share กิจกรรมการแลกเปลี่ยนเรียนรู้ (Knowledge Sharing) กิจกรรมการนำเสนอผลงานนวัตกรรมและนิทรรศการผลงานนวัตกรรม ประจำปี และ/หรือกิจกรรมที่บุคลากรถ่ายทอดแลกเปลี่ยนความรู้ เป็นต้น",
+        expected:"≥ ๒ ครั้ง / ปี",
+        hint:"ชื่อกิจกรรม วันที่เข้าร่วมกิจกรรม",
+        scale:[
+          {value:"1", label:"๑ ครั้ง / ปี", meets:false},
+          {value:"2+", label:"≥ ๒ ครั้ง / ปี", meets:true}
+        ]
+      }
+    ]
+  }
+];
+
+// แกนสั้นสำหรับ Spider Chart
+const SHORT_LABELS = {
+  s1:"๑. เรียนรู้ต่อเนื่อง",
+  s2:"๒. ใช้เครื่องมือ KM",
+  s3:"๓. สร้างทัศนคติที่ดี",
+  s4:"๔. มอบนโยบาย",
+  s5:"๕. ติดตาม กำกับดูแล",
+  s6:"๖. มีส่วนร่วม / วัฒนธรรม",
+  s7:"๗. ยกย่องชมเชย"
+};
+
+/* ===========================================================
+   STATE
+   =========================================================== */
+const STATE = {};
+const SCALE_BY_CODE = {};
+SECTIONS.forEach(s=>{
+  s.indicators.forEach(ind=>{
+    STATE[ind.code] = { result:null, qty:null, detail:"", files:[] };
+    SCALE_BY_CODE[ind.code] = ind.scale;
+  });
+});
+
+/* ===========================================================
+   RENDER INDICATORS
+   =========================================================== */
+function renderIndicatorSections(){
+  const host = document.getElementById("indicator-sections");
+  let html = "";
+  SECTIONS.forEach(sec=>{
+    const perItem = (10/sec.indicators.length).toFixed(2);
+    html += `
+    <section class="section" id="${sec.id}">
+      <div class="section-header">
+        <div class="num">หัวข้อที่ ${sec.num} · SECTION ${sec.num} · คะแนนเต็ม ๑๐</div>
+        <h1>${sec.title}</h1>
+      </div>
+      <div class="score-rule">
+        คะแนนหัวข้อนี้ = <strong>๑๐ คะแนน</strong> · มีตัวชี้วัดย่อย <strong>${th(sec.indicators.length)} ข้อ</strong>
+        · คิดข้อละ <strong>${th(perItem)} คะแนน</strong>
+        · ทำไม่ถึงค่าความคาดหวัง = ไม่ได้คะแนน, ทำได้/เกินค่าความคาดหวัง = ได้คะแนนเต็มของข้อ
+      </div>
+      ${sec.indicators.map(ind=>indicatorHTML(ind, perItem)).join("")}
+      <div class="section-foot">— สิ้นสุดหัวข้อที่ ${sec.num} —</div>
+    </section>`;
+  });
+  host.innerHTML = html;
+
+  // bind events — main มี/ไม่มี radio
+  document.querySelectorAll("[data-radio]").forEach(el=>{
+    el.addEventListener("change",e=>{
+      const code = el.getAttribute("data-radio");
+      STATE[code].result = el.value;
+      if(el.value!=="yes"){
+        STATE[code].qty = null;
+        // uncheck any selected scale radio for this code
+        document.querySelectorAll(`input[data-qty="${code}"]`).forEach(r=>r.checked=false);
+      }
+      toggleScale(code);
+      renderSpider();
+    });
+  });
+  // bind events — scale (quantity level) radio
+  document.querySelectorAll("[data-qty]").forEach(el=>{
+    el.addEventListener("change",e=>{
+      const code = el.getAttribute("data-qty");
+      STATE[code].qty = el.value;
+      renderSpider();
+    });
+  });
+  document.querySelectorAll("[data-detail]").forEach(el=>{
+    el.addEventListener("input",e=>{
+      const code = el.getAttribute("data-detail");
+      STATE[code].detail = el.value;
+    });
+  });
+  document.querySelectorAll("[data-file]").forEach(el=>{
+    el.addEventListener("change",e=>{
+      const code = el.getAttribute("data-file");
+      const files = Array.from(el.files||[]);
+      STATE[code].files = STATE[code].files.concat(files.map(f=>({name:f.name,size:f.size})));
+      el.value = "";
+      renderFileChips(code);
+    });
+  });
+}
+
+function toggleScale(code){
+  const wrap = document.getElementById("scale-"+code);
+  if(!wrap) return;
+  wrap.style.display = (STATE[code].result === "yes") ? "block" : "none";
+}
+
+function indicatorHTML(ind, perItem){
+  const hasScale = !!ind.scale;
+  const scaleBlock = hasScale ? `
+    <div class="scale-wrap" id="scale-${ind.code}" style="display:none">
+      <div class="k">ระบุระดับ / จำนวนครั้งที่ดำเนินการจริง</div>
+      <div class="scale-row">
+        ${ind.scale.map(o=>`
+          <label class="scale-choice" data-meets="${o.meets}">
+            <input type="radio" name="q-${ind.code}" value="${o.value}" data-qty="${ind.code}">
+            <span class="scale-box">${o.label}</span>
+          </label>`).join("")}
+      </div>
+    </div>` : "";
+
+  return `
+  <div class="indicator">
+    <div class="indicator-head">
+      <div class="indicator-code">${ind.code}</div>
+      <div class="indicator-title">${ind.title}</div>
+      <div class="indicator-points" title="คะแนนเต็มของข้อนี้">${th(perItem)} คะแนน</div>
+    </div>
+    <div class="kv-grid">
+      <div class="kv-block">
+        <div class="k">คำอธิบาย</div>
+        <div class="v">${ind.desc}</div>
+      </div>
+      <div class="kv-block expected">
+        <div class="k">ค่าความคาดหวัง</div>
+        <div class="v">${ind.expected}</div>
+      </div>
+    </div>
+
+    <div class="result-block">
+      <div class="k">ผลการดำเนินการ</div>
+      <div class="choices">
+        <label class="choice" data-val="yes">
+          <input type="radio" name="r-${ind.code}" value="yes" data-radio="${ind.code}">
+          <div class="choice-box">มี (โปรดระบุรายละเอียด)</div>
+        </label>
+        <label class="choice" data-val="no">
+          <input type="radio" name="r-${ind.code}" value="no" data-radio="${ind.code}">
+          <div class="choice-box">ไม่มี</div>
+        </label>
+      </div>
+
+      ${scaleBlock}
+
+      <div class="field-hint">รายละเอียด ${ind.hint}</div>
+      <textarea data-detail="${ind.code}" placeholder="ระบุรายละเอียดผลการดำเนินการ..."></textarea>
+
+      <div class="attach-row">
+        <label class="btn-attach">
+          <svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+          แนบไฟล์หลักฐาน
+          <input type="file" multiple data-file="${ind.code}" style="display:none">
+        </label>
+        <div class="attach-files" id="files-${ind.code}"></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderFileChips(code){
+  const host = document.getElementById("files-"+code);
+  if(!host) return;
+  host.innerHTML = STATE[code].files.map((f,i)=>
+    `<span class="attach-chip">📎 ${escapeHTML(f.name)} <button onclick="removeFile('${code}',${i})" title="ลบ">×</button></span>`
+  ).join("");
+}
+function removeFile(code,i){
+  STATE[code].files.splice(i,1);
+  renderFileChips(code);
+}
+function escapeHTML(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c])}
+
+/* ===========================================================
+   NAV
+   =========================================================== */
+function setupNav(){
+  const links = document.querySelectorAll("#sidebar .nav a");
+  links.forEach(a=>{
+    a.addEventListener("click",e=>{
+      e.preventDefault();
+      const t = a.getAttribute("data-target");
+      goTo(t);
+    });
+  });
+  // mark first
+  links[0].classList.add("active");
+}
+function goTo(id){
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll("#sidebar .nav a").forEach(a=>a.classList.remove("active"));
+  const sec = document.getElementById(id);
+  if(sec) sec.classList.add("active");
+  const link = document.querySelector(`#sidebar .nav a[data-target="${id}"]`);
+  if(link) link.classList.add("active");
+  // crumb
+  const crumb = document.getElementById("crumb");
+  if(id==="home") crumb.textContent="หน้าแรก / ข้อมูลผู้รับการประเมิน";
+  else if(id==="spider") crumb.textContent="Spider Chart · ภาพรวมการประเมิน";
+  else{
+    const sObj = SECTIONS.find(s=>s.id===id);
+    if(sObj) crumb.textContent = `หัวข้อที่ ${sObj.num} · ${truncate(sObj.title,60)}`;
+  }
+  // recompute spider when shown
+  if(id==="spider") renderSpider();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function truncate(s,n){return s.length>n?s.slice(0,n-1)+"…":s}
+
+/* ===========================================================
+   SCORING — ตามค่าความคาดหวัง
+   ทำไม่ถึง = ไม่ได้คะแนน / ทำตามหรือเกินค่าความคาดหวัง = ได้คะแนนเต็มของข้อ
+   =========================================================== */
+function indicatorAchieved(code){
+  const st = STATE[code];
+  if(!st || st.result !== "yes") return false;
+  const sc = SCALE_BY_CODE[code];
+  if(!sc) return true; // ไม่มี scale (เช่น ๕.๓) — เลือก "มี" ถือว่าได้คะแนนเต็ม
+  if(!st.qty) return false; // ยังไม่ระบุระดับ
+  const opt = sc.find(o=>o.value===st.qty);
+  return opt ? !!opt.meets : false;
+}
+
+function computeScores(){
+  return SECTIONS.map(sec=>{
+    const total = sec.indicators.length;
+    const perItem = total ? 10/total : 0;
+    let yes = 0;
+    sec.indicators.forEach(ind=>{
+      if(indicatorAchieved(ind.code)) yes++;
+    });
+    const score = +(yes * perItem).toFixed(2);
+    return {
+      id:sec.id,
+      label:SHORT_LABELS[sec.id],
+      full:sec.title,
+      score,
+      perItem:+perItem.toFixed(2),
+      yes,
+      total
+    };
+  });
+}
+
+/* ===========================================================
+   SPIDER CHART (custom SVG, print-friendly)
+   =========================================================== */
+function renderSpider(){
+  const data = computeScores();
+  const N = data.length;
+  const size = 540;
+  const cx = size/2, cy = size/2;
+  const R = 180;
+
+  // grid rings
+  const rings = [0.2,0.4,0.6,0.8,1.0];
+  let gridSVG = "";
+  rings.forEach(f=>{
+    const pts = [];
+    for(let i=0;i<N;i++){
+      const ang = -Math.PI/2 + (i*2*Math.PI/N);
+      const x = cx + R*f*Math.cos(ang);
+      const y = cy + R*f*Math.sin(ang);
+      pts.push(`${x.toFixed(2)},${y.toFixed(2)}`);
+    }
+    gridSVG += `<polygon class="radar-grid" points="${pts.join(" ")}" fill="none" stroke="#e0e7ff" stroke-width="1"/>`;
+  });
+
+  // axes
+  let axesSVG = "";
+  for(let i=0;i<N;i++){
+    const ang = -Math.PI/2 + (i*2*Math.PI/N);
+    const x = cx + R*Math.cos(ang);
+    const y = cy + R*Math.sin(ang);
+    axesSVG += `<line class="radar-axis" x1="${cx}" y1="${cy}" x2="${x.toFixed(2)}" y2="${y.toFixed(2)}" stroke="#cbd5e1" stroke-width="1"/>`;
+  }
+
+  // tick labels (๒,๔,๖,๘,๑๐)
+  let tickSVG = "";
+  rings.forEach(f=>{
+    const v = +(f*10).toFixed(0);
+    tickSVG += `<text class="radar-tick" x="${cx+4}" y="${(cy - R*f + 4).toFixed(2)}" font-size="10" fill="#94a3b8">${th(v)}</text>`;
+  });
+
+  // data polygon
+  const dPts = [];
+  const points = [];
+  for(let i=0;i<N;i++){
+    const ang = -Math.PI/2 + (i*2*Math.PI/N);
+    const f = data[i].score/10;
+    const x = cx + R*f*Math.cos(ang);
+    const y = cy + R*f*Math.sin(ang);
+    dPts.push(`${x.toFixed(2)},${y.toFixed(2)}`);
+    points.push({x,y,score:data[i].score});
+  }
+  const fillPoly = `<polygon class="radar-fill" points="${dPts.join(" ")}" fill="#4338ca" fill-opacity="0.18"/>`;
+  const strokePoly = `<polygon class="radar-stroke" points="${dPts.join(" ")}" fill="none" stroke="#1e1b4b" stroke-width="2.5" stroke-linejoin="round"/>`;
+
+  // points
+  let dotSVG = "";
+  points.forEach(p=>{
+    dotSVG += `<circle class="radar-point" cx="${p.x.toFixed(2)}" cy="${p.y.toFixed(2)}" r="4" fill="#1e1b4b" stroke="#fff" stroke-width="1.5"/>`;
+  });
+
+  // labels
+  let labelSVG = "";
+  for(let i=0;i<N;i++){
+    const ang = -Math.PI/2 + (i*2*Math.PI/N);
+    const x = cx + (R+24)*Math.cos(ang);
+    const y = cy + (R+24)*Math.sin(ang);
+    let anchor = "middle";
+    if(Math.cos(ang) > 0.2) anchor = "start";
+    else if(Math.cos(ang) < -0.2) anchor = "end";
+    let dy = 4;
+    if(Math.sin(ang) < -0.5) dy = -4;
+    if(Math.sin(ang) > 0.5) dy = 12;
+    labelSVG += `<text class="radar-label" x="${x.toFixed(2)}" y="${(y+dy).toFixed(2)}" font-size="11.5" font-weight="600" text-anchor="${anchor}" fill="#1e1b4b">${data[i].label}</text>`;
+    labelSVG += `<text class="radar-label" x="${x.toFixed(2)}" y="${(y+dy+14).toFixed(2)}" font-size="10.5" font-weight="500" text-anchor="${anchor}" fill="#4338ca">${th(data[i].score.toFixed(2))}/๑๐</text>`;
+  }
+
+  const svg = `
+  <svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Spider chart of evaluation scores">
+    <defs>
+      <pattern id="diag" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <line x1="0" y1="0" x2="0" y2="6" stroke="#4338ca" stroke-width="1" opacity="0.10"/>
+      </pattern>
+    </defs>
+    ${gridSVG}
+    ${axesSVG}
+    ${fillPoly}
+    ${strokePoly}
+    ${tickSVG}
+    ${dotSVG}
+    ${labelSVG}
+  </svg>`;
+  document.getElementById("radar-host").innerHTML = svg;
+
+  // score list — แสดงคะแนน X.XX/๑๐ พร้อมจำนวนข้อย่อยที่บรรลุค่าความคาดหวัง
+  const list = document.getElementById("score-list");
+  list.innerHTML = data.map(d=>`
+    <li>
+      <span class="label">${d.label} <span style="color:var(--muted);font-size:11px">(${th(d.yes)}/${th(d.total)} ข้อ)</span></span>
+      <span class="val">${th(d.score.toFixed(2))}<small style="color:var(--muted);font-weight:400">/๑๐</small></span>
+      <span class="score-bar"><span class="score-bar-fill" style="width:${d.score*10}%"></span></span>
+    </li>
+  `).join("");
+
+  // คะแนนรวม = ผลรวมทุกหัวข้อ (เต็ม ๗๐)
+  const total = data.reduce((a,b)=>a+b.score,0);
+  const totalRounded = +total.toFixed(2);
+  document.getElementById("overall").innerHTML = `${th(totalRounded)}<small>/๗๐</small>`;
+
+  // signature name update
+  const name = document.getElementById("f-name").value || "........................................";
+  document.getElementById("sig-name").textContent = `( ${name} )`;
+}
+
+/* ===========================================================
+   EXPORT TO PDF — ตั้งชื่อไฟล์ตามตำแหน่งที่กรอกไว้
+   =========================================================== */
+function exportPDF(){
+  // ก่อนพิมพ์ ให้คำนวณ Spider Chart ใหม่ตามข้อมูลล่าสุด
+  renderSpider();
+
+  // ตั้งชื่อไฟล์ (document.title) ตาม "ตำแหน่ง" ที่กรอกไว้ — เบราว์เซอร์ส่วนใหญ่
+  // จะใช้ค่านี้เป็นชื่อไฟล์เริ่มต้นเมื่อเลือก "บันทึกเป็น PDF" ในหน้าต่างพิมพ์
+  const originalTitle = document.title;
+  const pos = (document.getElementById("f-pos").value || "").trim();
+  const name = (document.getElementById("f-name").value || "").trim();
+  let suggested = pos || "แบบประเมิน Role Model";
+  if(name) suggested = `${suggested} - ${name}`;
+  document.title = suggested;
+
+  setTimeout(()=>{
+    window.print();
+    // คืนชื่อหน้าเดิมหลังพิมพ์เสร็จ/ปิดหน้าต่างพิมพ์
+    setTimeout(()=>{ document.title = originalTitle; }, 1000);
+  },120);
+}
+
+/* ===========================================================
+   INIT
+   =========================================================== */
+renderIndicatorSections();
+setupNav();
+// คำนวณ spider ตอนโหลดเพื่อให้พิมพ์ได้แม้ไม่ได้กดเปิดหน้าก่อน
+renderSpider();
+// อัปเดตชื่อใน signature เมื่อกรอกข้อมูล
+document.getElementById("f-name").addEventListener("input",()=>{
+  const name = document.getElementById("f-name").value || "........................................";
+  document.getElementById("sig-name").textContent = `( ${name} )`;
+});
+// เชื่อมตำแหน่งจากหน้าแรกมาเติมในช่องลงนามอัตโนมัติ (ยังแก้ไขเพิ่มเติมได้)
+document.getElementById("f-pos").addEventListener("input",()=>{
+  const sigPos = document.getElementById("sig-pos");
+  if(!sigPos.dataset.touched){
+    sigPos.value = document.getElementById("f-pos").value;
+  }
+});
+document.getElementById("sig-pos").addEventListener("input",function(){
+  this.dataset.touched = "1";
+});
+</script>
+</body>
+</html>
