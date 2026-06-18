@@ -2383,170 +2383,170 @@ function buildPdfDocument(){
 
   /* ---------- หน้าแรก: ผู้ประเมินตนเอง ---------- */
   pageHeader("แบบฟอร์มประเมินบทบาท ROLE MODEL — ผู้บริหารระดับกลาง");
-  setStyle(8, true, C.indigo700);
+  setStyle(8.5, true, C.indigo700);
   doc.text("FORM · INDIVIDUAL EVALUATION", M, y);
-  y += 5.5;
-  const titleLines = measureWrap("แบบฟอร์มการประเมินบทบาทการเป็นแบบอย่างที่ดี (Role Model) สำหรับผู้บริหารระดับกลาง (รายบุคคล)", 15, true, CW);
-  drawLines(titleLines, M, 15, true, C.indigo900, 6.4);
-  y += 3;
+  y += 6;
+  const titleLines = measureWrap("แบบฟอร์มการประเมินบทบาทการเป็นแบบอย่างที่ดี (Role Model) สำหรับผู้บริหารระดับกลาง (รายบุคคล)", 16, true, CW);
+  drawLines(titleLines, M, 16, true, C.indigo900, 7.2);
+  y += 3.5;
   hr(y, C.line, 0.3);
-  y += 8;
+  y += 9;
 
   const name = (document.getElementById("f-name").value || "").trim() || "—";
   const pos = (document.getElementById("f-pos").value || "").trim() || "—";
   const dateVal = (document.getElementById("f-date").value || "").trim() || "—";
 
-  setStyle(11, true, C.indigo900);
+  setStyle(12, true, C.indigo900);
   doc.text("ผู้ประเมินตนเอง", M, y);
-  y += 6;
-  const infoRowH = 6;
-  setStyle(8, true, C.inkSoft); doc.text("ชื่อ – นามสกุล", M, y);
-  setStyle(8, true, C.inkSoft); doc.text("ตำแหน่ง", M + CW/2, y);
-  y += 4.2;
-  setStyle(10.5, false, C.ink); doc.text(name, M, y);
-  setStyle(10.5, false, C.ink); doc.text(pos, M + CW/2, y);
+  y += 7.5;
+  const infoRowH = 7.5;
+  setStyle(8.5, true, C.inkSoft); doc.text("ชื่อ – นามสกุล", M, y);
+  setStyle(8.5, true, C.inkSoft); doc.text("ตำแหน่ง", M + CW/2, y);
+  y += 5;
+  setStyle(11.5, false, C.ink); doc.text(name, M, y);
+  setStyle(11.5, false, C.ink); doc.text(pos, M + CW/2, y);
   y += infoRowH;
-  setStyle(8, true, C.inkSoft); doc.text("วัน / เดือน / ปี ที่ประเมิน", M, y);
-  y += 4.2;
-  setStyle(10.5, false, C.ink); doc.text(dateVal, M, y);
-  y += 9;
+  setStyle(8.5, true, C.inkSoft); doc.text("วัน / เดือน / ปี ที่ประเมิน", M, y);
+  y += 5;
+  setStyle(11.5, false, C.ink); doc.text(dateVal, M, y);
+  y += 10;
   hr(y, C.line, 0.3);
-  y += 7;
+  y += 8.5;
 
-  setStyle(9.5, true, C.indigo900);
+  setStyle(10.5, true, C.indigo900);
   doc.text("เกณฑ์การคิดคะแนน", M, y);
-  y += 4.6;
+  y += 5.6;
   const ruleLines = measureWrap(
     "แต่ละหัวข้อหลักมีคะแนนเต็ม 10 คะแนน แบ่งเท่ากันตามจำนวนตัวชี้วัดย่อย คะแนนเต็มรวมทั้งสิ้น 70 คะแนน " +
     "โดยให้คะแนนตามค่าความคาดหวังของแต่ละข้อ ดังนี้ ทำไม่ถึงค่าความคาดหวัง = ไม่ได้คะแนน, " +
     "ทำได้ตามค่าความคาดหวัง = ได้คะแนนเต็มของข้อนั้น, ทำเกินค่าความคาดหวัง = ได้คะแนนเต็มเท่ากัน (ไม่มีคะแนนพิเศษเพิ่ม)",
-    9, false, CW
+    9.5, false, CW
   );
-  drawLines(ruleLines, M, 9, false, C.inkSoft, 4.1);
+  drawLines(ruleLines, M, 9.5, false, C.inkSoft, 5);
 
   /* ---------- ข้อมูลความช่วยเหลือสำหรับ measure/draw ของแต่ละตัวชี้วัด ---------- */
   function measureIndicator(ind, perItem){
-    const padX = 5, padTop = 5.5, padBottom = 5;
+    const padX = 6, padTop = 7, padBottom = 6.5;
     const innerW = CW - padX * 2;
     const st = STATE[ind.code];
 
     const ptsLabel = th(perItem) + " คะแนน";
-    doc.setFont("Sarabun", "bold"); doc.setFontSize(8);
-    const ptsW = doc.getTextWidth(ptsLabel) + 6;
-    const titleMaxW = innerW - 13 - ptsW - 4;
-    const titleLines = measureWrap(ind.title, 10.5, true, titleMaxW);
-    const descLines = measureWrap(ind.desc, 9, false, innerW);
+    doc.setFont("Sarabun", "bold"); doc.setFontSize(8.5);
+    const ptsW = doc.getTextWidth(ptsLabel) + 7;
+    const titleMaxW = innerW - 14 - ptsW - 4;
+    const titleLines = measureWrap(ind.title, 11.5, true, titleMaxW);
+    const descLines = measureWrap(ind.desc, 10, false, innerW);
 
     let detailText = (st.detail || "").trim();
     if(!detailText) detailText = "(ไม่ได้ระบุรายละเอียด)";
-    const detailLines = measureWrap(detailText, 9, false, innerW);
+    const detailLines = measureWrap(detailText, 10, false, innerW);
 
     const fileNames = (st.files || []).map(f => "• " + f.name);
-    const fileLines = fileNames.length ? fileNames.map(n => measureWrap(n, 8.5, false, innerW - 2)).flat() : [];
+    const fileLines = fileNames.length ? fileNames.map(n => measureWrap(n, 9.5, false, innerW - 2)).flat() : [];
 
     let h = padTop;
-    h += Math.max(titleLines.length * 4.4, 5) + 3; // title row + gap
+    h += Math.max(titleLines.length * 5, 5.5) + 4; // title row + gap
     h += 0.3; // divider
-    h += 3.4 + descLines.length * 3.8 + 2; // คำอธิบาย label + lines
-    h += 3.4 + 5.5; // ค่าความคาดหวัง label + badge row
-    h += 3.6 + 5; // ผลการดำเนินการ label + result row
-    h += 3.4 + detailLines.length * 3.8 + 1.5; // รายละเอียด label + lines
-    if(fileLines.length){ h += 3.4 + fileLines.length * 3.3 + 1; }
+    h += 4.4 + descLines.length * 4.6 + 2.6; // คำอธิบาย label + lines
+    h += 4.4 + 6.4; // ค่าความคาดหวัง label + badge row
+    h += 4.6 + 6; // ผลการดำเนินการ label + result row
+    h += 4.4 + detailLines.length * 4.6 + 2; // รายละเอียด label + lines
+    if(fileLines.length){ h += 4.4 + fileLines.length * 4.2 + 1.4; }
     h += padBottom;
 
     return { h, padX, padTop, padBottom, innerW, ptsLabel, ptsW, titleMaxW, titleLines, descLines, detailLines, detailText, fileLines };
   }
 
   function drawIndicator(ind, perItem, m){
-    ensure(m.h + 4);
+    ensure(m.h + 6);
     const top = y;
     doc.setDrawColor(C.line[0], C.line[1], C.line[2]);
     doc.setLineWidth(0.25);
-    doc.roundedRect(M, top, CW, m.h, 1.6, 1.6);
+    doc.roundedRect(M, top, CW, m.h, 1.8, 1.8);
 
     let cy = top + m.padTop;
-    const codeW = 10.5;
+    const codeW = 12;
 
     // code badge
     doc.setFillColor(C.indigo700[0], C.indigo700[1], C.indigo700[2]);
-    doc.roundedRect(M + m.padX, cy - 3.3, codeW, 5, 0.9, 0.9, "F");
-    setStyle(8.5, true, C.white);
-    doc.text(ind.code, M + m.padX + codeW / 2, cy - 0.1, { align: "center" });
+    doc.roundedRect(M + m.padX, cy - 3.6, codeW, 5.6, 1, 1, "F");
+    setStyle(9, true, C.white);
+    doc.text(ind.code, M + m.padX + codeW / 2, cy - 0.05, { align: "center" });
 
     // points badge (top-right)
     doc.setFillColor(C.indigoBg[0], C.indigoBg[1], C.indigoBg[2]);
     doc.setDrawColor(C.indigoBorder[0], C.indigoBorder[1], C.indigoBorder[2]);
-    doc.roundedRect(M + CW - m.padX - m.ptsW, cy - 3.6, m.ptsW, 5.2, 0.9, 0.9, "FD");
-    setStyle(8, true, C.indigo700);
-    doc.text(m.ptsLabel, M + CW - m.padX - m.ptsW / 2, cy - 0.1, { align: "center" });
+    doc.roundedRect(M + CW - m.padX - m.ptsW, cy - 4, m.ptsW, 5.8, 1, 1, "FD");
+    setStyle(8.5, true, C.indigo700);
+    doc.text(m.ptsLabel, M + CW - m.padX - m.ptsW / 2, cy - 0.05, { align: "center" });
 
     // title
-    setStyle(10.5, true, C.ink);
-    const titleX = M + m.padX + codeW + 3;
-    m.titleLines.forEach((line, i) => doc.text(line, titleX, cy + i * 4.4));
-    cy += Math.max(m.titleLines.length * 4.4, 5) + 3;
+    setStyle(11.5, true, C.ink);
+    const titleX = M + m.padX + codeW + 3.5;
+    m.titleLines.forEach((line, i) => doc.text(line, titleX, cy + i * 5));
+    cy += Math.max(m.titleLines.length * 5, 5.5) + 4;
 
     doc.setDrawColor(C.line[0], C.line[1], C.line[2]);
     doc.setLineWidth(0.2);
     doc.line(M + m.padX, cy, M + CW - m.padX, cy);
-    cy += 4;
+    cy += 5;
 
-    setStyle(7.5, true, C.indigo700);
+    setStyle(8.5, true, C.indigo700);
     doc.text("คำอธิบาย", M + m.padX, cy);
-    cy += 3.6;
-    setStyle(9, false, C.inkSoft);
-    m.descLines.forEach(line => { doc.text(line, M + m.padX, cy); cy += 3.8; });
-    cy += 1.6;
+    cy += 4.6;
+    setStyle(10, false, C.inkSoft);
+    m.descLines.forEach(line => { doc.text(line, M + m.padX, cy); cy += 4.6; });
+    cy += 2.2;
 
-    setStyle(7.5, true, C.indigo700);
+    setStyle(8.5, true, C.indigo700);
     doc.text("ค่าความคาดหวัง", M + m.padX, cy);
-    cy += 3.6;
-    doc.setFont("Sarabun", "bold"); doc.setFontSize(9);
-    const expW = doc.getTextWidth(ind.expected) + 6;
+    cy += 4.6;
+    doc.setFont("Sarabun", "bold"); doc.setFontSize(9.5);
+    const expW = doc.getTextWidth(ind.expected) + 7;
     doc.setFillColor(C.indigoBg[0], C.indigoBg[1], C.indigoBg[2]);
     doc.setDrawColor(C.indigoBorder[0], C.indigoBorder[1], C.indigoBorder[2]);
-    doc.roundedRect(M + m.padX, cy - 3.1, expW, 5, 0.9, 0.9, "FD");
-    setStyle(9, true, C.indigo900);
-    doc.text(ind.expected, M + m.padX + 3, cy + 0.4);
-    cy += 6.5;
+    doc.roundedRect(M + m.padX, cy - 3.6, expW, 5.8, 1, 1, "FD");
+    setStyle(9.5, true, C.indigo900);
+    doc.text(ind.expected, M + m.padX + 3.5, cy + 0.3);
+    cy += 7.4;
 
-    setStyle(7.5, true, C.indigo700);
+    setStyle(8.5, true, C.indigo700);
     doc.text("ผลการดำเนินการ", M + m.padX, cy);
-    cy += 3.8;
+    cy += 4.8;
     const st = STATE[ind.code];
     const achieved = indicatorAchieved(ind.code);
     let resultLabel, resultColor;
     if(st.result === "yes"){ resultLabel = "● มี"; resultColor = achieved ? C.okText : [180, 83, 9]; }
     else if(st.result === "no"){ resultLabel = "○ ไม่มี"; resultColor = C.noText; }
     else { resultLabel = "— ไม่ได้ระบุ"; resultColor = C.muted; }
-    setStyle(9.5, true, resultColor);
+    setStyle(10.5, true, resultColor);
     doc.text(resultLabel, M + m.padX, cy);
     if(st.result === "yes" && st.qty){
       const opt = (ind.scale || []).find(o => o.value === st.qty);
       if(opt){
-        setStyle(9, false, C.inkSoft);
+        setStyle(9.5, false, C.inkSoft);
         const tag = "  ระดับที่ระบุ: " + opt.label + (opt.meets ? " (ตามเป้าหมาย)" : " (ยังไม่ถึงเป้าหมาย)");
-        doc.text(tag, M + m.padX + doc.getTextWidth(resultLabel) + 14, cy);
+        doc.text(tag, M + m.padX + doc.getTextWidth(resultLabel) + 16, cy);
       }
     }
-    cy += 5;
+    cy += 6;
 
-    setStyle(7.5, true, C.indigo700);
+    setStyle(8.5, true, C.indigo700);
     doc.text("รายละเอียดที่บันทึกไว้", M + m.padX, cy);
-    cy += 3.6;
-    setStyle(9, false, C.inkSoft);
-    m.detailLines.forEach(line => { doc.text(line, M + m.padX, cy); cy += 3.8; });
+    cy += 4.6;
+    setStyle(10, false, C.inkSoft);
+    m.detailLines.forEach(line => { doc.text(line, M + m.padX, cy); cy += 4.6; });
 
     if(m.fileLines.length){
-      cy += 1.2;
-      setStyle(7.5, true, C.indigo700);
+      cy += 1.6;
+      setStyle(8.5, true, C.indigo700);
       doc.text("ไฟล์หลักฐานที่แนบ (อยู่ในโฟลเดอร์ Google Drive ของผู้ประเมิน)", M + m.padX, cy);
-      cy += 3.5;
-      setStyle(8.5, false, C.inkSoft);
-      m.fileLines.forEach(line => { doc.text(line, M + m.padX + 1, cy); cy += 3.3; });
+      cy += 4.4;
+      setStyle(9.5, false, C.inkSoft);
+      m.fileLines.forEach(line => { doc.text(line, M + m.padX + 1, cy); cy += 4.2; });
     }
 
-    y = top + m.h + 4;
+    y = top + m.h + 6;
   }
 
   /* ---------- หัวข้อที่ ๑-๗ — ขึ้นหน้าใหม่ทุกหัวข้อ ---------- */
@@ -2555,24 +2555,24 @@ function buildPdfDocument(){
     pageHeader("แบบฟอร์มประเมินบทบาท ROLE MODEL — ผู้บริหารระดับกลาง");
     const perItem = +(10 / sec.indicators.length).toFixed(2);
 
-    setStyle(8, true, C.indigo700);
+    setStyle(8.5, true, C.indigo700);
     doc.text(`หัวข้อที่ ${sec.num} · SECTION ${sec.num} · คะแนนเต็ม ๑๐`, M, y);
-    y += 5;
-    const secTitleLines = measureWrap(sec.title, 13.5, true, CW);
-    drawLines(secTitleLines, M, 13.5, true, C.ink, 5.6);
-    y += 1.5;
-    hr(y, C.indigo800, 0.5);
     y += 6;
+    const secTitleLines = measureWrap(sec.title, 14.5, true, CW);
+    drawLines(secTitleLines, M, 14.5, true, C.ink, 6.4);
+    y += 2;
+    hr(y, C.indigo800, 0.5);
+    y += 7.5;
 
-    setStyle(8.5, false, C.inkSoft);
+    setStyle(9, false, C.inkSoft);
     const ruleText = `คะแนนหัวข้อนี้ = 10 คะแนน · มีตัวชี้วัดย่อย ${th(sec.indicators.length)} ข้อ · คิดข้อละ ${th(perItem)} คะแนน · ทำไม่ถึงค่าความคาดหวัง = ไม่ได้คะแนน, ทำได้/เกินค่าความคาดหวัง = ได้คะแนนเต็มของข้อ`;
-    const ruleLines2 = measureWrap(ruleText, 8.5, false, CW - 6);
-    ensure(ruleLines2.length * 3.8 + 6);
+    const ruleLines2 = measureWrap(ruleText, 9, false, CW - 7);
+    ensure(ruleLines2.length * 4.3 + 7);
     doc.setFillColor(C.indigoBg[0], C.indigoBg[1], C.indigoBg[2]);
-    doc.rect(M, y - 3, CW, ruleLines2.length * 3.8 + 4, "F");
+    doc.rect(M, y - 3.5, CW, ruleLines2.length * 4.3 + 5, "F");
     let ry = y + 1;
-    ruleLines2.forEach(line => { doc.text(line, M + 3, ry); ry += 3.8; });
-    y = ry + 3;
+    ruleLines2.forEach(line => { doc.text(line, M + 3.5, ry); ry += 4.3; });
+    y = ry + 4;
 
     sec.indicators.forEach(ind => {
       const m = measureIndicator(ind, perItem);
@@ -2583,14 +2583,14 @@ function buildPdfDocument(){
   /* ---------- หน้าสุดท้าย: Spider Chart + สรุปคะแนน + ลงนาม + ผู้ประสานงาน ---------- */
   newPage();
   pageHeader("แบบฟอร์มประเมินบทบาท ROLE MODEL — ผู้บริหารระดับกลาง");
-  setStyle(8, true, C.indigo700);
+  setStyle(8.5, true, C.indigo700);
   doc.text("VISUAL SUMMARY · RADAR CHART", M, y);
-  y += 5;
-  setStyle(13.5, true, C.ink);
+  y += 6;
+  setStyle(14.5, true, C.ink);
   doc.text("ภาพรวมผลการประเมิน — Spider Chart ๗ มิติ", M, y);
-  y += 1.5;
+  y += 2;
   hr(y, C.indigo800, 0.5);
-  y += 9;
+  y += 10;
 
   const data = computeScores();
   const cx = M + CW / 2, cyR = y + 44, R = 33;
@@ -2636,75 +2636,75 @@ function buildPdfDocument(){
     const ly = cyR + (R + 13) * Math.sin(ang);
     let align = "center";
     if(Math.cos(ang) > 0.25) align = "left"; else if(Math.cos(ang) < -0.25) align = "right";
-    setStyle(7, true, C.indigo900);
+    setStyle(7.5, true, C.indigo900);
     doc.text(d.label, lx, ly, { align });
-    setStyle(6.5, false, C.indigo700);
-    doc.text(th(d.score.toFixed(2)) + "/๑๐", lx, ly + 3.2, { align });
+    setStyle(7, false, C.indigo700);
+    doc.text(th(d.score.toFixed(2)) + "/๑๐", lx, ly + 3.6, { align });
   });
 
-  y = cyR + R + 22;
+  y = cyR + R + 24;
 
   // ตารางคะแนนรายหัวข้อ (เต็มความกว้าง อยู่ใต้กราฟ — ๒ คอลัมน์)
-  ensure(36);
-  setStyle(10.5, true, C.indigo900);
+  ensure(40);
+  setStyle(11.5, true, C.indigo900);
   doc.text("คะแนนรายหัวข้อ", M, y);
-  y += 4.5;
+  y += 5.5;
   hr(y, C.line, 0.2);
-  y += 5;
+  y += 6.5;
 
   const colW = CW / 2 - 4;
-  const rowH = 7.2;
+  const rowH = 8.6;
   data.forEach((d, i) => {
     const col = i % 2, row = Math.floor(i / 2);
     const rx = M + col * (colW + 8);
     const ry = y + row * rowH;
-    setStyle(8.5, false, C.inkSoft);
+    setStyle(9.5, false, C.inkSoft);
     doc.text(d.label, rx, ry);
-    setStyle(6.5, false, C.muted);
-    doc.text(`(${th(d.yes)}/${th(d.total)} ข้อ)`, rx, ry + 3.3);
-    setStyle(9, true, C.indigo800);
+    setStyle(7.5, false, C.muted);
+    doc.text(`(${th(d.yes)}/${th(d.total)} ข้อ)`, rx, ry + 3.8);
+    setStyle(10, true, C.indigo800);
     doc.text(th(d.score.toFixed(2)) + "/๑๐", rx + colW, ry, { align: "right" });
   });
-  y += Math.ceil(N / 2) * rowH + 4;
+  y += Math.ceil(N / 2) * rowH + 5;
 
   const total = data.reduce((a, b) => a + b.score, 0);
-  ensure(10);
+  ensure(12);
   doc.setFillColor(C.indigo900[0], C.indigo900[1], C.indigo900[2]);
-  doc.rect(M, y, CW, 9, "F");
-  setStyle(8.5, false, C.white);
-  doc.text("คะแนนรวมทั้งสิ้น", M + 4, y + 5.8);
-  setStyle(12, true, C.white);
-  doc.text(th(total.toFixed(2)) + "/๗๐", M + CW - 4, y + 5.8, { align: "right" });
-  y += 9 + 12;
+  doc.rect(M, y, CW, 10.5, "F");
+  setStyle(9.5, false, C.white);
+  doc.text("คะแนนรวมทั้งสิ้น", M + 4.5, y + 6.8);
+  setStyle(13, true, C.white);
+  doc.text(th(total.toFixed(2)) + "/๗๐", M + CW - 4.5, y + 6.8, { align: "right" });
+  y += 10.5 + 13;
 
   // ลงนามผู้ประเมินตนเอง
-  ensure(28);
+  ensure(30);
   hr(y, C.line, 0.3);
-  y += 12;
+  y += 13;
   const sigX = PW / 2;
   doc.setDrawColor(C.ink[0], C.ink[1], C.ink[2]); doc.setLineWidth(0.3);
   doc.line(sigX - 30, y, sigX + 30, y);
-  y += 4.5;
-  setStyle(8.5, false, C.muted);
+  y += 5.2;
+  setStyle(9, false, C.muted);
   doc.text("ลงนามผู้ประเมินตนเอง", sigX, y, { align: "center" });
-  y += 4;
-  setStyle(9, true, C.inkSoft);
+  y += 4.6;
+  setStyle(10, true, C.inkSoft);
   doc.text(`( ${name} )`, sigX, y, { align: "center" });
-  y += 4.5;
+  y += 5;
   const sigPos = (document.getElementById("sig-pos").value || "").trim() || pos;
-  setStyle(8.5, false, C.inkSoft);
+  setStyle(9, false, C.inkSoft);
   doc.text(`ตำแหน่ง  ${sigPos}`, sigX, y, { align: "center" });
-  y += 10;
+  y += 11;
 
   // ผู้ประสานงาน
-  ensure(28);
+  ensure(32);
   doc.setDrawColor(C.line[0], C.line[1], C.line[2]); doc.setLineWidth(0.25);
   const coStartY = y;
-  setStyle(10, true, C.indigo900);
-  doc.text("ผู้ประสานงาน", M + 4, y + 6);
-  y += 9;
+  setStyle(11, true, C.indigo900);
+  doc.text("ผู้ประสานงาน", M + 4.5, y + 6.8);
+  y += 10;
   hr(y, C.line, 0.2);
-  y += 5;
+  y += 6;
   const coName = (document.getElementById("co-name").value || "").trim() || "—";
   const coPos = (document.getElementById("co-pos").value || "").trim() || "—";
   const coPhone = (document.getElementById("co-phone").value || "").trim() || "—";
@@ -2712,22 +2712,22 @@ function buildPdfDocument(){
   const coTypeSel = document.getElementById("co-type");
   const coType = coTypeSel.options[coTypeSel.selectedIndex]?.text || "—";
 
-  setStyle(8, true, C.inkSoft); doc.text("ชื่อ – นามสกุลผู้ประสานงาน", M + 4, y);
-  setStyle(8, true, C.inkSoft); doc.text("ตำแหน่ง", M + 4 + CW/2, y);
-  y += 4.2;
-  setStyle(9.5, false, C.ink); doc.text(coName, M + 4, y);
-  setStyle(9.5, false, C.ink); doc.text(coPos, M + 4 + CW/2, y);
-  y += 6;
-  setStyle(8, true, C.inkSoft); doc.text("เบอร์โทรศัพท์", M + 4, y);
-  setStyle(8, true, C.inkSoft); doc.text("อีเมล", M + 4 + CW/2, y);
-  y += 4.2;
-  setStyle(9.5, false, C.ink); doc.text(coPhone, M + 4, y);
-  setStyle(9.5, false, C.ink); doc.text(coEmail, M + 4 + CW/2, y);
-  y += 6;
-  setStyle(8, true, C.inkSoft); doc.text("ประเภท", M + 4, y);
-  y += 4.2;
-  setStyle(9.5, false, C.ink); doc.text(coType, M + 4, y);
-  y += 6;
+  setStyle(8.5, true, C.inkSoft); doc.text("ชื่อ – นามสกุลผู้ประสานงาน", M + 4.5, y);
+  setStyle(8.5, true, C.inkSoft); doc.text("ตำแหน่ง", M + 4.5 + CW/2, y);
+  y += 5;
+  setStyle(10.5, false, C.ink); doc.text(coName, M + 4.5, y);
+  setStyle(10.5, false, C.ink); doc.text(coPos, M + 4.5 + CW/2, y);
+  y += 7;
+  setStyle(8.5, true, C.inkSoft); doc.text("เบอร์โทรศัพท์", M + 4.5, y);
+  setStyle(8.5, true, C.inkSoft); doc.text("อีเมล", M + 4.5 + CW/2, y);
+  y += 5;
+  setStyle(10.5, false, C.ink); doc.text(coPhone, M + 4.5, y);
+  setStyle(10.5, false, C.ink); doc.text(coEmail, M + 4.5 + CW/2, y);
+  y += 7;
+  setStyle(8.5, true, C.inkSoft); doc.text("ประเภท", M + 4.5, y);
+  y += 5;
+  setStyle(10.5, false, C.ink); doc.text(coType, M + 4.5, y);
+  y += 7;
   doc.setDrawColor(C.line[0], C.line[1], C.line[2]); doc.setLineWidth(0.25);
   doc.roundedRect(M, coStartY, CW, y - coStartY + 2, 1.6, 1.6);
 
