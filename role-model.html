@@ -2266,7 +2266,7 @@ function renderSpider(){
    ถ้ายังไม่ได้ตั้งค่า ระบบจะ Export PDF และดาวน์โหลดไว้ในเครื่องให้ตามปกติ
    แต่จะไม่ส่งไฟล์ขึ้น Google Drive โดยอัตโนมัติ
    =========================================================== */
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzXehHdP414dplXMGx56C-y2WJkmtuV7m05DaG4leI0lH-3BljmRk8KDBpAOUWJzMJI/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMXRbanFzyjpJ2AOa1gkfBYtuDxUiKFPkQscKDmBE7hqOqNjgkVHCRwjRx2S1csGUb/exec";
 
 function isAppsScriptConfigured(){
   return !!APPS_SCRIPT_URL && APPS_SCRIPT_URL.indexOf("PASTE_") === -1;
@@ -2795,7 +2795,16 @@ async function submitAndExport(){
       const data = await res.json();
       if(data && data.success){
         let msg = "ส่งข้อมูลสำเร็จ — บันทึก PDF ไปยัง Google Drive แล้ว\nโฟลเดอร์: " + (data.folderName || "-") + "\nไฟล์: " + data.fileName;
-        if(attachments.length) msg += "\nไฟล์หลักฐานที่แนบ: " + th(data.attachmentsSaved != null ? data.attachmentsSaved : attachments.length) + " ไฟล์";
+        if(attachments.length){
+          if(data.attachmentsSaved != null){
+            msg += "\nไฟล์หลักฐานที่แนบ: " + th(data.attachmentsSaved) + " จาก " + th(attachments.length) + " ไฟล์ที่ส่งไป";
+            if(data.attachmentsSaved < attachments.length){
+              msg += "\n⚠ มีไฟล์แนบบางไฟล์บันทึกไม่สำเร็จ — โปรดตรวจสอบในโฟลเดอร์อีกครั้ง";
+            }
+          } else {
+            msg += "\n⚠ ส่งไฟล์แนบไป " + th(attachments.length) + " ไฟล์ แต่ Apps Script รุ่นที่ใช้งานอยู่ตอนนี้ไม่รองรับการบันทึกไฟล์แนบ (ไม่พบฟิลด์ attachmentsSaved ในคำตอบ) กรุณาตรวจสอบว่าได้อัปเดตและ Deploy โค้ด Apps Script เวอร์ชันล่าสุดแล้ว";
+          }
+        }
         alert(msg);
       } else {
         alert("Export to PDF สำเร็จและดาวน์โหลดไว้ในเครื่องแล้ว แต่ส่งขึ้น Google Drive ไม่สำเร็จ: " + (data && data.message ? data.message : "ไม่ทราบสาเหตุ"));
