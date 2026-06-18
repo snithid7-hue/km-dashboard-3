@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Serif:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 /* ===========================================================
    ROOT TOKENS — Minimalist Blue / Indigo
@@ -212,7 +213,7 @@ body{
 .btn-export:active{transform:translateY(1px)}
 .btn-export svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
 
-.btn-drive{
+.btn-draft{
   display:inline-flex;
   align-items:center;
   gap:8px;
@@ -228,9 +229,9 @@ body{
   text-decoration:none;
   transition:background .15s ease,transform .1s ease;
 }
-.btn-drive:hover{background:var(--indigo-50)}
-.btn-drive:active{transform:translateY(1px)}
-.btn-drive svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+.btn-draft:hover{background:var(--indigo-50)}
+.btn-draft:active{transform:translateY(1px)}
+.btn-draft svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
 
 /* Section */
 .section{display:none;animation:fadeIn .25s ease}
@@ -291,7 +292,8 @@ body{
   letter-spacing:.02em;
 }
 .field input[type="text"],
-.field input[type="date"]{
+.field input[type="date"],
+.field select{
   padding:10px 12px;
   border:1px solid var(--line-strong);
   border-radius:var(--radius-sm);
@@ -301,7 +303,9 @@ body{
   background:#fff;
   transition:border-color .15s ease,box-shadow .15s ease;
 }
-.field input:focus{
+.field select{cursor:pointer}
+.field input:focus,
+.field select:focus{
   outline:none;
   border-color:var(--indigo-600);
   box-shadow:0 0 0 3px var(--indigo-100);
@@ -656,7 +660,7 @@ textarea:focus{
   place-items:center;
   padding:8px;
 }
-.spider-canvas svg{width:100%;max-width:540px;height:auto}
+.spider-canvas svg{width:100%;max-width:600px;height:auto}
 
 .summary-card{
   background:var(--bg-soft);
@@ -817,7 +821,7 @@ textarea:focus{
 @media print{
   body{background:#fff;font-size:11.5pt;color:#000}
   .app{display:block}
-  .sidebar,.btn-export,.btn-drive,.section-foot,.notice{display:none !important}
+  .sidebar,.btn-export,.btn-draft,.section-foot,.notice,.entry-popup-overlay{display:none !important}
   .main{padding:0;max-width:none;margin:0}
   .topbar{margin-bottom:6mm;padding-bottom:3mm;border-bottom:2px solid #000}
   .crumb{font-size:9pt;color:#000}
@@ -975,9 +979,68 @@ textarea:focus{
   .main{padding:24px 20px 60px}
   .info-grid{grid-template-columns:1fr}
 }
+
+/* ===========================================================
+   ENTRY POPUP — แสดงรูปก่อนเข้าใช้งานระบบ
+   =========================================================== */
+.entry-popup-overlay{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  background:rgba(15,23,42,.78);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+.entry-popup-box{
+  background:#fff;
+  border-radius:var(--radius);
+  padding:20px 20px 24px;
+  max-width:560px;
+  width:100%;
+  max-height:90vh;
+  overflow-y:auto;
+  box-shadow:0 20px 50px rgba(0,0,0,.35);
+  text-align:center;
+}
+.entry-popup-box img{
+  width:100%;
+  max-width:100%;
+  border-radius:var(--radius-sm);
+  display:block;
+  margin-bottom:18px;
+}
+.entry-popup-box .btn-popup-enter{
+  margin:0 auto;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 20px;
+  background:var(--indigo-700);
+  color:#fff;
+  border:none;
+  border-radius:var(--radius-sm);
+  font-family:inherit;
+  font-size:13.5px;
+  font-weight:500;
+  cursor:pointer;
+  box-shadow:var(--shadow-sm);
+  transition:background .15s ease,transform .1s ease;
+}
+.entry-popup-box .btn-popup-enter:hover{background:var(--indigo-800)}
+.entry-popup-box .btn-popup-enter:active{transform:translateY(1px)}
 </style>
 </head>
 <body>
+
+<!-- ============= ENTRY POPUP — แสดงก่อนเข้าใช้งานระบบ ============= -->
+<div class="entry-popup-overlay" id="entryPopup">
+  <div class="entry-popup-box">
+    <img src="https://img2.pic.in.th/pop-up-.png" alt="7 บทบาทต้นแบบที่ดี (Role Model) ด้านการจัดการความรู้">
+    <button class="btn-popup-enter" onclick="closeEntryPopup()">เข้าสู่ระบบ</button>
+  </div>
+</div>
 
 <div class="app" id="app">
 
@@ -991,7 +1054,7 @@ textarea:focus{
 
     <div class="nav-label">ข้อมูลทั่วไป</div>
     <ul class="nav" id="nav">
-      <li><a data-target="home"><span class="nav-num">i</span><span class="nav-text">หน้าแรก / ข้อมูลผู้รับการประเมิน</span></a></li>
+      <li><a data-target="home"><span class="nav-num">i</span><span class="nav-text">หน้าแรก / ผู้ประเมินตนเอง</span></a></li>
     </ul>
 
     <div class="nav-divider"></div>
@@ -1016,17 +1079,17 @@ textarea:focus{
   <!-- ============= MAIN ============= -->
   <main class="main">
 
-    <!-- TOP BAR (Export button + Google Drive link) -->
+    <!-- TOP BAR (Draft preview + Submit & Export buttons) -->
     <div class="topbar">
-      <div class="crumb"><span id="crumb">ข้อมูลผู้รับการประเมิน</span></div>
+      <div class="crumb"><span id="crumb">ผู้ประเมินตนเอง</span></div>
       <div class="topbar-actions">
-        <a class="btn-drive" href="https://drive.google.com/drive/u/0/folders/1ajBoK9-KYBrjqWfxighjIizSxlm4BvlK" target="_blank" rel="noopener" title="เปิดโฟลเดอร์ Google Drive สำหรับจัดเก็บไฟล์ PDF ที่บันทึกแล้วเสร็จ">
-          <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
-          โฟลเดอร์จัดเก็บไฟล์ (Google Drive)
-        </a>
-        <button class="btn-export" onclick="exportPDF()" title="พิมพ์ / บันทึกเป็น PDF (A4 แนวตั้ง) — ชื่อไฟล์จะตั้งตามตำแหน่งที่กรอกไว้">
+        <button class="btn-draft" onclick="showDraft()" title="เปิดหน้าต่างพิมพ์ตัวอย่างเพื่อตรวจทาน — ยังไม่ถือเป็นการส่งข้อมูล">
+          <svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          แสดงแบบร่าง
+        </button>
+        <button class="btn-export" onclick="submitAndExport()" title="ส่งข้อมูลและบันทึก PDF ไปยัง Google Drive อัตโนมัติ พร้อมดาวน์โหลดไฟล์เก็บไว้ในเครื่อง">
           <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
-          Export to PDF
+          กดส่งข้อมูล &amp; Export to PDF
         </button>
       </div>
     </div>
@@ -1039,7 +1102,7 @@ textarea:focus{
       </div>
 
       <div class="info-card">
-        <h2>ข้อมูลผู้รับการประเมิน</h2>
+        <h2>ผู้ประเมินตนเอง</h2>
         <p class="desc">กรอกข้อมูลของผู้บริหารและวันที่ประเมินให้ครบถ้วนก่อนเริ่มการประเมิน</p>
         <div class="info-grid">
           <div class="field">
@@ -1053,10 +1116,6 @@ textarea:focus{
           <div class="field">
             <label>วัน / เดือน / ปี ที่ประเมิน</label>
             <input type="text" id="f-date" placeholder="เช่น ๑๕ มีนาคม ๒๕๖๘">
-          </div>
-          <div class="field">
-            <label>ลงนามผู้รับการประเมิน</label>
-            <input type="text" id="f-sig" placeholder="ระบุชื่อผู้ลงนาม">
           </div>
         </div>
       </div>
@@ -1079,9 +1138,10 @@ textarea:focus{
           <strong>ทำเกินค่าความคาดหวัง&nbsp;=&nbsp;ได้คะแนนเต็มเท่ากัน</strong> (ไม่มีคะแนนพิเศษเพิ่ม)
         </p>
         <p class="desc" style="margin:8px 0 0">
-          เมื่อต้องการบันทึกเป็นเอกสาร ให้กดปุ่ม <strong>Export to PDF</strong> ที่มุมขวาบน
-          ระบบจะจัดเรียงเนื้อหาให้พอดีกับกระดาษ A4 แนวตั้ง โดยอัตโนมัติ และตั้งชื่อไฟล์ตาม &ldquo;ตำแหน่ง&rdquo; ที่กรอกไว้
-          จากนั้นนำไฟล์ PDF ที่บันทึกเสร็จแล้วไปจัดเก็บที่ปุ่ม <strong>โฟลเดอร์จัดเก็บไฟล์ (Google Drive)</strong>
+          ระหว่างกรอกข้อมูล สามารถกดปุ่ม <strong>แสดงแบบร่าง</strong> ที่มุมขวาบนเพื่อเปิดหน้าต่างพิมพ์ตัวอย่างไว้ตรวจทานก่อนได้ตลอดเวลา
+          (ยังไม่ถือเป็นการส่งข้อมูล) เมื่อกรอกครบถ้วนแล้ว ให้กดปุ่ม <strong>กดส่งข้อมูล &amp; Export to PDF</strong>
+          ระบบจะจัดเรียงเนื้อหาให้พอดีกับกระดาษ A4 แนวตั้ง ตั้งชื่อไฟล์ตาม &ldquo;ตำแหน่ง&rdquo; ที่กรอกไว้
+          ดาวน์โหลดไฟล์เก็บไว้ในเครื่อง และส่งไฟล์ PDF ไปบันทึกไว้ที่โฟลเดอร์ Google Drive ที่กำหนดให้โดยอัตโนมัติ
         </p>
       </div>
 
@@ -1155,6 +1215,14 @@ textarea:focus{
             <div class="field">
               <label>อีเมล</label>
               <input type="text" id="co-email" placeholder="เช่น coordinator@aerothai.co.th">
+            </div>
+            <div class="field">
+              <label>ประเภท</label>
+              <select id="co-type">
+                <option value="">— เลือกประเภท —</option>
+                <option value="KF">KF (Knowledge Facilitator)</option>
+                <option value="POC">POC (Point of Contact)</option>
+              </select>
             </div>
           </div>
         </div>
@@ -1369,7 +1437,7 @@ const SHORT_LABELS = {
   s3:"๓. สร้างทัศนคติที่ดี",
   s4:"๔. มอบนโยบาย",
   s5:"๕. ติดตาม กำกับดูแล",
-  s6:"๖. มีส่วนร่วม / วัฒนธรรม",
+  s6:"๖. มีส่วนร่วม/วัฒนธรรม",
   s7:"๗. ยกย่องชมเชย"
 };
 
@@ -1554,7 +1622,7 @@ function goTo(id){
   if(link) link.classList.add("active");
   // crumb
   const crumb = document.getElementById("crumb");
-  if(id==="home") crumb.textContent="หน้าแรก / ข้อมูลผู้รับการประเมิน";
+  if(id==="home") crumb.textContent="หน้าแรก / ผู้ประเมินตนเอง";
   else if(id==="spider") crumb.textContent="Spider Chart · ภาพรวมการประเมิน";
   else{
     const sObj = SECTIONS.find(s=>s.id===id);
@@ -1607,9 +1675,9 @@ function computeScores(){
 function renderSpider(){
   const data = computeScores();
   const N = data.length;
-  const size = 540;
+  const size = 660;
   const cx = size/2, cy = size/2;
-  const R = 180;
+  const R = 145;
 
   // grid rings
   const rings = [0.2,0.4,0.6,0.8,1.0];
@@ -1665,16 +1733,16 @@ function renderSpider(){
   let labelSVG = "";
   for(let i=0;i<N;i++){
     const ang = -Math.PI/2 + (i*2*Math.PI/N);
-    const x = cx + (R+24)*Math.cos(ang);
-    const y = cy + (R+24)*Math.sin(ang);
+    const x = cx + (R+40)*Math.cos(ang);
+    const y = cy + (R+40)*Math.sin(ang);
     let anchor = "middle";
     if(Math.cos(ang) > 0.2) anchor = "start";
     else if(Math.cos(ang) < -0.2) anchor = "end";
     let dy = 4;
     if(Math.sin(ang) < -0.5) dy = -4;
     if(Math.sin(ang) > 0.5) dy = 12;
-    labelSVG += `<text class="radar-label" x="${x.toFixed(2)}" y="${(y+dy).toFixed(2)}" font-size="11.5" font-weight="600" text-anchor="${anchor}" fill="#1e1b4b">${data[i].label}</text>`;
-    labelSVG += `<text class="radar-label" x="${x.toFixed(2)}" y="${(y+dy+14).toFixed(2)}" font-size="10.5" font-weight="500" text-anchor="${anchor}" fill="#4338ca">${th(data[i].score.toFixed(2))}/๑๐</text>`;
+    labelSVG += `<text class="radar-label" x="${x.toFixed(2)}" y="${(y+dy).toFixed(2)}" font-size="11" font-weight="600" text-anchor="${anchor}" fill="#1e1b4b">${data[i].label}</text>`;
+    labelSVG += `<text class="radar-label" x="${x.toFixed(2)}" y="${(y+dy+14).toFixed(2)}" font-size="10" font-weight="500" text-anchor="${anchor}" fill="#4338ca">${th(data[i].score.toFixed(2))}/๑๐</text>`;
   }
 
   const svg = `
@@ -1715,26 +1783,132 @@ function renderSpider(){
 }
 
 /* ===========================================================
-   EXPORT TO PDF — ตั้งชื่อไฟล์ตามตำแหน่งที่กรอกไว้
+   APPS SCRIPT CONFIG
+   นำ Web app URL ที่ได้จากการ Deploy โค้ด Google Apps Script
+   (ตัวอัปโหลด PDF เข้าโฟลเดอร์ Google Drive) มาวางแทนค่าด้านล่างนี้
+   ตัวอย่าง: "https://script.google.com/macros/s/XXXXXXXXXXXX/exec"
+   ถ้ายังไม่ได้ตั้งค่า ระบบจะ Export PDF และดาวน์โหลดไว้ในเครื่องให้ตามปกติ
+   แต่จะไม่ส่งไฟล์ขึ้น Google Drive โดยอัตโนมัติ
    =========================================================== */
-function exportPDF(){
-  // ก่อนพิมพ์ ให้คำนวณ Spider Chart ใหม่ตามข้อมูลล่าสุด
-  renderSpider();
+const APPS_SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
 
-  // ตั้งชื่อไฟล์ (document.title) ตาม "ตำแหน่ง" ที่กรอกไว้ — เบราว์เซอร์ส่วนใหญ่
-  // จะใช้ค่านี้เป็นชื่อไฟล์เริ่มต้นเมื่อเลือก "บันทึกเป็น PDF" ในหน้าต่างพิมพ์
-  const originalTitle = document.title;
+function isAppsScriptConfigured(){
+  return !!APPS_SCRIPT_URL && APPS_SCRIPT_URL.indexOf("PASTE_") === -1;
+}
+
+function buildSuggestedFileName(){
   const pos = (document.getElementById("f-pos").value || "").trim();
   const name = (document.getElementById("f-name").value || "").trim();
   let suggested = pos || "แบบประเมิน Role Model";
   if(name) suggested = `${suggested} - ${name}`;
-  document.title = suggested;
+  return suggested;
+}
+
+/* ===========================================================
+   แสดงแบบร่าง — เปิดหน้าต่างพิมพ์ตัวอย่างเพื่อตรวจทาน
+   ยังไม่ถือเป็นการส่งข้อมูล ไม่มีการอัปโหลดใด ๆ เกิดขึ้น
+   =========================================================== */
+function showDraft(){
+  renderSpider();
+  const originalTitle = document.title;
+  document.title = buildSuggestedFileName() + " (แบบร่าง)";
 
   setTimeout(()=>{
     window.print();
-    // คืนชื่อหน้าเดิมหลังพิมพ์เสร็จ/ปิดหน้าต่างพิมพ์
     setTimeout(()=>{ document.title = originalTitle; }, 1000);
   },120);
+}
+
+/* ===========================================================
+   กดส่งข้อมูล & Export to PDF
+   1) สร้างไฟล์ PDF จริงจากเนื้อหาทั้งหมดด้วย html2pdf.js (ฝั่ง browser)
+   2) ดาวน์โหลดไฟล์ PDF เก็บไว้ในเครื่องผู้ใช้
+   3) ส่งไฟล์ PDF (base64) ไปอัปโหลดที่โฟลเดอร์ Google Drive โดยอัตโนมัติ
+      ผ่าน Google Apps Script Web App (ดู APPS_SCRIPT_URL ด้านบน)
+   =========================================================== */
+async function submitAndExport(){
+  const btn = event && event.currentTarget;
+  const originalBtnHTML = btn ? btn.innerHTML : null;
+  if(btn){ btn.disabled = true; btn.innerHTML = "กำลังสร้าง PDF..."; }
+
+  renderSpider();
+
+  // แสดงทุกหัวข้อพร้อมกัน (เหมือนรูปแบบตอนพิมพ์) เพื่อให้ html2canvas จับภาพได้ครบทุกหน้า
+  const sections = document.querySelectorAll(".section");
+  sections.forEach(s=>{ s.style.display = "block"; });
+  document.body.classList.add("exporting");
+
+  const fileName = buildSuggestedFileName();
+  const target = document.querySelector(".main");
+
+  const opt = {
+    margin: 8,
+    filename: fileName + ".pdf",
+    image: { type: "jpeg", quality: 0.95 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    pagebreak: { mode: ["css", "legacy"], before: [".section + .section"], avoid: [".indicator", ".info-card", ".spider-wrap", ".coordinator-card"] }
+  };
+
+  try{
+    if(typeof html2pdf === "undefined"){
+      throw new Error("ไม่สามารถโหลดไลบรารี html2pdf.js ได้ (ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต)");
+    }
+
+    const worker = html2pdf().set(opt).from(target);
+    const pdfBlob = await worker.outputPdf("blob");
+
+    // ดาวน์โหลดไฟล์ PDF ไว้ในเครื่องผู้ใช้
+    const blobUrl = URL.createObjectURL(pdfBlob);
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = fileName + ".pdf";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(blobUrl);
+
+    if(isAppsScriptConfigured()){
+      if(btn) btn.innerHTML = "กำลังส่งขึ้น Google Drive...";
+      const base64 = await blobToBase64(pdfBlob);
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" }, // เลี่ยง CORS preflight กับ Apps Script
+        body: JSON.stringify({ pdfBase64: base64, fileName: fileName })
+      });
+      const data = await res.json();
+      if(data && data.success){
+        alert("ส่งข้อมูลสำเร็จ — บันทึก PDF ไปยัง Google Drive แล้ว\nไฟล์: " + data.fileName);
+      } else {
+        alert("Export to PDF สำเร็จและดาวน์โหลดไว้ในเครื่องแล้ว แต่ส่งขึ้น Google Drive ไม่สำเร็จ: " + (data && data.message ? data.message : "ไม่ทราบสาเหตุ"));
+      }
+    } else {
+      alert("Export to PDF สำเร็จและดาวน์โหลดไฟล์ไว้ในเครื่องแล้ว\nหมายเหตุ: ยังไม่ได้ตั้งค่า Apps Script URL (ตัวแปร APPS_SCRIPT_URL ในโค้ด) จึงยังไม่ได้ส่งไฟล์ขึ้น Google Drive โดยอัตโนมัติ");
+    }
+  } catch(err){
+    alert("เกิดข้อผิดพลาดระหว่างสร้าง/ส่งไฟล์ PDF: " + err.message);
+  } finally {
+    sections.forEach(s=>{ s.style.display = ""; });
+    document.body.classList.remove("exporting");
+    if(btn){ btn.disabled = false; btn.innerHTML = originalBtnHTML; }
+  }
+}
+
+function blobToBase64(blob){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+/* ===========================================================
+   ENTRY POPUP
+   =========================================================== */
+function closeEntryPopup(){
+  const popup = document.getElementById("entryPopup");
+  if(popup) popup.style.display = "none";
 }
 
 /* ===========================================================
