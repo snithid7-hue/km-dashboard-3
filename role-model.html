@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Serif:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<style> 
+<style>
 /* ===========================================================
    ROOT TOKENS — Minimalist Blue / Indigo
    ปรับให้ปริ้นต์ขาว-ดำได้ชัดเจนด้วยน้ำหนัก/ความเข้ม
@@ -1799,8 +1799,8 @@ function isAppsScriptConfigured(){
 function buildSuggestedFileName(){
   const pos = (document.getElementById("f-pos").value || "").trim();
   const name = (document.getElementById("f-name").value || "").trim();
-  let suggested = pos || "แบบประเมิน Role Model";
-  if(name) suggested = `${suggested} - ${name}`;
+  let suggested = name || "แบบประเมิน Role Model";
+  if(pos) suggested = `${suggested} - ${pos}`;
   return suggested;
 }
 
@@ -1820,8 +1820,35 @@ function showDraft(){
 }
 
 /* ===========================================================
+   บังคับให้กฎ @media print มีผลขณะจับภาพหน้าจอ (html2canvas)
+   เพื่อให้ PDF ที่ส่งข้อมูลออกมาหน้าตาเหมือนกับตอนกด "แสดงแบบร่าง" ทุกประการ
+   (ซ่อนปุ่ม/แถบเมนู ใช้สไตล์ขาว-ดำสำหรับกระดาษ จัดหน้าแบบเดียวกัน)
+   =========================================================== */
+function forcePrintStyles(active){
+  for(const sheet of document.styleSheets){
+    let rules;
+    try{ rules = sheet.cssRules; } catch(e){ continue; }
+    if(!rules) continue;
+    for(const rule of rules){
+      if(rule instanceof CSSMediaRule && rule.media && Array.from(rule.media).includes("print")){
+        try{
+          const hasAll = Array.from(rule.media).includes("all");
+          if(active && !hasAll) rule.media.appendMedium("all");
+          if(!active && hasAll) rule.media.deleteMedium("all");
+        } catch(e){ /* บางเบราว์เซอร์อาจไม่รองรับ ข้ามไปอย่างปลอดภัย */ }
+      }
+    }
+  }
+}
+
+function waitForFontsReady(){
+  return (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+}
+
+/* ===========================================================
    กดส่งข้อมูล & Export to PDF
    1) สร้างไฟล์ PDF จริงจากเนื้อหาทั้งหมดด้วย html2pdf.js (ฝั่ง browser)
+      โดยบังคับให้ใช้รูปแบบ/สไตล์เดียวกับหน้าต่างพิมพ์ตัวอย่าง (แสดงแบบร่าง)
    2) ดาวน์โหลดไฟล์ PDF เก็บไว้ในเครื่องผู้ใช้
    3) ส่งไฟล์ PDF (base64) ไปอัปโหลดที่โฟลเดอร์ Google Drive โดยอัตโนมัติ
       ผ่าน Google Apps Script Web App (ดู APPS_SCRIPT_URL ด้านบน)
@@ -1836,7 +1863,9 @@ async function submitAndExport(){
   // แสดงทุกหัวข้อพร้อมกัน (เหมือนรูปแบบตอนพิมพ์) เพื่อให้ html2canvas จับภาพได้ครบทุกหน้า
   const sections = document.querySelectorAll(".section");
   sections.forEach(s=>{ s.style.display = "block"; });
-  document.body.classList.add("exporting");
+  // บังคับสไตล์ตอนพิมพ์ให้ทำงาน — ผลลัพธ์จะเหมือนกับตอนกด "แสดงแบบร่าง" ทุกจุด
+  forcePrintStyles(true);
+  await waitForFontsReady();
 
   const fileName = buildSuggestedFileName();
   const target = document.querySelector(".main");
@@ -1878,7 +1907,7 @@ async function submitAndExport(){
       });
       const data = await res.json();
       if(data && data.success){
-        alert("ส่งข้อมูลสำเร็จ — บันทึก PDF ไปยัง Google Drive แล้ว\nไฟล์: " + data.fileName);
+        alert("ส่งข้อมูลสำเร็จ — บันทึก PDF ไปยัง Google Drive แล้ว\nโฟลเดอร์: " + (data.folderName || "-") + "\nไฟล์: " + data.fileName);
       } else {
         alert("Export to PDF สำเร็จและดาวน์โหลดไว้ในเครื่องแล้ว แต่ส่งขึ้น Google Drive ไม่สำเร็จ: " + (data && data.message ? data.message : "ไม่ทราบสาเหตุ"));
       }
@@ -1889,7 +1918,7 @@ async function submitAndExport(){
     alert("เกิดข้อผิดพลาดระหว่างสร้าง/ส่งไฟล์ PDF: " + err.message);
   } finally {
     sections.forEach(s=>{ s.style.display = ""; });
-    document.body.classList.remove("exporting");
+    forcePrintStyles(false);
     if(btn){ btn.disabled = false; btn.innerHTML = originalBtnHTML; }
   }
 }
