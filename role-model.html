@@ -1166,17 +1166,88 @@ textarea:focus{
 .coordinator-card h3{
   font-family:'IBM Plex Serif',serif;
   font-size:15px;
-  margin:0 0 14px;
+  margin:0 0 4px;
   color:var(--indigo-900);
   padding-bottom:10px;
   border-bottom:1px solid var(--line);
 }
-.coordinator-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:16px 24px;
+.co-hint{
+  font-size:13px;
+  color:var(--muted);
+  margin:8px 0 16px;
+  font-style:italic;
 }
-@media (max-width:780px){.coordinator-grid{grid-template-columns:1fr}}
+.co-chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.co-chip{
+  position:relative;
+  cursor:pointer;
+}
+.co-chip input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+.co-chip-box{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:10px 16px;
+  background:var(--bg-soft);
+  border:1.5px solid var(--line-strong);
+  border-radius:999px;
+  font-size:14px;
+  font-weight:500;
+  color:var(--ink-soft);
+  transition:all .15s ease;
+  user-select:none;
+}
+.co-chip:hover .co-chip-box{
+  border-color:var(--indigo-500);
+  background:var(--indigo-50);
+}
+.co-chip input:checked + .co-chip-box{
+  border-color:var(--indigo-700);
+  background:var(--indigo-700);
+  color:#fff;
+  font-weight:600;
+}
+.co-chip input:checked + .co-chip-box .co-ext,
+.co-chip input:checked + .co-chip-box .co-role{
+  color:rgba(255,255,255,.8);
+}
+.co-icon{
+  width:15px;
+  height:15px;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:2;
+  flex-shrink:0;
+}
+.co-ext{
+  color:var(--muted);
+  font-size:13px;
+  font-weight:400;
+}
+.co-role{
+  color:var(--muted);
+  font-size:13px;
+  font-weight:400;
+}
+.co-chip--admin .co-chip-box{
+  border-color:var(--indigo-500);
+  background:var(--indigo-50);
+  color:var(--indigo-800);
+}
+.co-chip--admin input:checked + .co-chip-box{
+  background:var(--indigo-800);
+  border-color:var(--indigo-800);
+  color:#fff;
+}
+@media (max-width:780px){.co-chips{flex-direction:column}}
 
 /* Footer note for sections */
 .section-foot{
@@ -1809,34 +1880,40 @@ textarea:focus{
           กรุณานำส่ง พก.พส. — เอกสารฉบับนี้จัดทำขึ้นจากระบบประเมินผ่านสื่ออิเล็กทรอนิกส์
         </div>
 
-        <!-- ผู้ประสานงาน — ท้ายแบบฟอร์ม (ตัวเลขในส่วนนี้คงเป็นเลขอารบิกตามการใช้งานทั่วไป) -->
+        <!-- ผู้ประสานงาน — แสดงเป็นปุ่มเลือก กดเลือกได้ 1 คน -->
         <div class="coordinator-card">
           <h3>ผู้ประสานงาน</h3>
-          <div class="coordinator-grid">
-            <div class="field">
-              <label>ชื่อ – นามสกุลผู้ประสานงาน</label>
-              <input type="text" id="co-name" placeholder="ระบุชื่อ – นามสกุล">
-            </div>
-            <div class="field">
-              <label>ตำแหน่ง</label>
-              <input type="text" id="co-pos" placeholder="ระบุตำแหน่งผู้ประสานงาน">
-            </div>
-            <div class="field">
-              <label>เบอร์โทรศัพท์</label>
-              <input type="text" id="co-phone" placeholder="เช่น 081-234-5678">
-            </div>
-            <div class="field">
-              <label>อีเมล</label>
-              <input type="text" id="co-email" placeholder="เช่น coordinator@aerothai.co.th">
-            </div>
-            <div class="field">
-              <label>ประเภท</label>
-              <select id="co-type">
-                <option value="">— เลือกประเภท —</option>
-                <option value="KF">KF (Knowledge Facilitator)</option>
-                <option value="POC">POC (Point of Contact)</option>
-              </select>
-            </div>
+          <p class="co-hint">เลือกผู้ประสานงานที่รับผิดชอบฝ่ายงานของท่าน</p>
+          <div class="co-chips" id="coChips">
+            <label class="co-chip">
+              <input type="radio" name="co-pick" value="0">
+              <span class="co-chip-box">
+                <svg class="co-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                มานิดา <span class="co-ext">(9094)</span>
+              </span>
+            </label>
+            <label class="co-chip">
+              <input type="radio" name="co-pick" value="1">
+              <span class="co-chip-box">
+                <svg class="co-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                ศศิภา <span class="co-ext">(9273)</span>
+              </span>
+            </label>
+            <label class="co-chip">
+              <input type="radio" name="co-pick" value="2">
+              <span class="co-chip-box">
+                <svg class="co-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                ก้องตระกูล <span class="co-ext">(9419)</span>
+              </span>
+            </label>
+            <label class="co-chip co-chip--admin">
+              <input type="radio" name="co-pick" value="3">
+              <span class="co-chip-box">
+                <svg class="co-icon" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
+                วรางคณา <span class="co-ext">(8149)</span>
+                <span class="co-role">— ผู้ดูแลระบบ</span>
+              </span>
+            </label>
           </div>
         </div>
       </div>
@@ -2459,7 +2536,7 @@ function clearAllData(){
   document.querySelectorAll('.scale-wrap').forEach(w=>{ w.style.display = "none"; });
   document.querySelectorAll('.attach-files').forEach(el=>{ el.innerHTML = ""; });
 
-  ["f-name","f-pos","f-date","sig-pos","co-name","co-pos","co-phone","co-email"].forEach(id=>{
+  ["f-name","f-pos","f-date","sig-pos"].forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.value = "";
   });
@@ -2519,6 +2596,22 @@ function closeSuccessModal(){
    รับประกันตัวอักษรคมชัด จัดหน้า A4 ได้พอดี และขึ้นหน้าใหม่อย่างเป็นระเบียบ
    ไม่มีปัญหาหน้าเปล่าหรือข้อความซ้อนทับแบบวิธีจับภาพหน้าจอ (html2canvas)
    =========================================================== */
+/* ===========================================================
+   ข้อมูลผู้ประสานงาน (ตรงกับ chip-picker ในหน้าเว็บ)
+   =========================================================== */
+const CO_LIST = [
+  { name:"มานิดา",       ext:"9094", role:"ผู้ประสานงาน KF" },
+  { name:"ศศิภา",        ext:"9273", role:"ผู้ประสานงาน KF" },
+  { name:"ก้องตระกูล",   ext:"9419", role:"ผู้ประสานงาน KF" },
+  { name:"วรางคณา",      ext:"8149", role:"ผู้ดูแลระบบ" }
+];
+
+function getSelectedCoordinator(){
+  const radio = document.querySelector('input[name="co-pick"]:checked');
+  if(!radio) return null;
+  return CO_LIST[parseInt(radio.value)] || null;
+}
+
 function buildPdfDocument(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
@@ -2892,29 +2985,24 @@ function buildPdfDocument(){
   y += 10;
   hr(y, C.line, 0.2);
   y += 6;
-  const coName = (document.getElementById("co-name").value || "").trim() || "—";
-  const coPos = (document.getElementById("co-pos").value || "").trim() || "—";
-  const coPhone = (document.getElementById("co-phone").value || "").trim() || "—";
-  const coEmail = (document.getElementById("co-email").value || "").trim() || "—";
-  const coTypeSel = document.getElementById("co-type");
-  const coType = coTypeSel.options[coTypeSel.selectedIndex]?.text || "—";
 
-  setStyle(8.5, true, C.inkSoft); doc.text("ชื่อ – นามสกุลผู้ประสานงาน", M + 4.5, y);
-  setStyle(8.5, true, C.inkSoft); doc.text("ตำแหน่ง", M + 4.5 + CW/2, y);
-  y += 5;
-  setStyle(10.5, false, C.ink); doc.text(coName, M + 4.5, y);
-  setStyle(10.5, false, C.ink); doc.text(coPos, M + 4.5 + CW/2, y);
-  y += 7;
-  setStyle(8.5, true, C.inkSoft); doc.text("เบอร์โทรศัพท์", M + 4.5, y);
-  setStyle(8.5, true, C.inkSoft); doc.text("อีเมล", M + 4.5 + CW/2, y);
-  y += 5;
-  setStyle(10.5, false, C.ink); doc.text(coPhone, M + 4.5, y);
-  setStyle(10.5, false, C.ink); doc.text(coEmail, M + 4.5 + CW/2, y);
-  y += 7;
-  setStyle(8.5, true, C.inkSoft); doc.text("ประเภท", M + 4.5, y);
-  y += 5;
-  setStyle(10.5, false, C.ink); doc.text(coType, M + 4.5, y);
-  y += 7;
+  const coPerson = getSelectedCoordinator();
+  if(coPerson){
+    setStyle(8.5, true, C.inkSoft); doc.text("ชื่อ", M + 4.5, y);
+    setStyle(8.5, true, C.inkSoft); doc.text("เบอร์ภายใน", M + 4.5 + CW/2, y);
+    y += 5;
+    setStyle(10.5, false, C.ink); doc.text(coPerson.name, M + 4.5, y);
+    setStyle(10.5, false, C.ink); doc.text(coPerson.ext, M + 4.5 + CW/2, y);
+    y += 7;
+    setStyle(8.5, true, C.inkSoft); doc.text("บทบาท", M + 4.5, y);
+    y += 5;
+    setStyle(10.5, false, C.ink); doc.text(coPerson.role, M + 4.5, y);
+    y += 7;
+  } else {
+    setStyle(10, false, C.muted);
+    doc.text("— ไม่ได้เลือกผู้ประสานงาน —", M + 4.5, y + 2);
+    y += 9;
+  }
   doc.setDrawColor(C.line[0], C.line[1], C.line[2]); doc.setLineWidth(0.25);
   doc.roundedRect(M, coStartY, CW, y - coStartY + 2, 1.6, 1.6);
 
