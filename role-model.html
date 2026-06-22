@@ -1412,71 +1412,212 @@ textarea:focus{
 .entry-popup-box .btn-popup-enter:active{transform:translateY(1px)}
 
 /* ===========================================================
-   DRAFT MODE — แถบกลับไปแก้ไข (ลอยมุมขวาบน เมื่ออยู่ในมุมมองแบบร่าง)
+   ACTION BAR — ล้างข้อมูล / ดูตัวอย่างก่อนบันทึก / ส่งออก (ล่างสุดของระบบ)
    =========================================================== */
-.draft-toolbar{
-  position:fixed;
-  top:18px;
-  right:18px;
-  z-index:9000;
-}
-.btn-draft-exit{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:10px 18px;
-  background:#fff;
-  color:var(--indigo-700);
-  border:1.5px solid var(--indigo-700);
-  border-radius:var(--radius-sm);
-  font-family:inherit;
-  font-size:13.5px;
-  font-weight:500;
-  cursor:pointer;
-  box-shadow:var(--shadow-md);
-  transition:background .15s ease,transform .1s ease;
-}
-.btn-draft-exit:hover{background:var(--indigo-50)}
-.btn-draft-exit:active{transform:translateY(1px)}
-.btn-draft-exit svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
-
-/* ===========================================================
-   SUBMIT ZONE — ปุ่มกดส่งข้อมูล อยู่ข้างล่างสุดของแบบร่างเท่านั้น
-   =========================================================== */
-.submit-zone{
+.action-bar{
   margin-top:24px;
-  padding:32px;
-  text-align:center;
+  padding:20px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:14px;
   background:#fff;
   border:1px solid var(--line);
   border-radius:var(--radius);
   box-shadow:var(--shadow-sm);
 }
-.submit-zone-note{
-  margin:0 0 18px;
-  color:var(--muted);
-  font-size:13.5px;
+.btn-clear{
+  padding:12px 22px;
+  background:#fff;
+  color:var(--ink-soft);
+  border:1.5px solid var(--line-strong);
+  border-radius:999px;
+  font-family:inherit;
+  font-size:14px;
+  font-weight:500;
+  cursor:pointer;
+  transition:background .15s ease,border-color .15s ease;
 }
-.btn-submit{
+.btn-clear:hover{background:var(--bg-soft);border-color:var(--muted)}
+.btn-preview{
   display:inline-flex;
   align-items:center;
   gap:8px;
-  padding:13px 28px;
-  background:var(--indigo-700);
+  padding:12px 26px;
+  background:var(--indigo-900);
   color:#fff;
   border:none;
-  border-radius:var(--radius-sm);
+  border-radius:999px;
   font-family:inherit;
-  font-size:14.5px;
+  font-size:14px;
   font-weight:600;
   cursor:pointer;
   box-shadow:var(--shadow-sm);
   transition:background .15s ease,transform .1s ease;
 }
-.btn-submit:hover{background:var(--indigo-800)}
-.btn-submit:active{transform:translateY(1px)}
-.btn-submit:disabled{opacity:.6;cursor:not-allowed}
-.btn-submit svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2}
+.btn-preview:hover{background:var(--indigo-800)}
+.btn-preview:active{transform:translateY(1px)}
+.btn-preview svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2}
+
+/* ===========================================================
+   PREVIEW MODAL — แสดงตัวอย่างเอกสาร PDF ก่อนบันทึก/ส่งออก
+   =========================================================== */
+.preview-modal-overlay{
+  position:fixed;
+  inset:0;
+  z-index:9500;
+  background:rgba(15,23,42,.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+.preview-modal-box{
+  background:#fff;
+  border-radius:14px;
+  width:100%;
+  max-width:640px;
+  height:88vh;
+  max-height:880px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  box-shadow:0 24px 60px rgba(0,0,0,.4);
+}
+.preview-modal-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 18px;
+  background:var(--bg-soft);
+  border-bottom:1px solid var(--line);
+  font-size:13.5px;
+  font-weight:600;
+  color:var(--ink-soft);
+}
+.preview-modal-close{
+  background:none;
+  border:none;
+  font-size:22px;
+  line-height:1;
+  color:var(--muted);
+  cursor:pointer;
+  padding:2px 6px;
+  border-radius:6px;
+  transition:background .15s ease,color .15s ease;
+}
+.preview-modal-close:hover{background:var(--line);color:var(--ink)}
+.preview-modal-body{
+  flex:1;
+  background:#525659;
+  overflow:hidden;
+}
+.preview-modal-body iframe{
+  width:100%;
+  height:100%;
+  border:none;
+  display:block;
+}
+.preview-modal-footer{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 18px;
+  background:#fff;
+  border-top:1px solid var(--line);
+}
+.btn-back-edit{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:10px 18px;
+  background:#fff;
+  color:var(--ink-soft);
+  border:1.5px solid var(--line-strong);
+  border-radius:var(--radius-sm);
+  font-family:inherit;
+  font-size:13.5px;
+  font-weight:500;
+  cursor:pointer;
+  transition:background .15s ease;
+}
+.btn-back-edit:hover{background:var(--bg-soft)}
+.btn-back-edit svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2}
+.btn-save-pdf{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 20px;
+  background:#15803d;
+  color:#fff;
+  border:none;
+  border-radius:var(--radius-sm);
+  font-family:inherit;
+  font-size:13.5px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:var(--shadow-sm);
+  transition:background .15s ease,transform .1s ease;
+}
+.btn-save-pdf:hover{background:#166534}
+.btn-save-pdf:active{transform:translateY(1px)}
+.btn-save-pdf:disabled{opacity:.6;cursor:not-allowed}
+.btn-save-pdf svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* ===========================================================
+   SUCCESS MODAL — ส่งข้อมูลเรียบร้อย
+   =========================================================== */
+.success-modal-overlay{
+  position:fixed;
+  inset:0;
+  z-index:9600;
+  background:rgba(15,23,42,.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+.success-modal-box{
+  background:#fff;
+  border-radius:14px;
+  width:100%;
+  max-width:300px;
+  padding:28px 24px 22px;
+  text-align:center;
+  box-shadow:0 20px 50px rgba(0,0,0,.35);
+}
+.success-icon{
+  width:48px;
+  height:48px;
+  margin:0 auto 14px;
+  border-radius:50%;
+  background:#dcfce7;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.success-icon svg{width:26px;height:26px;stroke:#15803d;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.success-text{
+  font-size:14.5px;
+  font-weight:600;
+  color:var(--ink);
+  margin-bottom:18px;
+}
+.btn-success-close{
+  width:100%;
+  padding:11px 0;
+  background:var(--indigo-900);
+  color:#fff;
+  border:none;
+  border-radius:var(--radius-sm);
+  font-family:inherit;
+  font-size:13.5px;
+  font-weight:600;
+  cursor:pointer;
+  transition:background .15s ease;
+}
+.btn-success-close:hover{background:var(--indigo-800)}
 </style>
 </head>
 <body>
@@ -1484,17 +1625,43 @@ textarea:focus{
 <!-- ============= ENTRY POPUP — แสดงก่อนเข้าใช้งานระบบ ============= -->
 <div class="entry-popup-overlay" id="entryPopup">
   <div class="entry-popup-box">
-    <img src="https://img2.pic.in.th/pop-up-.png" alt="7 บทบาทต้นแบบที่ดี (Role Model) ด้านการจัดการความรู้">
+    <img src="https://img1.pic.in.th/images/pop-up-.png" alt="7 บทบาทต้นแบบที่ดี (Role Model) ด้านการจัดการความรู้">
     <button class="btn-popup-enter" onclick="closeEntryPopup()">เข้าสู่ระบบ</button>
   </div>
 </div>
 
-<!-- ============= แถบกลับไปแก้ไขข้อมูล — แสดงเฉพาะตอนอยู่ในมุมมองแบบร่าง ============= -->
-<div class="draft-toolbar" id="draftToolbar" style="display:none">
-  <button class="btn-draft-exit" onclick="exitDraftMode()">
-    <svg viewBox="0 0 24 24"><path d="M19 12H5m7-7l-7 7 7 7"/></svg>
-    กลับไปแก้ไขข้อมูล
-  </button>
+<!-- ============= PREVIEW MODAL — แสดงตัวอย่างเอกสารก่อนบันทึก/ส่งออก ============= -->
+<div class="preview-modal-overlay" id="previewModal" style="display:none">
+  <div class="preview-modal-box">
+    <div class="preview-modal-header">
+      <span>แสดงตัวอย่างเอกสาร — โปรดตรวจสอบความถูกต้อง</span>
+      <button class="preview-modal-close" onclick="closePreviewModal()" title="ปิด" aria-label="ปิด">×</button>
+    </div>
+    <div class="preview-modal-body">
+      <iframe id="previewFrame" title="ตัวอย่างเอกสาร PDF"></iframe>
+    </div>
+    <div class="preview-modal-footer">
+      <button class="btn-back-edit" onclick="closePreviewModal()">
+        <svg viewBox="0 0 24 24"><path d="M19 12H5m7-7l-7 7 7 7"/></svg>
+        กลับไปแก้ไข
+      </button>
+      <button class="btn-save-pdf" id="btnSavePdf" onclick="confirmSaveAndExport()">
+        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+        Save PDF / ส่งเอกสาร
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============= SUCCESS MODAL — แจ้งผลเมื่อส่งข้อมูลสำเร็จ ============= -->
+<div class="success-modal-overlay" id="successModal" style="display:none">
+  <div class="success-modal-box">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <div class="success-text" id="successText">ส่งข้อมูลเรียบร้อย</div>
+    <button class="btn-success-close" onclick="closeSuccessModal()">ปิด</button>
+  </div>
 </div>
 
 <div class="app" id="app">
@@ -1534,15 +1701,9 @@ textarea:focus{
   <!-- ============= MAIN ============= -->
   <main class="main">
 
-    <!-- TOP BAR (Save Draft — only entry point; submit happens at bottom of the draft) -->
+    <!-- TOP BAR -->
     <div class="topbar">
       <div class="crumb"><span id="crumb">ผู้ประเมินตนเอง</span></div>
-      <div class="topbar-actions">
-        <button class="btn-export" onclick="enterDraftMode()" title="แสดงแบบร่างทั้งหมดเพื่อตรวจทานก่อนส่งข้อมูล">
-          <svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-          บันทึกแบบร่าง
-        </button>
-      </div>
     </div>
 
     <!-- ===== HOME / HEADER FORM ===== -->
@@ -1607,7 +1768,6 @@ textarea:focus{
     <!-- ===== SPIDER CHART ===== -->
     <section class="section" id="spider">
       <div class="section-header">
-        <div class="num">VISUAL SUMMARY · RADAR CHART</div>
         <h1>ภาพรวมผลการประเมิน — Spider Chart ๗ มิติ</h1>
       </div>
 
@@ -1682,12 +1842,12 @@ textarea:focus{
       </div>
     </section>
 
-    <!-- ============= กดส่งข้อมูล — แสดงที่ข้างล่างสุดของแบบร่างเท่านั้น ============= -->
-    <div class="submit-zone" id="submitZone" style="display:none">
-      <p class="submit-zone-note">ตรวจทานข้อมูลทั้งหมดด้านบนให้ครบถ้วนแล้ว กดปุ่มด้านล่างเพื่อส่งข้อมูลและบันทึกไฟล์ PDF</p>
-      <button class="btn-submit" onclick="submitAndExport()">
-        <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
-        กดส่งข้อมูล
+    <!-- ============= แถบปุ่มล่างสุด: ล้างข้อมูล / ดูตัวอย่างก่อนบันทึก / ส่งออก ============= -->
+    <div class="action-bar" id="actionBar">
+      <button class="btn-clear" onclick="clearAllData()">ล้างข้อมูล</button>
+      <button class="btn-preview" onclick="openPreviewModal()">
+        ดูตัวอย่างก่อนบันทึก / ส่งออก
+        <svg viewBox="0 0 24 24"><path d="M5 12h14m0 0l-6-6m6 6l-6 6"/></svg>
       </button>
     </div>
 
@@ -2281,47 +2441,77 @@ function buildSuggestedFileName(){
 }
 
 /* ===========================================================
-   บันทึกแบบร่าง — แสดงทุกหัวข้อต่อเนื่องกันในมุมมองเดียว (เหมือนหน้าตอนพิมพ์)
-   พร้อมปุ่ม "กดส่งข้อมูล" ที่ข้างล่างสุด ยังไม่ถือเป็นการส่งข้อมูลจนกว่าจะกดปุ่มนั้น
+   ล้างข้อมูล — รีเซ็ตข้อมูลที่กรอกไว้ทั้งหมดกลับเป็นค่าว่าง
    =========================================================== */
-function enterDraftMode(){
-  renderSpider();
-  document.querySelectorAll(".section").forEach(s=>{ s.style.display = "block"; });
-  forcePrintStyles(true);
-  document.body.classList.add("draft-mode");
-  document.getElementById("draftToolbar").style.display = "block";
-  document.getElementById("submitZone").style.display = "block";
-  window.scrollTo({top:0, behavior:"smooth"});
-}
+function clearAllData(){
+  const ok = confirm("ต้องการล้างข้อมูลที่กรอกไว้ทั้งหมดหรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้");
+  if(!ok) return;
 
-function exitDraftMode(){
-  document.querySelectorAll(".section").forEach(s=>{ s.style.display = ""; });
-  forcePrintStyles(false);
-  document.body.classList.remove("draft-mode");
-  document.getElementById("draftToolbar").style.display = "none";
-  document.getElementById("submitZone").style.display = "none";
+  Object.keys(STATE).forEach(code=>{
+    STATE[code].result = null;
+    STATE[code].qty = null;
+    STATE[code].detail = "";
+    STATE[code].files = [];
+  });
+
+  document.querySelectorAll('input[type="radio"]').forEach(r=>{ r.checked = false; });
+  document.querySelectorAll('textarea[data-detail]').forEach(t=>{ t.value = ""; });
+  document.querySelectorAll('.scale-wrap').forEach(w=>{ w.style.display = "none"; });
+  document.querySelectorAll('.attach-files').forEach(el=>{ el.innerHTML = ""; });
+
+  ["f-name","f-pos","f-date","sig-pos","co-name","co-pos","co-phone","co-email"].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value = "";
+  });
+  const sigPosEl = document.getElementById("sig-pos");
+  if(sigPosEl) delete sigPosEl.dataset.touched;
+  const coType = document.getElementById("co-type");
+  if(coType) coType.selectedIndex = 0;
+
+  const sigName = document.getElementById("sig-name");
+  if(sigName) sigName.textContent = "( ........................................ )";
+
+  renderSpider();
+  goTo("home");
 }
 
 /* ===========================================================
-   บังคับให้กฎ @media print มีผลขณะแสดงแบบร่าง/จับภาพหน้าจอ (html2canvas)
-   เพื่อให้ PDF ที่ส่งข้อมูลออกมาหน้าตาเหมือนกับตอนดู "บันทึกแบบร่าง" ทุกประการ
-   (ซ่อนปุ่ม/แถบเมนู ใช้สไตล์ขาว-ดำสำหรับกระดาษ จัดหน้าแบบเดียวกัน)
+   PREVIEW MODAL — แสดงตัวอย่างเอกสาร PDF จริงก่อนบันทึก/ส่งออก
+   ใช้ไฟล์ PDF เดียวกับที่จะถูกบันทึก/ส่งออกจริงในขั้นตอนถัดไป (ไม่สร้างซ้ำ)
    =========================================================== */
-function forcePrintStyles(active){
-  for(const sheet of document.styleSheets){
-    let rules;
-    try{ rules = sheet.cssRules; } catch(e){ continue; }
-    if(!rules) continue;
-    for(const rule of rules){
-      if(rule instanceof CSSMediaRule && rule.media && Array.from(rule.media).includes("print")){
-        try{
-          const hasAll = Array.from(rule.media).includes("all");
-          if(active && !hasAll) rule.media.appendMedium("all");
-          if(!active && hasAll) rule.media.deleteMedium("all");
-        } catch(e){ /* บางเบราว์เซอร์อาจไม่รองรับ ข้ามไปอย่างปลอดภัย */ }
-      }
+let _previewDoc = null;
+let _previewBlobUrl = null;
+
+function openPreviewModal(){
+  try{
+    if(!window.jspdf || !window.jspdf.jsPDF){
+      throw new Error("ไม่สามารถโหลดไลบรารี jsPDF ได้");
     }
+    renderSpider();
+    _previewDoc = buildPdfDocument();
+    const blob = _previewDoc.output("blob");
+    if(_previewBlobUrl) URL.revokeObjectURL(_previewBlobUrl);
+    _previewBlobUrl = URL.createObjectURL(blob);
+    document.getElementById("previewFrame").src = _previewBlobUrl;
+    document.getElementById("previewModal").style.display = "flex";
+  } catch(err){
+    alert("ไม่สามารถสร้างตัวอย่างเอกสารได้: " + err.message);
   }
+}
+
+function closePreviewModal(){
+  document.getElementById("previewModal").style.display = "none";
+}
+
+/* ===========================================================
+   SUCCESS MODAL
+   =========================================================== */
+function openSuccessModal(message){
+  if(message) document.getElementById("successText").textContent = message;
+  document.getElementById("successModal").style.display = "flex";
+}
+function closeSuccessModal(){
+  document.getElementById("successModal").style.display = "none";
 }
 
 /* ===========================================================
@@ -2583,9 +2773,6 @@ function buildPdfDocument(){
   /* ---------- หน้าสุดท้าย: Spider Chart + สรุปคะแนน + ลงนาม + ผู้ประสานงาน ---------- */
   newPage();
   pageHeader("แบบฟอร์มประเมินบทบาท ROLE MODEL — ผู้บริหารระดับกลาง");
-  setStyle(8.5, true, C.indigo700);
-  doc.text("VISUAL SUMMARY · RADAR CHART", M, y);
-  y += 6;
   setStyle(14.5, true, C.ink);
   doc.text("ภาพรวมผลการประเมิน — Spider Chart ๗ มิติ", M, y);
   y += 2;
@@ -2735,30 +2922,28 @@ function buildPdfDocument(){
 }
 
 /* ===========================================================
-   กดส่งข้อมูล & Export to PDF
-   1) สร้าง PDF จริงด้วย jsPDF โดยตรง (วาดข้อความ/รูปทรงเอง ไม่จับภาพหน้าจอ)
-      จึงไม่มีปัญหาหน้าเปล่าหรือข้อความซ้อนทับ ตัวอักษรคมชัด จัดหน้า A4 ได้พอดี
-   2) ดาวน์โหลดไฟล์ PDF เก็บไว้ในเครื่องผู้ใช้
+   Save PDF / ส่งเอกสาร (เรียกจากปุ่มในหน้าต่างตัวอย่างเอกสาร)
+   1) ใช้ไฟล์ PDF เดียวกับที่แสดงในหน้าต่างตัวอย่าง (ข้อ 5.2) ไม่สร้างซ้ำ
+   2) ดาวน์โหลดไฟล์ PDF เก็บไว้ในเครื่องผู้ใช้ (ส่งออกให้ผู้ประเมิน)
    3) ส่งไฟล์ PDF และไฟล์หลักฐานที่แนบไว้ทุกข้อ (base64) ไปอัปโหลดที่โฟลเดอร์ Google Drive
       ของผู้ประเมินคนนั้นโดยอัตโนมัติ ผ่าน Google Apps Script Web App (ดู APPS_SCRIPT_URL ด้านบน)
+   4) เมื่อสำเร็จ ปิดหน้าต่างตัวอย่างแล้วแสดง pop up "ส่งข้อมูลเรียบร้อย"
    =========================================================== */
-async function submitAndExport(){
-  const btn = event && event.currentTarget;
+async function confirmSaveAndExport(){
+  const btn = document.getElementById("btnSavePdf");
   const originalBtnHTML = btn ? btn.innerHTML : null;
-  if(btn){ btn.disabled = true; btn.innerHTML = "กำลังสร้าง PDF..."; }
-
-  renderSpider();
+  if(btn){ btn.disabled = true; btn.innerHTML = "กำลังบันทึก..."; }
 
   try{
     if(!window.jspdf || !window.jspdf.jsPDF){
       throw new Error("ไม่สามารถโหลดไลบรารี jsPDF ได้");
     }
 
-    const doc = buildPdfDocument();
+    const doc = _previewDoc || buildPdfDocument();
     const pdfBlob = doc.output("blob");
     const fileName = buildSuggestedFileName();
 
-    // ดาวน์โหลดไฟล์ PDF ไว้ในเครื่องผู้ใช้
+    // ดาวน์โหลดไฟล์ PDF ไว้ในเครื่องผู้ใช้ (ส่งออกให้ผู้ประเมิน)
     const blobUrl = URL.createObjectURL(pdfBlob);
     const a = document.createElement("a");
     a.href = blobUrl;
@@ -2794,28 +2979,22 @@ async function submitAndExport(){
       });
       const data = await res.json();
       if(data && data.success){
-        let msg = "ส่งข้อมูลสำเร็จ — บันทึก PDF ไปยัง Google Drive แล้ว\nโฟลเดอร์: " + (data.folderName || "-") + "\nไฟล์: " + data.fileName;
-        if(attachments.length){
-          if(data.attachmentsSaved != null){
-            msg += "\nไฟล์หลักฐานที่แนบ: " + th(data.attachmentsSaved) + " จาก " + th(attachments.length) + " ไฟล์ที่ส่งไป";
-            if(data.attachmentsSaved < attachments.length){
-              msg += "\n⚠ มีไฟล์แนบบางไฟล์บันทึกไม่สำเร็จ — โปรดตรวจสอบในโฟลเดอร์อีกครั้ง";
-            }
-          } else {
-            msg += "\n⚠ ส่งไฟล์แนบไป " + th(attachments.length) + " ไฟล์ แต่ Apps Script รุ่นที่ใช้งานอยู่ตอนนี้ไม่รองรับการบันทึกไฟล์แนบ (ไม่พบฟิลด์ attachmentsSaved ในคำตอบ) กรุณาตรวจสอบว่าได้อัปเดตและ Deploy โค้ด Apps Script เวอร์ชันล่าสุดแล้ว";
-          }
+        if(attachments.length && data.attachmentsSaved != null && data.attachmentsSaved < attachments.length){
+          alert("⚠ มีไฟล์แนบบางไฟล์บันทึกไม่สำเร็จ (" + th(data.attachmentsSaved) + " จาก " + th(attachments.length) + " ไฟล์) โปรดตรวจสอบในโฟลเดอร์ Google Drive อีกครั้ง");
         }
-        alert(msg);
+        closePreviewModal();
+        openSuccessModal("ส่งข้อมูลเรียบร้อย");
       } else {
-        alert("Export to PDF สำเร็จและดาวน์โหลดไว้ในเครื่องแล้ว แต่ส่งขึ้น Google Drive ไม่สำเร็จ: " + (data && data.message ? data.message : "ไม่ทราบสาเหตุ"));
+        alert("ดาวน์โหลดไฟล์ PDF ไว้ในเครื่องแล้ว แต่ส่งขึ้น Google Drive ไม่สำเร็จ: " + (data && data.message ? data.message : "ไม่ทราบสาเหตุ"));
       }
     } else {
-      alert("Export to PDF สำเร็จและดาวน์โหลดไฟล์ไว้ในเครื่องแล้ว\nหมายเหตุ: ยังไม่ได้ตั้งค่า Apps Script URL (ตัวแปร APPS_SCRIPT_URL ในโค้ด) จึงยังไม่ได้ส่งไฟล์ขึ้น Google Drive โดยอัตโนมัติ");
+      closePreviewModal();
+      openSuccessModal("ดาวน์โหลดไฟล์เรียบร้อย");
+      alert("หมายเหตุ: ยังไม่ได้ตั้งค่า Apps Script URL (ตัวแปร APPS_SCRIPT_URL ในโค้ด) จึงยังไม่ได้ส่งไฟล์ขึ้น Google Drive โดยอัตโนมัติ");
     }
   } catch(err){
     alert("เกิดข้อผิดพลาดระหว่างสร้าง/ส่งไฟล์ PDF: " + err.message);
   } finally {
-    exitDraftMode();
     if(btn){ btn.disabled = false; btn.innerHTML = originalBtnHTML; }
   }
 }
