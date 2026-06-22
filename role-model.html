@@ -2797,7 +2797,18 @@ function buildPdfDocument(){
     doc.setFont("Sarabun", "bold"); doc.setFontSize(8.5);
     const ptsW = doc.getTextWidth(ptsLabel) + 7;
     const titleMaxW = innerW - 14 - ptsW - 4;
-    const titleLines = measureWrap(ind.title, 11.5, true, titleMaxW);
+    // ถ้าชื่อตัวชี้วัดมี () ให้แยกส่วนในวงเล็บขึ้นบรรทัดใหม่เสมอ
+    const parenIdx = ind.title.indexOf("(");
+    let titleLines;
+    if(parenIdx > 0){
+      const mainPart = ind.title.substring(0, parenIdx).trim();
+      const parenPart = ind.title.substring(parenIdx).trim();
+      const mainLines = measureWrap(mainPart, 10.5, true, titleMaxW);
+      const parenLines = measureWrap(parenPart, 10.5, true, titleMaxW);
+      titleLines = [...mainLines, ...parenLines];
+    } else {
+      titleLines = measureWrap(ind.title, 10.5, true, titleMaxW);
+    }
     const descLines = measureWrap(ind.desc, 10, false, innerW);
 
     let detailText = (st.detail || "").trim();
@@ -2808,11 +2819,11 @@ function buildPdfDocument(){
     const fileLines = fileNames.length ? fileNames.map(n => measureWrap(n, 9.5, false, innerW - 2)).flat() : [];
 
     let h = padTop;
-    h += Math.max(titleLines.length * 5, 5.5) + 4; // title row + gap
+    h += Math.max(titleLines.length * 4.8, 5.5) + 4; // title row + gap
     h += 0.3; // divider
     h += 4.4 + descLines.length * 4.6 + 2.6; // คำอธิบาย label + lines
-    h += 4.4 + 6.4; // ค่าความคาดหวัง label + badge row
-    h += 4.6 + 6; // ผลการดำเนินการ label + result row
+    h += 4.4 + 6.4; // ค่าความคาดหวัง label + badge row (achieved status fits on same line)
+    h += 4.6 + 6; // ผลการดำเนินการ label + result row (no extra ระดับที่ระบุ line)
     h += 4.4 + detailLines.length * 4.6 + 2; // รายละเอียด label + lines
     if(fileLines.length){ h += 4.4 + fileLines.length * 4.2 + 1.4; }
     h += padBottom;
@@ -2844,57 +2855,58 @@ function buildPdfDocument(){
     doc.text(m.ptsLabel, M + CW - m.padX - m.ptsW / 2, cy - 0.05, { align: "center" });
 
     // title
-    setStyle(11.5, true, C.ink);
+    setStyle(10.5, true, C.ink);
     const titleX = M + m.padX + codeW + 3.5;
-    m.titleLines.forEach((line, i) => doc.text(line, titleX, cy + i * 5));
-    cy += Math.max(m.titleLines.length * 5, 5.5) + 4;
+    m.titleLines.forEach((line, i) => doc.text(line, titleX, cy + i * 4.8));
+    cy += Math.max(m.titleLines.length * 4.8, 5.5) + 4;
 
     doc.setDrawColor(C.line[0], C.line[1], C.line[2]);
     doc.setLineWidth(0.2);
     doc.line(M + m.padX, cy, M + CW - m.padX, cy);
     cy += 5;
 
-    setStyle(8.5, true, C.indigo700);
+    // คำอธิบาย — label กับเนื้อหาขนาดเท่ากัน (10pt)
+    setStyle(10, true, C.indigo700);
     doc.text("คำอธิบาย", M + m.padX, cy);
     cy += 4.6;
     setStyle(10, false, C.inkSoft);
     m.descLines.forEach(line => { doc.text(line, M + m.padX, cy); cy += 4.6; });
     cy += 2.2;
 
-    setStyle(8.5, true, C.indigo700);
+    // ค่าความคาดหวัง — ถ้าตรงตามเป้าหมาย ใส่สถานะในบรรทัดเดียวกัน
+    setStyle(10, true, C.indigo700);
     doc.text("ค่าความคาดหวัง", M + m.padX, cy);
     cy += 4.6;
     doc.setFont("Sarabun", "bold"); doc.setFontSize(9.5);
     const expW = doc.getTextWidth(ind.expected) + 7;
+    const achieved = indicatorAchieved(ind.code);
+    const st = STATE[ind.code];
     doc.setFillColor(C.indigoBg[0], C.indigoBg[1], C.indigoBg[2]);
     doc.setDrawColor(C.indigoBorder[0], C.indigoBorder[1], C.indigoBorder[2]);
     doc.roundedRect(M + m.padX, cy - 3.6, expW, 5.8, 1, 1, "FD");
     setStyle(9.5, true, C.indigo900);
     doc.text(ind.expected, M + m.padX + 3.5, cy + 0.3);
+    // ถ้าตรงตามเป้าหมาย: แสดง ✓ ตรงตามเป้าหมาย ในบรรทัดเดียวกัน
+    if(achieved){
+      setStyle(9, true, C.okText);
+      doc.text("✓ ตรงตามเป้าหมาย", M + m.padX + expW + 4, cy + 0.3);
+    }
     cy += 7.4;
 
-    setStyle(8.5, true, C.indigo700);
+    // ผลการดำเนินการ — แสดงแค่ มี/ไม่มี ไม่มี "ระดับที่ระบุ"
+    setStyle(10, true, C.indigo700);
     doc.text("ผลการดำเนินการ", M + m.padX, cy);
     cy += 4.8;
-    const st = STATE[ind.code];
-    const achieved = indicatorAchieved(ind.code);
     let resultLabel, resultColor;
     if(st.result === "yes"){ resultLabel = "● มี"; resultColor = achieved ? C.okText : [180, 83, 9]; }
     else if(st.result === "no"){ resultLabel = "○ ไม่มี"; resultColor = C.noText; }
     else { resultLabel = "— ไม่ได้ระบุ"; resultColor = C.muted; }
     setStyle(10.5, true, resultColor);
     doc.text(resultLabel, M + m.padX, cy);
-    if(st.result === "yes" && st.qty){
-      const opt = (ind.scale || []).find(o => o.value === st.qty);
-      if(opt){
-        setStyle(9.5, false, C.inkSoft);
-        const tag = "  ระดับที่ระบุ: " + opt.label + (opt.meets ? " (ตามเป้าหมาย)" : " (ยังไม่ถึงเป้าหมาย)");
-        doc.text(tag, M + m.padX + doc.getTextWidth(resultLabel) + 16, cy);
-      }
-    }
     cy += 6;
 
-    setStyle(8.5, true, C.indigo700);
+    // รายละเอียด — label กับเนื้อหาขนาดเท่ากัน (10pt)
+    setStyle(10, true, C.indigo700);
     doc.text("รายละเอียดที่บันทึกไว้", M + m.padX, cy);
     cy += 4.6;
     setStyle(10, false, C.inkSoft);
@@ -2918,14 +2930,14 @@ function buildPdfDocument(){
     pageHeader("แบบฟอร์มประเมินบทบาท ROLE MODEL — ผู้บริหารระดับกลาง");
     const perItem = +(10 / sec.indicators.length).toFixed(2);
 
-    setStyle(8.5, true, C.indigo700);
+    setStyle(8, true, C.indigo700);
     doc.text(`หัวข้อที่ ${sec.num} · SECTION ${sec.num} · คะแนนเต็ม ๑๐`, M, y);
-    y += 6;
-    const secTitleLines = measureWrap(sec.title, 14.5, true, CW);
-    drawLines(secTitleLines, M, 14.5, true, C.ink, 6.4);
-    y += 2;
+    y += 5.5;
+    const secTitleLines = measureWrap(sec.title, 12.5, true, CW);
+    drawLines(secTitleLines, M, 12.5, true, C.ink, 5.8);
+    y += 1.5;
     hr(y, C.indigo800, 0.5);
-    y += 7.5;
+    y += 7;
 
     setStyle(9, false, C.inkSoft);
     const ruleText = `คะแนนหัวข้อนี้ = 10 คะแนน · มีตัวชี้วัดย่อย ${th(sec.indicators.length)} ข้อ · คิดข้อละ ${th(perItem)} คะแนน · ทำไม่ถึงค่าความคาดหวัง = ไม่ได้คะแนน, ทำได้/เกินค่าความคาดหวัง = ได้คะแนนเต็มของข้อ`;
