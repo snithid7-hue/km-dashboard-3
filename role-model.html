@@ -472,7 +472,7 @@ body{
   height:100vh;
   background:linear-gradient(180deg,var(--indigo-900) 0%,var(--indigo-800) 100%);
   color:#fff;
-  padding:28px 0 24px;
+  padding:28px 0 64px;
   overflow-y:auto;
   border-right:1px solid var(--indigo-700);
 }
@@ -1432,6 +1432,87 @@ textarea:focus{
 }
 
 /* ===========================================================
+   CONTACT BAR — แถบผู้ติดต่อแบบถาวรด้านล่างหน้าจอ
+   เล็ก ไม่บังเนื้อหา ซ่อนตอนพิมพ์
+   =========================================================== */
+.contact-bar{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  z-index:4000;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(8px);
+  border-top:1px solid var(--line);
+  padding:6px 20px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  box-shadow:0 -2px 8px rgba(15,23,42,.06);
+}
+.contact-bar-label{
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.contact-bar-chips{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.cb-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:4px 10px;
+  background:var(--bg-soft);
+  border:1px solid var(--line-strong);
+  border-radius:999px;
+  font-size:12.5px;
+  font-family:inherit;
+  color:var(--ink-soft);
+  white-space:nowrap;
+  line-height:1;
+}
+.cb-chip svg{
+  width:12px;
+  height:12px;
+  stroke:var(--muted);
+  fill:none;
+  stroke-width:2;
+  flex-shrink:0;
+}
+.cb-ext{
+  color:var(--muted);
+  font-size:11.5px;
+}
+.cb-role{
+  color:var(--indigo-700);
+  font-size:11.5px;
+  font-weight:600;
+}
+.cb-chip--admin{
+  background:var(--indigo-50);
+  border-color:var(--indigo-100);
+  color:var(--indigo-900);
+}
+.cb-chip--admin svg{
+  stroke:var(--indigo-600);
+}
+/* เพิ่ม padding ให้ main เพื่อไม่ให้ contact bar บังเนื้อหาล่างสุด */
+.main{ padding-bottom:52px; }
+
+/* ซ่อนตอนพิมพ์ */
+@media print{
+  .contact-bar{ display:none !important; }
+}
+
+/* ===========================================================
    ENTRY POPUP — แสดงรูปก่อนเข้าใช้งานระบบ
    =========================================================== */
 .entry-popup-overlay{
@@ -1880,40 +1961,34 @@ textarea:focus{
           กรุณานำส่ง พก.พส. — เอกสารฉบับนี้จัดทำขึ้นจากระบบประเมินผ่านสื่ออิเล็กทรอนิกส์
         </div>
 
-        <!-- ผู้ประสานงาน — แสดงเป็นปุ่มเลือก กดเลือกได้ 1 คน -->
+        <!-- ผู้ประสานงาน — กรอกข้อมูล (รูปแบบเดิม) -->
         <div class="coordinator-card">
           <h3>ผู้ประสานงาน</h3>
-          <p class="co-hint">เลือกผู้ประสานงานที่รับผิดชอบฝ่ายงานของท่าน</p>
-          <div class="co-chips" id="coChips">
-            <label class="co-chip">
-              <input type="radio" name="co-pick" value="0">
-              <span class="co-chip-box">
-                <svg class="co-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                มานิดา <span class="co-ext">(9094)</span>
-              </span>
-            </label>
-            <label class="co-chip">
-              <input type="radio" name="co-pick" value="1">
-              <span class="co-chip-box">
-                <svg class="co-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                ศศิภา <span class="co-ext">(9273)</span>
-              </span>
-            </label>
-            <label class="co-chip">
-              <input type="radio" name="co-pick" value="2">
-              <span class="co-chip-box">
-                <svg class="co-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                ก้องตระกูล <span class="co-ext">(9419)</span>
-              </span>
-            </label>
-            <label class="co-chip co-chip--admin">
-              <input type="radio" name="co-pick" value="3">
-              <span class="co-chip-box">
-                <svg class="co-icon" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
-                วรางคณา <span class="co-ext">(8149)</span>
-                <span class="co-role">— ผู้ดูแลระบบ</span>
-              </span>
-            </label>
+          <div class="coordinator-grid">
+            <div class="field">
+              <label>ชื่อ – นามสกุลผู้ประสานงาน</label>
+              <input type="text" id="co-name" placeholder="ระบุชื่อ – นามสกุล">
+            </div>
+            <div class="field">
+              <label>ตำแหน่ง</label>
+              <input type="text" id="co-pos" placeholder="ระบุตำแหน่งผู้ประสานงาน">
+            </div>
+            <div class="field">
+              <label>เบอร์โทรศัพท์</label>
+              <input type="text" id="co-phone" placeholder="เช่น 081-234-5678">
+            </div>
+            <div class="field">
+              <label>อีเมล</label>
+              <input type="text" id="co-email" placeholder="เช่น coordinator@aerothai.co.th">
+            </div>
+            <div class="field">
+              <label>ประเภท</label>
+              <select id="co-type">
+                <option value="">— เลือกประเภท —</option>
+                <option value="KF">KF (Knowledge Facilitator)</option>
+                <option value="POC">POC (Point of Contact)</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -2607,9 +2682,14 @@ const CO_LIST = [
 ];
 
 function getSelectedCoordinator(){
-  const radio = document.querySelector('input[name="co-pick"]:checked');
-  if(!radio) return null;
-  return CO_LIST[parseInt(radio.value)] || null;
+  const name  = (document.getElementById("co-name")  || {}).value || "";
+  const pos   = (document.getElementById("co-pos")   || {}).value || "";
+  const phone = (document.getElementById("co-phone") || {}).value || "";
+  const email = (document.getElementById("co-email") || {}).value || "";
+  const typeSel = document.getElementById("co-type");
+  const type  = typeSel ? (typeSel.options[typeSel.selectedIndex]?.text || "") : "";
+  if(!name.trim()) return null;
+  return { name: name.trim(), pos: pos.trim(), phone: phone.trim(), email: email.trim(), type };
 }
 
 function buildPdfDocument(){
@@ -2988,19 +3068,25 @@ function buildPdfDocument(){
 
   const coPerson = getSelectedCoordinator();
   if(coPerson){
-    setStyle(8.5, true, C.inkSoft); doc.text("ชื่อ", M + 4.5, y);
-    setStyle(8.5, true, C.inkSoft); doc.text("เบอร์ภายใน", M + 4.5 + CW/2, y);
+    setStyle(8.5, true, C.inkSoft); doc.text("ชื่อ – นามสกุลผู้ประสานงาน", M + 4.5, y);
+    setStyle(8.5, true, C.inkSoft); doc.text("ตำแหน่ง", M + 4.5 + CW/2, y);
     y += 5;
     setStyle(10.5, false, C.ink); doc.text(coPerson.name, M + 4.5, y);
-    setStyle(10.5, false, C.ink); doc.text(coPerson.ext, M + 4.5 + CW/2, y);
+    setStyle(10.5, false, C.ink); doc.text(coPerson.pos || "—", M + 4.5 + CW/2, y);
     y += 7;
-    setStyle(8.5, true, C.inkSoft); doc.text("บทบาท", M + 4.5, y);
+    setStyle(8.5, true, C.inkSoft); doc.text("เบอร์โทรศัพท์", M + 4.5, y);
+    setStyle(8.5, true, C.inkSoft); doc.text("อีเมล", M + 4.5 + CW/2, y);
     y += 5;
-    setStyle(10.5, false, C.ink); doc.text(coPerson.role, M + 4.5, y);
+    setStyle(10.5, false, C.ink); doc.text(coPerson.phone || "—", M + 4.5, y);
+    setStyle(10.5, false, C.ink); doc.text(coPerson.email || "—", M + 4.5 + CW/2, y);
+    y += 7;
+    setStyle(8.5, true, C.inkSoft); doc.text("ประเภท", M + 4.5, y);
+    y += 5;
+    setStyle(10.5, false, C.ink); doc.text(coPerson.type || "—", M + 4.5, y);
     y += 7;
   } else {
     setStyle(10, false, C.muted);
-    doc.text("— ไม่ได้เลือกผู้ประสานงาน —", M + 4.5, y + 2);
+    doc.text("— ไม่ได้ระบุผู้ประสานงาน —", M + 4.5, y + 2);
     y += 9;
   }
   doc.setDrawColor(C.line[0], C.line[1], C.line[2]); doc.setLineWidth(0.25);
@@ -3127,5 +3213,30 @@ document.getElementById("sig-pos").addEventListener("input",function(){
   this.dataset.touched = "1";
 });
 </script>
+
+<!-- ============= แถบผู้ติดต่อ (Fixed Footer) ============= -->
+<div class="contact-bar" id="contactBar">
+  <span class="contact-bar-label">ผู้ประสานงาน</span>
+  <div class="contact-bar-chips">
+    <span class="cb-chip">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      มานิดา <span class="cb-ext">(9094)</span>
+    </span>
+    <span class="cb-chip">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      ศศิภา <span class="cb-ext">(9273)</span>
+    </span>
+    <span class="cb-chip">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      ก้องตระกูล <span class="cb-ext">(9419)</span>
+    </span>
+    <span class="cb-chip cb-chip--admin">
+      <svg viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
+      วรางคณา <span class="cb-ext">(8149)</span>
+      <span class="cb-role">— ผู้ดูแลระบบ</span>
+    </span>
+  </div>
+</div>
+
 </body>
 </html>
