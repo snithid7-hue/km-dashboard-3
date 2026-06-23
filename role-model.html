@@ -1081,19 +1081,33 @@ body{
 .nav-text{flex:1}
 
 .nav-pct{
+
   flex-shrink:0;
+
   font-size:10.5px;
+
   font-weight:600;
+
   color:rgba(255,255,255,.45);
+
   min-width:32px;
+
   text-align:right;
+
   margin-top:1px;
+
   transition:color .2s ease;
+
 }
+
 .nav-pct.done{color:#86efac}
+
 .nav-pct.partial{color:#fde68a}
+
 .nav a.active .nav-pct{color:rgba(255,255,255,.65)}
+
 .nav a.active .nav-pct.done{color:#bbf7d0}
+
 .nav a.active .nav-pct.partial{color:#fef08a}
 
 .nav-divider{
@@ -4467,6 +4481,7 @@ function toggleScale(code){
   const show = STATE[code].result === "yes";
 
   // indicator ที่มี scale UI (wrap มีอยู่) — toggle visibility
+
   if(wrap) wrap.style.display = show ? "block" : "none";
 
   if(!show){
@@ -4480,6 +4495,7 @@ function toggleScale(code){
   } else {
 
     // indicator ที่ไม่มี scale (เช่น ๕.๓, ๕.๑, ๕.๒) — render entry set ทันที 1 ชุด
+
     renderDetailSets(code);
 
   }
@@ -4987,36 +5003,65 @@ function computeScores(){
    =========================================================== */
 
 /* อัปเดต % ความก้าวหน้าของแต่ละหัวข้อใน sidebar */
+
 /* คืนค่า true เมื่อ indicator นั้นกรอกครบทุกช่อง (result + detail ทุก entry + file ทุก entry) */
+
 function indicatorComplete(code){
+
   const st = STATE[code];
+
   if(!st || st.result === null || st.result === undefined) return false;
+
   if(st.result === "no") return true; // เลือกไม่มี — ถือว่าครบ ไม่ต้องกรอกอื่น
+
   // result === "yes" — ต้องกรอก detail และแนบไฟล์ทุก entry
+
   const n = getScaleCount(code);
+
   for(let i = 0; i < n; i++){
+
     const entry = st.entries[i];
+
     if(!entry) return false;
+
     if(!entry.detail || !entry.detail.trim()) return false;
+
     if(!entry.files || entry.files.length === 0) return false;
+
   }
+
   return true;
+
 }
 
 function updateNavPct(){
+
   SECTIONS.forEach(sec=>{
+
     const el = document.getElementById("npct-"+sec.id);
+
     if(!el) return;
+
     const total = sec.indicators.length;
+
     if(!total){ el.textContent="—"; el.className="nav-pct"; return; }
+
     let complete = 0;
+
     sec.indicators.forEach(ind=>{
+
       if(indicatorComplete(ind.code)) complete++;
+
     });
+
     const pct = Math.round(complete / total * 100);
+
     el.textContent = pct + "%";
+
     el.className = "nav-pct" + (pct === 100 ? " done" : pct > 0 ? " partial" : "");
+
   });
+
 }
 
 function renderSpider(){
@@ -5328,57 +5373,99 @@ let _previewDoc = null;
 let _previewBlobUrl = null;
 
 function validateAll(){
+
   const errors = [];
+
   SECTIONS.forEach(sec=>{
+
     sec.indicators.forEach(ind=>{
+
       const st = STATE[ind.code];
+
       const label = `หัวข้อ ${sec.num} ตัวชี้วัด ${ind.code}`;
 
       // ยังไม่ได้เลือก มี/ไม่มี
+
       if(!st || st.result === null || st.result === undefined){
+
         errors.push({ label, msg: "ยังไม่ได้เลือกผลการดำเนินการ (มี / ไม่มี)", secId: sec.id });
+
         return;
+
       }
+
       if(st.result === "no") return; // เลือกไม่มี — ไม่ต้องกรอกอื่น
 
       // result === "yes" — ต้องมี qty (ถ้ามี scale), detail, file ทุก entry
+
       const sc = SCALE_BY_CODE[ind.code];
+
       if(sc && !st.qty){
+
         errors.push({ label, msg: "ยังไม่ได้ระบุระดับ/จำนวนครั้ง", secId: sec.id });
+
         return;
+
       }
 
       const n = getScaleCount(ind.code);
+
       for(let i = 0; i < n; i++){
+
         const entry = st.entries[i];
+
         const entrySuffix = n > 1 ? ` (ชุดที่ ${i+1})` : "";
+
         if(!entry || !entry.detail || !entry.detail.trim()){
+
           errors.push({ label, msg: `ยังไม่ได้กรอกรายละเอียด${entrySuffix}`, secId: sec.id });
+
         }
+
         if(!entry || !entry.files || entry.files.length === 0){
+
           errors.push({ label, msg: `ยังไม่ได้แนบไฟล์หลักฐาน${entrySuffix}`, secId: sec.id });
+
         }
+
       }
+
     });
+
   });
+
   return errors;
+
 }
 
 function openPreviewModal(){
 
   // ตรวจสอบข้อมูลครบถ้วนก่อน
+
   const errors = validateAll();
+
   if(errors.length > 0){
+
     const MAX_SHOW = 5;
+
     const shown = errors.slice(0, MAX_SHOW);
+
     const extra = errors.length > MAX_SHOW ? `\n\n... และอีก ${errors.length - MAX_SHOW} รายการ` : "";
+
     alert(
+
       `⚠ กรุณากรอกข้อมูลให้ครบก่อนบันทึก\n\nพบปัญหา ${errors.length} รายการ:\n\n` +
+
       shown.map((e,i)=>`${i+1}. ${e.label}: ${e.msg}`).join("\n") + extra
+
     );
+
     // เลื่อนไปยังหัวข้อแรกที่มีปัญหา
+
     goTo(errors[0].secId);
+
     return;
+
   }
 
   try{
@@ -5501,8 +5588,6 @@ function buildPdfDocument(){
 
   doc.setFont("THSarabun", "normal");
 
-
-
   const M = 15, PW = 210, PH = 297, CW = PW - M * 2;
 
   const C = {
@@ -5550,39 +5635,71 @@ function buildPdfDocument(){
   }
 
   /* กลุ่ม Unicode ที่เป็น combining diacritics ภาษาไทย (advance-width = 0) */
+
   const _THAI_COMBINING_RE = /[\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]/;
 
   /**
+
    * fixThaiSplit — แก้ปัญหา splitTextToSize ตัดบรรทัดผิดจุดสำหรับภาษาไทย
+
    * splitTextToSize ของ jsPDF ตัดโดยนับ Unicode code point ซึ่งอาจแยก
+
    * วรรณยุกต์ (combining char) ออกจากตัวอักษรหลัก (base char)
+
    * ฟังก์ชันนี้ merge คู่ที่แตกหักกลับมา
+
    */
+
   function fixThaiSplit(lines) {
+
     if (!lines || lines.length <= 1) return lines;
+
     const fixed = [];
+
     for (let i = 0; i < lines.length; i++) {
+
       let line = lines[i];
+
       // ถ้าบรรทัดถัดไปขึ้นต้นด้วย combining char → ดึงกลับมาต่อท้ายบรรทัดนี้
+
       while (i + 1 < lines.length && _THAI_COMBINING_RE.test(lines[i + 1][0])) {
+
         i++;
+
         const next = lines[i];
+
         // ดึง leading combining chars กลับมา
+
         let j = 0;
+
         while (j < next.length && _THAI_COMBINING_RE.test(next[j])) j++;
+
         line = line + next.slice(0, j);
+
         const remainder = next.slice(j);
+
         if (remainder) {
+
           lines.splice(i, 1, remainder); // ใส่ส่วนที่เหลือกลับ
+
           i--; // loop จะ i++ อีกทีในรอบหน้า
+
         } else {
+
           lines.splice(i, 1);
+
           i--;
+
         }
+
       }
+
       fixed.push(line);
+
     }
+
     return fixed;
+
   }
 
   function measureWrap(text, size, bold, maxWidth){
@@ -5679,15 +5796,15 @@ function buildPdfDocument(){
 
   y += 8.5;
 
-  setStyle(10.5, true, C.indigo900);
+  setStyle(16, true, C.indigo900);
 
   doc.text("เกณฑ์การคิดคะแนน", M, y);
 
-  y += 5.6;
+  y += 8.0;
 
   const ruleLines = measureWrap(
 
-    "แต่ละหัวข้อหลักมีคะแนนเต็ม 10 คะแนน แบ่งเท่ากันตามจำนวนตัวชี้วัดย่อย คะแนนเต็มรวมทั้งสิ้น 70 คะแนน " +
+    "แต่ละหัวข้อหลักมีคะแนนเต็ม ๑๐ คะแนน แบ่งเท่ากันตามจำนวนตัวชี้วัดย่อย คะแนนเต็มรวมทั้งสิ้น ๗๐ คะแนน " +
 
     "โดยให้คะแนนตามค่าความคาดหวังของแต่ละข้อ ดังนี้ ทำไม่ถึงค่าความคาดหวัง = ไม่ได้คะแนน, " +
 
@@ -5744,9 +5861,13 @@ function buildPdfDocument(){
     const descLines = measureWrap(ind.desc, 14, false, innerW);
 
     // สร้าง entriesMeasured[] สำหรับแต่ละ entry ใน STATE[code].entries
+
     // ใช้ getScaleCount() เพื่อกำหนดจำนวน entries ที่ถูกต้องตาม qty ที่เลือก
+
     const allEntries = (st.entries && st.entries.length) ? st.entries : [{detail: st.detail || "", files: st.files || []}];
+
     const entriesN = getScaleCount(ind.code);
+
     const entries = allEntries.slice(0, entriesN);
 
     const showEntryLabel = entriesN > 1;
