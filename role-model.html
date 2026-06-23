@@ -3732,7 +3732,7 @@ textarea:focus{
 
           เมื่อตรวจสอบข้อมูลเรียบร้อยแล้ว ให้กดปุ่ม <strong>Save PDF / ส่งเอกสาร</strong>
 
-          ระบบจะดาวน์โหลดไฟล์ PDF ไว้ในเครื่อง และส่งไฟล์ไปบันทึกที่โฟลเดอร์ Google Drive ที่กำหนดโดยอัตโนมัติ
+          ระบบจะดาวน์โหลดไฟล์ PDF ไว้ในเครื่อง และส่งไฟล์ PDF พร้อมลายเซ็นกลับมาที่ พก.พส. ผ่านระบบสารบรรณของบริษัท
 
         </p>
 
@@ -5631,7 +5631,7 @@ function buildPdfDocument(){
 
   y += 6;
 
-  const titleLines = measureWrap("แบบฟอร์มการประเมินบทบาทการเป็นแบบอย่างที่ดี (Role Model) สำหรับผู้บริหารระดับกลาง (รายบุคคล)", 16, true, CW);
+  const titleLines = measureWrap("แบบฟอร์มการประเมินบทบาทการเป็นแบบอย่างที่ดี (Role Model) สำหรับผู้บริหารระดับกลาง (รายบุคคล)", 20, true, CW);
 
   drawLines(titleLines, M, 20, true, C.indigo900, 8.5);
 
@@ -5693,7 +5693,7 @@ function buildPdfDocument(){
 
     "ทำได้ตามค่าความคาดหวัง = ได้คะแนนเต็มของข้อนั้น, ทำเกินค่าความคาดหวัง = ได้คะแนนเต็มเท่ากัน (ไม่มีคะแนนพิเศษเพิ่ม)",
 
-    9.5, false, CW
+    16, false, CW
 
   );
 
@@ -5715,7 +5715,7 @@ function buildPdfDocument(){
 
     const ptsW = doc.getTextWidth(ptsLabel) + 7;
 
-    const titleMaxW = innerW - 14 - ptsW - 4;
+    const titleMaxW = innerW;
 
     // ถ้าชื่อตัวชี้วัดมี () ให้แยกส่วนในวงเล็บขึ้นบรรทัดใหม่เสมอ
 
@@ -5729,19 +5729,19 @@ function buildPdfDocument(){
 
       const parenPart = ind.title.substring(parenIdx).trim();
 
-      const mainLines = measureWrap(mainPart, 10.5, true, titleMaxW);
+      const mainLines = measureWrap(mainPart, 14, true, titleMaxW);
 
-      const parenLines = measureWrap(parenPart, 10.5, true, titleMaxW);
+      const parenLines = measureWrap(parenPart, 14, true, titleMaxW);
 
       titleLines = [...mainLines, ...parenLines];
 
     } else {
 
-      titleLines = measureWrap(ind.title, 10.5, true, titleMaxW);
+      titleLines = measureWrap(ind.title, 14, true, titleMaxW);
 
     }
 
-    const descLines = measureWrap(ind.desc, 10, false, innerW);
+    const descLines = measureWrap(ind.desc, 14, false, innerW);
 
     // สร้าง entriesMeasured[] สำหรับแต่ละ entry ใน STATE[code].entries
     // ใช้ getScaleCount() เพื่อกำหนดจำนวน entries ที่ถูกต้องตาม qty ที่เลือก
@@ -5757,11 +5757,11 @@ function buildPdfDocument(){
 
       if(!dt) dt = "(ไม่ได้ระบุรายละเอียด)";
 
-      const dl = measureWrap(dt, 10, false, innerW);
+      const dl = measureWrap(dt, 14, false, innerW);
 
       const fns = (entry.files || []).map(f => "• " + f.name);
 
-      const fl = fns.length ? fns.map(n => measureWrap(n, 9.5, false, innerW - 2)).flat() : [];
+      const fl = fns.length ? fns.map(n => measureWrap(n, 14, false, innerW - 2)).flat() : [];
 
       return { dt, dl, fl, labelH: showEntryLabel ? 5.2 : 0 };
 
@@ -5769,11 +5769,11 @@ function buildPdfDocument(){
 
     let h = padTop;
 
-    h += Math.max(titleLines.length * 7.0, 8.0) + 9.0;
+    h += 7.5 + Math.max(titleLines.length * 7.0, 7.0) + 4.0 + 0.3;
 
     h += 0.3;
 
-    h += 7.0 + descLines.length * 7.0 + 2.5;
+    h += 7.0 + descLines.length * 7.0 + 3.0;
 
     h += 7.0 + 8.5;
 
@@ -5845,15 +5845,17 @@ function buildPdfDocument(){
 
     doc.text(m.ptsLabel, M + CW - m.padX - m.ptsW / 2, cy - 0.05, { align: "center" });
 
-    // title
+    // title — บรรทัดใหม่ใต้ code/pts badge
 
     setStyle(14, true, C.ink);
 
-    const titleX = M + m.padX + codeW + 3.5;
+    const titleX = M + m.padX;
 
-    m.titleLines.forEach((line, i) => doc.text(line, titleX, cy + i * 7.0));
+    const titleStartY = cy + 7.5;
 
-    cy += Math.max(m.titleLines.length * 7.0, 8.0) + 9.0;
+    m.titleLines.forEach((line, i) => doc.text(line, titleX, titleStartY + i * 7.0));
+
+    cy += 7.5 + Math.max(m.titleLines.length * 7.0, 7.0) + 4.0;
 
     doc.setDrawColor(C.line[0], C.line[1], C.line[2]);
 
@@ -6019,7 +6021,7 @@ function buildPdfDocument(){
 
     y += 5.5;
 
-    const secTitleLines = measureWrap(sec.title, 12.5, true, CW);
+    const secTitleLines = measureWrap(sec.title, 20, true, CW);
 
     drawLines(secTitleLines, M, 20, true, C.ink, 10.5);
 
