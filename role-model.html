@@ -5703,7 +5703,7 @@ function buildPdfDocument(){
 
   function measureIndicator(ind, perItem){
 
-    const padX = 6, padTop = 7, padBottom = 6.5;
+    const padX = 8, padTop = 7, padBottom = 7;
 
     const innerW = CW - padX * 2;
 
@@ -5769,7 +5769,7 @@ function buildPdfDocument(){
 
     let h = padTop;
 
-    h += Math.max(titleLines.length * 7.0, 8.0) + 4;
+    h += Math.max(titleLines.length * 7.0, 8.0) + 9.0;
 
     h += 0.3;
 
@@ -5809,7 +5809,7 @@ function buildPdfDocument(){
 
   function drawIndicator(ind, perItem, m){
 
-    ensure(m.h + 6);
+    ensure(m.h + 4);
 
     const top = y;
 
@@ -5853,7 +5853,7 @@ function buildPdfDocument(){
 
     m.titleLines.forEach((line, i) => doc.text(line, titleX, cy + i * 7.0));
 
-    cy += Math.max(m.titleLines.length * 7.0, 8.0) + 4;
+    cy += Math.max(m.titleLines.length * 7.0, 8.0) + 9.0;
 
     doc.setDrawColor(C.line[0], C.line[1], C.line[2]);
 
@@ -5999,7 +5999,7 @@ function buildPdfDocument(){
 
     });
 
-    y = top + m.h + 6;
+    y = top + m.h + 4;
 
   }
 
