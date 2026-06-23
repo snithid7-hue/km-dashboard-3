@@ -3708,17 +3708,15 @@ textarea:focus{
 
         <p class="desc" style="margin:8px 0 0">
 
-          เมื่อกรอกข้อมูลครบทุกหัวข้อแล้ว ให้กดปุ่ม <strong>บันทึกแบบร่าง</strong> ที่มุมขวาบน
+          เมื่อกรอกข้อมูลครบทุกหัวข้อแล้ว ให้กดปุ่ม <strong>ดูตัวอย่างก่อนบันทึก / ส่งออก</strong> ที่ด้านล่างของหน้า
 
-          ระบบจะแสดงเนื้อหาทั้งหมดต่อเนื่องกันให้ตรวจทานอีกครั้ง (ยังไม่ถือเป็นการส่งข้อมูล)
+          ระบบจะแสดงตัวอย่างเอกสาร PDF ให้ตรวจทานความถูกต้อง
 
-          เลื่อนลงไปจนสุดหน้าแล้วกดปุ่ม <strong>กดส่งข้อมูล</strong> ที่อยู่ข้างล่างสุด
+          หากต้องการแก้ไขข้อมูล ให้กดปุ่ม <strong>กลับไปแก้ไข</strong> เพื่อกลับมาแก้ไขได้
 
-          ระบบจะจัดเรียงเนื้อหาให้พอดีกับกระดาษ A4 แนวตั้ง ตั้งชื่อไฟล์ตาม &ldquo;ชื่อ – ตำแหน่ง&rdquo; ที่กรอกไว้
+          เมื่อตรวจสอบข้อมูลเรียบร้อยแล้ว ให้กดปุ่ม <strong>Save PDF / ส่งเอกสาร</strong>
 
-          ดาวน์โหลดไฟล์เก็บไว้ในเครื่อง และส่งไฟล์ PDF ไปบันทึกไว้ที่โฟลเดอร์ Google Drive ที่กำหนดให้โดยอัตโนมัติ
-
-          หากต้องการแก้ไขข้อมูลเพิ่มเติมระหว่างดูแบบร่าง ให้กดปุ่ม <strong>กลับไปแก้ไขข้อมูล</strong> ที่ลอยอยู่มุมขวาบน
+          ระบบจะดาวน์โหลดไฟล์ PDF ไว้ในเครื่อง และส่งไฟล์ไปบันทึกที่โฟลเดอร์ Google Drive ที่กำหนดโดยอัตโนมัติ
 
         </p>
 
@@ -4450,11 +4448,10 @@ function toggleScale(code){
 
   const wrap = document.getElementById("scale-"+code);
 
-  if(!wrap) return;
-
   const show = STATE[code].result === "yes";
 
-  wrap.style.display = show ? "block" : "none";
+  // indicator ที่มี scale UI (wrap มีอยู่) — toggle visibility
+  if(wrap) wrap.style.display = show ? "block" : "none";
 
   if(!show){
 
@@ -4466,6 +4463,7 @@ function toggleScale(code){
 
   } else {
 
+    // indicator ที่ไม่มี scale (เช่น ๕.๓, ๕.๑, ๕.๒) — render entry set ทันที 1 ชุด
     renderDetailSets(code);
 
   }
@@ -5401,99 +5399,68 @@ function buildPdfDocument(){
   doc.setFont("Sarabun", "normal");
 
   /* ===========================================================
+     แก้ปัญหาวรรณยุกต์/สระลอยหายใน PDF (Grapheme Cluster Renderer)
 
-     แก้ปัญหาไม้เอก (่) และไม้โท (้) หายจาก PDF
+     สาเหตุที่แท้จริง:
+       jsPDF วาด string ทีละตัวอักษร (code point) แยกกัน
+       ทำให้ combining chars (วรรณยุกต์/สระ advance=0) ถูก
+       วาดที่ x เดิม แล้ว base char ถัดไปมาทับ → หายไป
+       นอกจากนี้ Sarabun ยังมี LSB ลบ (glyph ยื่นออกไปซ้าย)
+       ทำให้แต่ละ char วาดผิดตำแหน่งเมื่อแยกกัน
 
-     
+     วิธีแก้: Grapheme Cluster Rendering
+       แทนที่จะ patch doc.text, แก้ที่ต้นทางก่อน render:
+       split string เป็น "grapheme clusters" (base + combining ทั้งหมด)
+       แล้วส่ง jsPDF เป็น cluster เดียว ทำให้ jsPDF จัดตำแหน่งถูก
+  =========================================================== */
 
-     สาเหตุ: ตัวอักษรกำกับเสียง/สระลอยในภาษาไทย (U+0E31, U+0E34-U+0E3A,
+  // ฟังก์ชัน split string เป็น grapheme clusters
+  // cluster = base char (advance > 0) รวมกับ combining chars ที่ตามมาทันที
+  const _THAI_COMB_CP = /[\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]/;
 
-     U+0E47-U+0E4E) มี advance width = 0 ในฟอนต์ Sarabun เมื่อ jsPDF
+  function thaiGraphemeClusters(str) {
+    if (!str) return [];
+    const clusters = [];
+    let cur = "";
+    for (let i = 0; i < str.length; i++) {
+      const ch = str[i];
+      if (_THAI_COMB_CP.test(ch)) {
+        // combining char — ต่อท้าย cluster ปัจจุบัน
+        cur += ch;
+      } else {
+        if (cur) clusters.push(cur);
+        cur = ch;
+      }
+    }
+    if (cur) clusters.push(cur);
+    return clusters;
+  }
 
-     วาดตัวอักษรตามลำดับ cursor จะไม่เลื่อนหลังวาดตัวกำกับเสียง ทำให้
-
-     ตัวอักษรถัดไปถูกวางทับตัวกำกับเสียงพอดี → ตัวกำกับเสียงหายไป
-
-     
-
-     แก้: ใช้ two-pass renderer
-
-       Pass 1 — วาดตัวอักษรหลัก (base) ทั้งหมดก่อน ตามลำดับ
-
-       Pass 2 — วาดตัวกำกับเสียง/สระลอย (combining) ทีหลัง
-
-                เพื่อให้ทับอยู่บนตัวหลักเสมอ ไม่ถูกตัวหลักบัง
-
-     ตำแหน่ง x ของตัวกำกับเสียงคงเป็น cursor position หลังตัวหลัก
-
-     (ซึ่งฟอนต์ออกแบบให้ glyph ยื่นซ้ายกลับไปอยู่เหนือตัวหลัก)
-
-     =========================================================== */
-
-  const _THAI_COMB = /[\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]/;
-
+  // Patch doc.text เพื่อ render ทีละ grapheme cluster
   const _origDocText = doc.text.bind(doc);
 
-  doc.text = function(text, x, y, opts){
-
-    // fast path: ไม่มี Thai combining chars — ไม่ต้องประมวลผลพิเศษ
-
-    if(typeof text !== "string" || !_THAI_COMB.test(text)){
-
+  doc.text = function(text, x, y, opts) {
+    if (typeof text !== "string" || !_THAI_COMB_CP.test(text)) {
       return _origDocText(text, x, y, opts);
-
     }
 
-    // คำนวณ start x สำหรับ text จัดกลาง/ชิดขวา
-
+    // คำนวณ start x สำหรับ align
     let sx = x;
-
-    if(opts && opts.align){
-
+    if (opts && opts.align) {
       const tw = this.getStringUnitWidth(text) * this.getFontSize() / this.internal.scaleFactor;
-
-      if(opts.align === "center") sx = x - tw / 2;
-
-      else if(opts.align === "right")  sx = x - tw;
-
+      if (opts.align === "center") sx = x - tw / 2;
+      else if (opts.align === "right") sx = x - tw;
     }
 
     const fs = this.getFontSize(), sc = this.internal.scaleFactor;
-
-    // คำนวณ x ของทุกตัวอักษร แยกเป็น 2 กลุ่ม
-
-    const bases = [], combs = [];
+    const clusters = thaiGraphemeClusters(text);
 
     let cx = sx;
-
-    for(let i = 0; i < text.length; i++){
-
-      const ch = text[i];
-
-      if(_THAI_COMB.test(ch)){
-
-        combs.push({ ch, x: cx }); // วางที่ cursor หลังตัวหลัก (glyph ยื่นซ้ายทับตัวหลัก)
-
-        // cx ไม่เปลี่ยน (advance = 0)
-
-      } else {
-
-        bases.push({ ch, x: cx });
-
-        cx += this.getStringUnitWidth(ch) * fs / sc;
-
-      }
-
+    for (const cluster of clusters) {
+      _origDocText(cluster, cx, y);
+      // เลื่อน cursor ด้วย advance width ของ cluster ทั้งหมด
+      cx += this.getStringUnitWidth(cluster) * fs / sc;
     }
-
-    // Pass 1: วาดตัวหลักทั้งหมดก่อน
-
-    for(const c of bases) _origDocText(c.ch, c.x, y);
-
-    // Pass 2: วาดตัวกำกับเสียง/สระลอยทีหลัง — จะอยู่บนสุดเสมอ
-
-    for(const c of combs) _origDocText(c.ch, c.x, y);
-
   };
 
   /* =========================================================== */
