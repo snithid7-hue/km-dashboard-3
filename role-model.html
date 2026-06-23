@@ -5609,7 +5609,7 @@ function buildPdfDocument(){
 
   function pageHeader(kicker){
 
-    setStyle(12, true, C.muted);
+    setStyle(14, true, C.muted);
 
     doc.text(kicker, M, y);
 
@@ -5625,7 +5625,7 @@ function buildPdfDocument(){
 
   pageHeader("แบบฟอร์มประเมินบทบาท ROLE MODEL — ผู้บริหารระดับกลาง");
 
-  setStyle(12, true, C.indigo700);
+  setStyle(14, true, C.indigo700);
 
   doc.text("FORM · INDIVIDUAL EVALUATION", M, y);
 
@@ -5647,7 +5647,7 @@ function buildPdfDocument(){
 
   const dateVal = (document.getElementById("f-date").value || "").trim() || "—";
 
-  setStyle(16, true, C.indigo900);
+  setStyle(14, true, C.indigo900);
 
   doc.text("ผู้ประเมินตนเอง", M, y);
 
@@ -5697,7 +5697,7 @@ function buildPdfDocument(){
 
   );
 
-  drawLines(ruleLines, M, 16, false, C.inkSoft, 7.5);
+  drawLines(ruleLines, M, 16, false, C.inkSoft, 8.5);
 
   /* ---------- ข้อมูลความช่วยเหลือสำหรับ measure/draw ของแต่ละตัวชี้วัด ---------- */
 
@@ -5711,7 +5711,7 @@ function buildPdfDocument(){
 
     const ptsLabel = th(perItem) + " คะแนน";
 
-    doc.setFont("THSarabun", "bold"); doc.setFontSize(12);
+    doc.setFont("THSarabun", "bold"); doc.setFontSize(14);
 
     const ptsW = doc.getTextWidth(ptsLabel) + 7;
 
@@ -5769,27 +5769,27 @@ function buildPdfDocument(){
 
     let h = padTop;
 
-    h += Math.max(titleLines.length * 4.8, 5.5) + 4;
+    h += Math.max(titleLines.length * 7.0, 8.0) + 4;
 
     h += 0.3;
 
-    h += 5.0 + descLines.length * 4.6 + 2.0;
+    h += 7.0 + descLines.length * 7.0 + 2.5;
 
-    h += 5.0 + 7.0;
+    h += 7.0 + 8.5;
 
-    h += 5.0 + 5.0;
+    h += 7.0 + 7.0;
 
     // รายละเอียด: รวมทุก entry
 
-    h += 5.0; // label "รายละเอียดที่บันทึกไว้"
+    h += 7.0; // label "รายละเอียดที่บันทึกไว้"
 
     entriesMeasured.forEach(em => {
 
       h += em.labelH; // entry label (ครั้งที่ ๑ ...)
 
-      h += em.dl.length * 4.6 + 2;
+      h += em.dl.length * 7.0 + 2.5;
 
-      if(em.fl.length){ h += 5.0 + em.fl.length * 4.6 + 1; }
+      if(em.fl.length){ h += 7.0 + em.fl.length * 7.0 + 1.5; }
 
     });
 
@@ -5829,7 +5829,7 @@ function buildPdfDocument(){
 
     doc.roundedRect(M + m.padX, cy - 3.6, codeW, 5.6, 1, 1, "F");
 
-    setStyle(12, true, C.white);
+    setStyle(14, true, C.white);
 
     doc.text(ind.code, M + m.padX + codeW / 2, cy - 0.05, { align: "center" });
 
@@ -5841,19 +5841,19 @@ function buildPdfDocument(){
 
     doc.roundedRect(M + CW - m.padX - m.ptsW, cy - 4, m.ptsW, 5.8, 1, 1, "FD");
 
-    setStyle(12, true, C.indigo700);
+    setStyle(14, true, C.indigo700);
 
     doc.text(m.ptsLabel, M + CW - m.padX - m.ptsW / 2, cy - 0.05, { align: "center" });
 
     // title
 
-    setStyle(10.5, true, C.ink);
+    setStyle(14, true, C.ink);
 
     const titleX = M + m.padX + codeW + 3.5;
 
-    m.titleLines.forEach((line, i) => doc.text(line, titleX, cy + i * 4.8));
+    m.titleLines.forEach((line, i) => doc.text(line, titleX, cy + i * 7.0));
 
-    cy += Math.max(m.titleLines.length * 4.8, 5.5) + 4;
+    cy += Math.max(m.titleLines.length * 7.0, 8.0) + 4;
 
     doc.setDrawColor(C.line[0], C.line[1], C.line[2]);
 
@@ -5861,31 +5861,31 @@ function buildPdfDocument(){
 
     doc.line(M + m.padX, cy, M + CW - m.padX, cy);
 
-    cy += 4.5;
+    cy += 5.0;
 
     // คำอธิบาย — label กับเนื้อหาขนาดเท่ากัน (10pt)
 
-    setStyle(10, true, C.indigo700);
+    setStyle(14, true, C.indigo700);
 
     doc.text("คำอธิบาย", M + m.padX, cy);
 
-    cy += 5.0;
+    cy += 8.5;
 
-    setStyle(10, false, C.inkSoft);
+    setStyle(14, false, C.inkSoft);
 
-    m.descLines.forEach(line => { doc.text(line, M + m.padX, cy); cy += 4.6; });
+    m.descLines.forEach(line => { doc.text(line, M + m.padX, cy); cy += 7.0; });
 
     cy += 2.0;
 
     // ค่าความคาดหวัง — ถ้าตรงตามเป้าหมาย ใส่สถานะในบรรทัดเดียวกัน
 
-    setStyle(10, true, C.indigo700);
+    setStyle(14, true, C.indigo700);
 
     doc.text("ค่าความคาดหวัง", M + m.padX, cy);
 
-    cy += 5.0;
+    cy += 8.5;
 
-    doc.setFont("THSarabun", "bold"); doc.setFontSize(16);
+    doc.setFont("THSarabun", "bold"); doc.setFontSize(14);
 
     const expW = doc.getTextWidth(ind.expected) + 7;
 
@@ -5899,7 +5899,7 @@ function buildPdfDocument(){
 
     doc.roundedRect(M + m.padX, cy - 3.6, expW, 5.8, 1, 1, "FD");
 
-    setStyle(16, true, C.indigo900);
+    setStyle(14, true, C.indigo900);
 
     doc.text(ind.expected, M + m.padX + 3.5, cy + 0.3);
 
@@ -5907,21 +5907,21 @@ function buildPdfDocument(){
 
     if(achieved){
 
-      setStyle(12, true, C.okText);
+      setStyle(14, true, C.okText);
 
       doc.text("✓ ตรงตามเป้าหมาย", M + m.padX + expW + 4, cy + 0.3);
 
     }
 
-    cy += 7.0;
+    cy += 8.5;
 
     // ผลการดำเนินการ — แสดงแค่ มี/ไม่มี ไม่มี "ระดับที่ระบุ"
 
-    setStyle(10, true, C.indigo700);
+    setStyle(14, true, C.indigo700);
 
     doc.text("ผลการดำเนินการ", M + m.padX, cy);
 
-    cy += 5.0;
+    cy += 8.5;
 
     let resultLabel, resultColor;
 
@@ -5931,19 +5931,19 @@ function buildPdfDocument(){
 
     else { resultLabel = "— ไม่ได้ระบุ"; resultColor = C.muted; }
 
-    setStyle(10.5, true, resultColor);
+    setStyle(14, true, resultColor);
 
     doc.text(resultLabel, M + m.padX, cy);
 
-    cy += 5.0;
+    cy += 8.5;
 
     // รายละเอียด — วาดทุก entry พร้อม label ถ้ามี > 1 ชุด
 
-    setStyle(10, true, C.indigo700);
+    setStyle(14, true, C.indigo700);
 
     doc.text("รายละเอียดที่บันทึกไว้", M + m.padX, cy);
 
-    cy += 5.0;
+    cy += 8.5;
 
     const scaleOpt = ind.scale ? ind.scale.find(o => o.value === STATE[ind.code].qty) : null;
 
@@ -5965,7 +5965,7 @@ function buildPdfDocument(){
 
       if(m.showEntryLabel){
 
-        setStyle(12, true, C.indigo700);
+        setStyle(14, true, C.indigo700);
 
         doc.text(`${unit}ที่ ${th(ei+1)}`, M + m.padX, cy);
 
@@ -5973,21 +5973,21 @@ function buildPdfDocument(){
 
       }
 
-      setStyle(10, false, C.inkSoft);
+      setStyle(14, false, C.inkSoft);
 
-      em.dl.forEach(line => { doc.text(line, M + m.padX, cy); cy += 4.6; });
+      em.dl.forEach(line => { doc.text(line, M + m.padX, cy); cy += 7.0; });
 
       if(em.fl.length){
 
-        setStyle(12, true, C.indigo700);
+        setStyle(14, true, C.indigo700);
 
         doc.text("ไฟล์หลักฐานที่แนบ", M + m.padX, cy);
 
-        cy += 5.0;
+        cy += 7.0;
 
-        setStyle(16, false, C.inkSoft);
+        setStyle(14, false, C.inkSoft);
 
-        em.fl.forEach(line => { doc.text(line, M + m.padX + 1, cy); cy += 4.6; });
+        em.fl.forEach(line => { doc.text(line, M + m.padX + 1, cy); cy += 7.0; });
 
         cy += 1;
 
@@ -6013,7 +6013,7 @@ function buildPdfDocument(){
 
     const perItem = +(10 / sec.indicators.length).toFixed(2);
 
-    setStyle(12, true, C.indigo700);
+    setStyle(14, true, C.indigo700);
 
     doc.text(`หัวข้อที่ ${sec.num} · SECTION ${sec.num} · คะแนนเต็ม ๑๐`, M, y);
 
@@ -6021,7 +6021,7 @@ function buildPdfDocument(){
 
     const secTitleLines = measureWrap(sec.title, 12.5, true, CW);
 
-    drawLines(secTitleLines, M, 20, true, C.ink, 9.0);
+    drawLines(secTitleLines, M, 20, true, C.ink, 10.5);
 
     y += 1.5;
 
@@ -6029,7 +6029,7 @@ function buildPdfDocument(){
 
     y += 7;
 
-    setStyle(12, false, C.inkSoft);
+    setStyle(14, false, C.inkSoft);
 
     const ruleText = `คะแนนหัวข้อนี้ = 10 คะแนน · มีตัวชี้วัดย่อย ${th(sec.indicators.length)} ข้อ · คิดข้อละ ${th(perItem)} คะแนน · ทำไม่ถึงค่าความคาดหวัง = ไม่ได้คะแนน, ทำได้/เกินค่าความคาดหวัง = ได้คะแนนเต็มของข้อ`;
 
@@ -6157,7 +6157,7 @@ function buildPdfDocument(){
 
     if(Math.cos(ang) > 0.25) align = "left"; else if(Math.cos(ang) < -0.25) align = "right";
 
-    setStyle(12, true, C.indigo900);
+    setStyle(14, true, C.indigo900);
 
     doc.text(d.label, lx, ly, { align });
 
@@ -6173,7 +6173,7 @@ function buildPdfDocument(){
 
   ensure(40);
 
-  setStyle(16, true, C.indigo900);
+  setStyle(14, true, C.indigo900);
 
   doc.text("คะแนนรายหัวข้อ", M, y);
 
@@ -6195,7 +6195,7 @@ function buildPdfDocument(){
 
     const ry = y + row * rowH;
 
-    setStyle(16, false, C.inkSoft);
+    setStyle(14, false, C.inkSoft);
 
     doc.text(d.label, rx, ry);
 
@@ -6203,7 +6203,7 @@ function buildPdfDocument(){
 
     doc.text(`(${th(d.yes)}/${th(d.total)} ข้อ)`, rx, ry + 3.8);
 
-    setStyle(10, true, C.indigo800);
+    setStyle(14, true, C.indigo800);
 
     doc.text(th(d.score.toFixed(2)) + "/๑๐", rx + colW, ry, { align: "right" });
 
@@ -6245,13 +6245,13 @@ function buildPdfDocument(){
 
   y += 5.2;
 
-  setStyle(12, false, C.muted);
+  setStyle(14, false, C.muted);
 
   doc.text("ลงนามผู้ประเมินตนเอง", sigX, y, { align: "center" });
 
   y += 4.6;
 
-  setStyle(10, true, C.inkSoft);
+  setStyle(14, true, C.inkSoft);
 
   doc.text(`( ${name} )`, sigX, y, { align: "center" });
 
@@ -6259,7 +6259,7 @@ function buildPdfDocument(){
 
   const sigPos = (document.getElementById("sig-pos").value || "").trim() || pos;
 
-  setStyle(12, false, C.inkSoft);
+  setStyle(14, false, C.inkSoft);
 
   doc.text(`ตำแหน่ง  ${sigPos}`, sigX, y, { align: "center" });
 
@@ -6321,7 +6321,7 @@ function buildPdfDocument(){
 
   } else {
 
-    setStyle(10, false, C.muted);
+    setStyle(14, false, C.muted);
 
     doc.text("— ไม่ได้ระบุผู้ประสานงาน —", M + 4.5, y + 2);
 
