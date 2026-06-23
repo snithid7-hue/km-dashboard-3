@@ -1423,8 +1423,30 @@ textarea:focus{
   .radar-tick{fill:#666 !important}
 }
 
-/* Mobile responsive */
-@media (max-width:880px){
+.entry-sets{margin-top:6px}
+.entry-set{
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius-sm);
+  padding:10px 14px 12px;
+  margin-bottom:10px;
+  background:var(--bg-soft);
+}
+.entry-set:last-child{margin-bottom:0}
+.entry-set-label{
+  font-size:11.5px;
+  font-weight:700;
+  color:var(--indigo-700);
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+.entry-set .field-hint{margin-top:0;margin-bottom:4px}
+.entry-set textarea{width:100%;resize:vertical;min-height:62px;padding:8px 10px;border:1px solid var(--line-strong);border-radius:var(--radius-sm);font-family:inherit;font-size:13.5px;color:var(--ink);background:#fff}
+.entry-set textarea:focus{outline:none;border-color:var(--indigo-600);box-shadow:0 0 0 3px var(--indigo-100)}
+.entry-set .attach-row{margin-top:8px}
+
+/* print: ซ่อน entry-set-label ออกจาก print (มีใน PDF แล้ว) */
+@media print{.entry-set-label{font-size:8pt}}
   .app{grid-template-columns:1fr}
   .sidebar{position:static;height:auto;max-height:none}
   .main{padding:24px 20px 60px}
@@ -2229,7 +2251,13 @@ const STATE = {};
 const SCALE_BY_CODE = {};
 SECTIONS.forEach(s=>{
   s.indicators.forEach(ind=>{
-    STATE[ind.code] = { result:null, qty:null, detail:"", files:[] };
+    // entries[] เก็บรายละเอียด+ไฟล์แยกตามจำนวนครั้ง (index 0,1,2...)
+    // detail และ files เป็น alias ของ entries[0] เพื่อ backward compat กับโค้ดเดิม
+    STATE[ind.code] = {
+      result:null, qty:null,
+      detail:"", files:[],
+      entries:[ {detail:"", files:[]} ]
+    };
     SCALE_BY_CODE[ind.code] = ind.scale;
   });
 });
@@ -2266,49 +2294,163 @@ function renderIndicatorSections(){
       STATE[code].result = el.value;
       if(el.value!=="yes"){
         STATE[code].qty = null;
-        // uncheck any selected scale radio for this code
         document.querySelectorAll(`input[data-qty="${code}"]`).forEach(r=>r.checked=false);
       }
       toggleScale(code);
       renderSpider();
     });
   });
-  // bind events — scale (quantity level) radio
+  // bind events — scale (quantity level) radio — re-renders entry sets to match new count
   document.querySelectorAll("[data-qty]").forEach(el=>{
     el.addEventListener("change",e=>{
       const code = el.getAttribute("data-qty");
       STATE[code].qty = el.value;
+      renderDetailSets(code); // สร้าง/ปรับจำนวน entry sets ตาม qty ที่เลือก
       renderSpider();
     });
   });
-  document.querySelectorAll("[data-detail]").forEach(el=>{
-    el.addEventListener("input",e=>{
-      const code = el.getAttribute("data-detail");
-      STATE[code].detail = el.value;
-    });
-  });
-  document.querySelectorAll("[data-file]").forEach(el=>{
-    el.addEventListener("change", async e=>{
-      const code = el.getAttribute("data-file");
-      const files = Array.from(el.files||[]);
-      el.value = "";
-      for(const f of files){
-        try{
-          const base64 = await blobToBase64(f);
-          STATE[code].files.push({ name:f.name, size:f.size, type:f.type||"application/octet-stream", base64 });
-        } catch(err){
-          console.error("อ่านไฟล์ไม่สำเร็จ:", f.name, err);
-        }
-      }
-      renderFileChips(code);
-    });
-  });
+  // data-detail and data-file handlers are now handled inside renderDetailSets() per entry
 }
 
 function toggleScale(code){
   const wrap = document.getElementById("scale-"+code);
   if(!wrap) return;
-  wrap.style.display = (STATE[code].result === "yes") ? "block" : "none";
+  const show = STATE[code].result === "yes";
+  wrap.style.display = show ? "block" : "none";
+  if(!show){
+    // ซ่อน/ล้าง entry sets เมื่อเปลี่ยนกลับเป็น "ไม่มี"
+    const setsEl = document.getElementById("sets-"+code);
+    if(setsEl) setsEl.innerHTML = "";
+  } else {
+    renderDetailSets(code);
+  }
+}
+
+// คืนค่าจำนวน "ชุด" กล่องข้อความ+ไฟล์ จาก scale value ที่เลือกหรือจาก qty ใน STATE
+function getScaleCount(code){
+  const qty = STATE[code].qty;
+  if(!qty) return 1;
+  // "100" = ร้อยละ ไม่ใช่จำนวนครั้ง → 1 ชุด
+  const n = parseInt(qty);
+  if(isNaN(n) || n > 10) return 1;
+  return Math.max(1, n);
+}
+
+// แปลงเลข (1-based) เป็น label เช่น "ครั้งที่ ๑", "เรื่องที่ ๑"
+function setLabel(code, idx, count){
+  if(count <= 1) return ""; // 1 ชุดไม่ต้องมีหัวเลข
+  // หาหน่วยจาก scale label ถ้ามี
+  const scale = SCALE_BY_CODE[code];
+  const qty = STATE[code].qty;
+  let unit = "ครั้ง";
+  if(scale && qty){
+    const opt = scale.find(o=>o.value===qty);
+    if(opt){
+      if(/เรื่อง/.test(opt.label)) unit = "เรื่อง";
+      else if(/กระบวน/.test(opt.label)) unit = "กระบวนการ";
+      else if(/กิจกรรม/.test(opt.label)) unit = "กิจกรรม";
+      else if(/แผน/.test(opt.label)) unit = "แผน";
+    }
+  }
+  return `${unit}ที่ ${th(idx+1)}`;
+}
+
+// สร้าง N ชุดกล่องข้อความ+แนบไฟล์ ใน container id="sets-{code}"
+// เก็บ/คืนค่าที่กรอกไว้แล้วเมื่อ N เปลี่ยน
+function renderDetailSets(code){
+  const setsEl = document.getElementById("sets-"+code);
+  if(!setsEl) return;
+  if(STATE[code].result !== "yes"){ setsEl.innerHTML = ""; return; }
+
+  const n = getScaleCount(code);
+  const st = STATE[code];
+  // ขยาย entries[] ถ้ายังไม่มีพอ
+  while(st.entries.length < n) st.entries.push({detail:"", files:[]});
+
+  const ind = SECTIONS.flatMap(s=>s.indicators).find(i=>i.code===code);
+  const hint = ind ? ind.hint : "";
+
+  let html = "";
+  for(let i=0; i<n; i++){
+    const label = setLabel(code, i, n);
+    html += `
+    <div class="entry-set" id="set-${code}-${i}">
+      ${label ? `<div class="entry-set-label">${escapeHTML(label)}</div>` : ""}
+      <div class="field-hint">รายละเอียด ${escapeHTML(hint)}</div>
+      <textarea
+        data-entry-detail="${escapeHTML(code)}"
+        data-entry-idx="${i}"
+        placeholder="ระบุรายละเอียดผลการดำเนินการ..."
+      >${escapeHTML(st.entries[i].detail||"")}</textarea>
+      <div class="attach-row">
+        <label class="btn-attach">
+          <svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+          แนบไฟล์หลักฐาน
+          <input type="file" multiple
+            data-entry-file="${escapeHTML(code)}"
+            data-entry-idx="${i}"
+            style="display:none">
+        </label>
+        <div class="attach-files" id="entry-files-${escapeHTML(code)}-${i}"></div>
+      </div>
+    </div>`;
+  }
+  setsEl.innerHTML = html;
+
+  // bind events สำหรับ textarea ที่เพิ่งสร้าง
+  setsEl.querySelectorAll("[data-entry-detail]").forEach(el=>{
+    el.addEventListener("input", ()=>{
+      const c = el.getAttribute("data-entry-detail");
+      const idx = +el.getAttribute("data-entry-idx");
+      STATE[c].entries[idx].detail = el.value;
+      // alias entry[0] → detail สำหรับ backward compat
+      if(idx===0) STATE[c].detail = el.value;
+    });
+  });
+  // bind events สำหรับ file input ที่เพิ่งสร้าง
+  setsEl.querySelectorAll("[data-entry-file]").forEach(el=>{
+    el.addEventListener("change", async ()=>{
+      const c = el.getAttribute("data-entry-file");
+      const idx = +el.getAttribute("data-entry-idx");
+      const fileList = Array.from(el.files||[]);
+      el.value = "";
+      for(const f of fileList){
+        try{
+          const base64 = await blobToBase64(f);
+          STATE[c].entries[idx].files.push({name:f.name, size:f.size, type:f.type||"application/octet-stream", base64});
+        } catch(err){ console.error("อ่านไฟล์ไม่สำเร็จ:", f.name, err); }
+      }
+      // alias entry[0].files → files สำหรับ backward compat
+      if(idx===0) STATE[c].files = STATE[c].entries[0].files;
+      renderEntryFileChips(c, idx);
+    });
+  });
+  // render chips ที่มีอยู่แล้ว
+  for(let i=0; i<n; i++) renderEntryFileChips(code, i);
+}
+
+function renderEntryFileChips(code, idx){
+  const host = document.getElementById(`entry-files-${code}-${idx}`);
+  if(!host) return;
+  const files = STATE[code].entries[idx]?.files || [];
+  host.innerHTML = files.map((f,fi)=>
+    `<span class="attach-chip">📎 ${escapeHTML(f.name)} <button onclick="removeEntryFile('${escapeHTML(code)}',${idx},${fi})" title="ลบ">×</button></span>`
+  ).join("");
+}
+function removeEntryFile(code, idx, fi){
+  if(STATE[code].entries[idx]){
+    STATE[code].entries[idx].files.splice(fi,1);
+    if(idx===0) STATE[code].files = STATE[code].entries[0].files;
+    renderEntryFileChips(code, idx);
+  }
+}
+
+// keep old renderFileChips for any legacy calls
+function renderFileChips(code){
+  renderEntryFileChips(code, 0);
+}
+function removeFile(code,i){
+  removeEntryFile(code, 0, i);
 }
 
 function indicatorHTML(ind, perItem){
@@ -2358,16 +2500,8 @@ function indicatorHTML(ind, perItem){
 
       ${scaleBlock}
 
-      <div class="field-hint">รายละเอียด ${ind.hint}</div>
-      <textarea data-detail="${ind.code}" placeholder="ระบุรายละเอียดผลการดำเนินการ..."></textarea>
-
-      <div class="attach-row">
-        <label class="btn-attach">
-          <svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
-          แนบไฟล์หลักฐาน
-          <input type="file" multiple data-file="${ind.code}" style="display:none">
-        </label>
-        <div class="attach-files" id="files-${ind.code}"></div>
+      <div class="entry-sets" id="sets-${ind.code}">
+        <!-- ชุดกล่องข้อความ+แนบไฟล์ จะถูกสร้างโดย renderDetailSets() เมื่อผู้ใช้ตอบ "มี" -->
       </div>
     </div>
   </div>`;
@@ -2604,12 +2738,12 @@ function clearAllData(){
     STATE[code].qty = null;
     STATE[code].detail = "";
     STATE[code].files = [];
+    STATE[code].entries = [{detail:"", files:[]}];
   });
 
   document.querySelectorAll('input[type="radio"]').forEach(r=>{ r.checked = false; });
-  document.querySelectorAll('textarea[data-detail]').forEach(t=>{ t.value = ""; });
+  document.querySelectorAll('.entry-sets').forEach(el=>{ el.innerHTML = ""; });
   document.querySelectorAll('.scale-wrap').forEach(w=>{ w.style.display = "none"; });
-  document.querySelectorAll('.attach-files').forEach(el=>{ el.innerHTML = ""; });
 
   ["f-name","f-pos","f-date","sig-pos"].forEach(id=>{
     const el = document.getElementById(id);
@@ -2700,6 +2834,56 @@ function buildPdfDocument(){
   doc.addFileToVFS("Sarabun-Bold.ttf", SARABUN_BOLD_B64);
   doc.addFont("Sarabun-Bold.ttf", "Sarabun", "bold");
   doc.setFont("Sarabun", "normal");
+
+  /* ===========================================================
+     แก้ปัญหาไม้เอก (่) และไม้โท (้) หายจาก PDF
+     
+     สาเหตุ: ตัวอักษรกำกับเสียง/สระลอยในภาษาไทย (U+0E31, U+0E34-U+0E3A,
+     U+0E47-U+0E4E) มี advance width = 0 ในฟอนต์ Sarabun เมื่อ jsPDF
+     วาดตัวอักษรตามลำดับ cursor จะไม่เลื่อนหลังวาดตัวกำกับเสียง ทำให้
+     ตัวอักษรถัดไปถูกวางทับตัวกำกับเสียงพอดี → ตัวกำกับเสียงหายไป
+     
+     แก้: ใช้ two-pass renderer
+       Pass 1 — วาดตัวอักษรหลัก (base) ทั้งหมดก่อน ตามลำดับ
+       Pass 2 — วาดตัวกำกับเสียง/สระลอย (combining) ทีหลัง
+                เพื่อให้ทับอยู่บนตัวหลักเสมอ ไม่ถูกตัวหลักบัง
+     ตำแหน่ง x ของตัวกำกับเสียงคงเป็น cursor position หลังตัวหลัก
+     (ซึ่งฟอนต์ออกแบบให้ glyph ยื่นซ้ายกลับไปอยู่เหนือตัวหลัก)
+     =========================================================== */
+  const _THAI_COMB = /[\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]/;
+  const _origDocText = doc.text.bind(doc);
+  doc.text = function(text, x, y, opts){
+    // fast path: ไม่มี Thai combining chars — ไม่ต้องประมวลผลพิเศษ
+    if(typeof text !== "string" || !_THAI_COMB.test(text)){
+      return _origDocText(text, x, y, opts);
+    }
+    // คำนวณ start x สำหรับ text จัดกลาง/ชิดขวา
+    let sx = x;
+    if(opts && opts.align){
+      const tw = this.getStringUnitWidth(text) * this.getFontSize() / this.internal.scaleFactor;
+      if(opts.align === "center") sx = x - tw / 2;
+      else if(opts.align === "right")  sx = x - tw;
+    }
+    const fs = this.getFontSize(), sc = this.internal.scaleFactor;
+    // คำนวณ x ของทุกตัวอักษร แยกเป็น 2 กลุ่ม
+    const bases = [], combs = [];
+    let cx = sx;
+    for(let i = 0; i < text.length; i++){
+      const ch = text[i];
+      if(_THAI_COMB.test(ch)){
+        combs.push({ ch, x: cx }); // วางที่ cursor หลังตัวหลัก (glyph ยื่นซ้ายทับตัวหลัก)
+        // cx ไม่เปลี่ยน (advance = 0)
+      } else {
+        bases.push({ ch, x: cx });
+        cx += this.getStringUnitWidth(ch) * fs / sc;
+      }
+    }
+    // Pass 1: วาดตัวหลักทั้งหมดก่อน
+    for(const c of bases) _origDocText(c.ch, c.x, y);
+    // Pass 2: วาดตัวกำกับเสียง/สระลอยทีหลัง — จะอยู่บนสุดเสมอ
+    for(const c of combs) _origDocText(c.ch, c.x, y);
+  };
+  /* =========================================================== */
 
   const M = 15, PW = 210, PH = 297, CW = PW - M * 2;
   const C = {
@@ -2811,24 +2995,40 @@ function buildPdfDocument(){
     }
     const descLines = measureWrap(ind.desc, 10, false, innerW);
 
-    let detailText = (st.detail || "").trim();
-    if(!detailText) detailText = "(ไม่ได้ระบุรายละเอียด)";
-    const detailLines = measureWrap(detailText, 10, false, innerW);
-
-    const fileNames = (st.files || []).map(f => "• " + f.name);
-    const fileLines = fileNames.length ? fileNames.map(n => measureWrap(n, 9.5, false, innerW - 2)).flat() : [];
+    // สร้าง entriesMeasured[] สำหรับแต่ละ entry ใน STATE[code].entries
+    const entries = (st.entries && st.entries.length) ? st.entries : [{detail: st.detail || "", files: st.files || []}];
+    const entriesN = entries.length;
+    const showEntryLabel = entriesN > 1;
+    const entriesMeasured = entries.map((entry, ei) => {
+      let dt = (entry.detail || "").trim();
+      if(!dt) dt = "(ไม่ได้ระบุรายละเอียด)";
+      const dl = measureWrap(dt, 10, false, innerW);
+      const fns = (entry.files || []).map(f => "• " + f.name);
+      const fl = fns.length ? fns.map(n => measureWrap(n, 9.5, false, innerW - 2)).flat() : [];
+      return { dt, dl, fl, labelH: showEntryLabel ? 5.2 : 0 };
+    });
 
     let h = padTop;
-    h += Math.max(titleLines.length * 4.8, 5.5) + 4; // title row + gap
-    h += 0.3; // divider
-    h += 4.4 + descLines.length * 4.6 + 2.6; // คำอธิบาย label + lines
-    h += 4.4 + 6.4; // ค่าความคาดหวัง label + badge row (achieved status fits on same line)
-    h += 4.6 + 6; // ผลการดำเนินการ label + result row (no extra ระดับที่ระบุ line)
-    h += 4.4 + detailLines.length * 4.6 + 2; // รายละเอียด label + lines
-    if(fileLines.length){ h += 4.4 + fileLines.length * 4.2 + 1.4; }
+    h += Math.max(titleLines.length * 4.8, 5.5) + 4;
+    h += 0.3;
+    h += 4.4 + descLines.length * 4.6 + 2.6;
+    h += 4.4 + 6.4;
+    h += 4.6 + 6;
+    // รายละเอียด: รวมทุก entry
+    h += 4.4; // label "รายละเอียดที่บันทึกไว้"
+    entriesMeasured.forEach(em => {
+      h += em.labelH; // entry label (ครั้งที่ ๑ ...)
+      h += em.dl.length * 4.6 + 2;
+      if(em.fl.length){ h += 4.4 + em.fl.length * 4.2 + 1; }
+    });
     h += padBottom;
 
-    return { h, padX, padTop, padBottom, innerW, ptsLabel, ptsW, titleMaxW, titleLines, descLines, detailLines, detailText, fileLines };
+    // รักษา backward compat: เก็บ detailLines/fileLines ของ entry[0] ด้วย
+    const detailText = entriesMeasured[0].dt;
+    const detailLines = entriesMeasured[0].dl;
+    const fileLines = entriesMeasured[0].fl;
+
+    return { h, padX, padTop, padBottom, innerW, ptsLabel, ptsW, titleMaxW, titleLines, descLines, detailLines, detailText, fileLines, entriesMeasured, showEntryLabel, entries, entriesN };
   }
 
   function drawIndicator(ind, perItem, m){
@@ -2905,21 +3105,39 @@ function buildPdfDocument(){
     doc.text(resultLabel, M + m.padX, cy);
     cy += 6;
 
-    // รายละเอียด — label กับเนื้อหาขนาดเท่ากัน (10pt)
+    // รายละเอียด — วาดทุก entry พร้อม label ถ้ามี > 1 ชุด
     setStyle(10, true, C.indigo700);
     doc.text("รายละเอียดที่บันทึกไว้", M + m.padX, cy);
     cy += 4.6;
-    setStyle(10, false, C.inkSoft);
-    m.detailLines.forEach(line => { doc.text(line, M + m.padX, cy); cy += 4.6; });
 
-    if(m.fileLines.length){
-      cy += 1.6;
-      setStyle(8.5, true, C.indigo700);
-      doc.text("ไฟล์หลักฐานที่แนบ (อยู่ในโฟลเดอร์ Google Drive ของผู้ประเมิน)", M + m.padX, cy);
-      cy += 4.4;
-      setStyle(9.5, false, C.inkSoft);
-      m.fileLines.forEach(line => { doc.text(line, M + m.padX + 1, cy); cy += 4.2; });
+    const scaleOpt = ind.scale ? ind.scale.find(o => o.value === STATE[ind.code].qty) : null;
+    let unit = "ครั้ง";
+    if(scaleOpt){
+      if(/เรื่อง/.test(scaleOpt.label)) unit = "เรื่อง";
+      else if(/กระบวน/.test(scaleOpt.label)) unit = "กระบวนการ";
+      else if(/กิจกรรม/.test(scaleOpt.label)) unit = "กิจกรรม";
+      else if(/แผน/.test(scaleOpt.label)) unit = "แผน";
     }
+
+    m.entriesMeasured.forEach((em, ei) => {
+      if(m.showEntryLabel){
+        setStyle(8.5, true, C.indigo700);
+        doc.text(`${unit}ที่ ${th(ei+1)}`, M + m.padX, cy);
+        cy += em.labelH;
+      }
+      setStyle(10, false, C.inkSoft);
+      em.dl.forEach(line => { doc.text(line, M + m.padX, cy); cy += 4.6; });
+      if(em.fl.length){
+        setStyle(8.5, true, C.indigo700);
+        doc.text("ไฟล์หลักฐานที่แนบ (อยู่ในโฟลเดอร์ Google Drive ของผู้ประเมิน)", M + m.padX, cy);
+        cy += 4.4;
+        setStyle(9.5, false, C.inkSoft);
+        em.fl.forEach(line => { doc.text(line, M + m.padX + 1, cy); cy += 4.2; });
+        cy += 1;
+      } else {
+        cy += 2;
+      }
+    });
 
     y = top + m.h + 6;
   }
@@ -3139,17 +3357,24 @@ async function confirmSaveAndExport(){
     a.remove();
     URL.revokeObjectURL(blobUrl);
 
-    // รวบรวมไฟล์หลักฐานที่แนบไว้ทุกข้อ พร้อมระบุว่าเป็นของหัวข้อ/ตัวชี้วัดใด
+    // รวบรวมไฟล์หลักฐานที่แนบไว้ทุกข้อ พร้อมระบุหัวข้อ/ข้อ/ชุดที่
     const attachments = [];
     SECTIONS.forEach(sec => {
       sec.indicators.forEach(ind => {
-        (STATE[ind.code].files || []).forEach(f => {
-          attachments.push({
-            sectionNum: sec.num,
-            code: ind.code,
-            originalName: f.name,
-            base64: f.base64,
-            mimeType: f.type || "application/octet-stream"
+        const entries = STATE[ind.code].entries && STATE[ind.code].entries.length
+          ? STATE[ind.code].entries
+          : [{files: STATE[ind.code].files || []}];
+        entries.forEach((entry, ei) => {
+          (entry.files || []).forEach(f => {
+            const suffix = entries.length > 1 ? ` ชุดที่${th(ei+1)}` : "";
+            attachments.push({
+              sectionNum: sec.num,
+              code: ind.code,
+              originalName: f.name,
+              base64: f.base64,
+              mimeType: f.type || "application/octet-stream",
+              entryLabel: suffix
+            });
           });
         });
       });
