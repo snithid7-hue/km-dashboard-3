@@ -5336,7 +5336,7 @@ function validateAll(){
 
       // ยังไม่ได้เลือก มี/ไม่มี
       if(!st || st.result === null || st.result === undefined){
-        errors.push(`${label}: ยังไม่ได้เลือกผลการดำเนินการ (มี / ไม่มี)`);
+        errors.push({ label, msg: "ยังไม่ได้เลือกผลการดำเนินการ (มี / ไม่มี)", secId: sec.id });
         return;
       }
       if(st.result === "no") return; // เลือกไม่มี — ไม่ต้องกรอกอื่น
@@ -5344,7 +5344,7 @@ function validateAll(){
       // result === "yes" — ต้องมี qty (ถ้ามี scale), detail, file ทุก entry
       const sc = SCALE_BY_CODE[ind.code];
       if(sc && !st.qty){
-        errors.push(`${label}: ยังไม่ได้ระบุระดับ/จำนวนครั้ง`);
+        errors.push({ label, msg: "ยังไม่ได้ระบุระดับ/จำนวนครั้ง", secId: sec.id });
         return;
       }
 
@@ -5353,10 +5353,10 @@ function validateAll(){
         const entry = st.entries[i];
         const entrySuffix = n > 1 ? ` (ชุดที่ ${i+1})` : "";
         if(!entry || !entry.detail || !entry.detail.trim()){
-          errors.push(`${label}${entrySuffix}: ยังไม่ได้กรอกรายละเอียด`);
+          errors.push({ label, msg: `ยังไม่ได้กรอกรายละเอียด${entrySuffix}`, secId: sec.id });
         }
         if(!entry || !entry.files || entry.files.length === 0){
-          errors.push(`${label}${entrySuffix}: ยังไม่ได้แนบไฟล์หลักฐาน`);
+          errors.push({ label, msg: `ยังไม่ได้แนบไฟล์หลักฐาน${entrySuffix}`, secId: sec.id });
         }
       }
     });
@@ -5374,19 +5374,10 @@ function openPreviewModal(){
     const extra = errors.length > MAX_SHOW ? `\n\n... และอีก ${errors.length - MAX_SHOW} รายการ` : "";
     alert(
       `⚠ กรุณากรอกข้อมูลให้ครบก่อนบันทึก\n\nพบปัญหา ${errors.length} รายการ:\n\n` +
-      shown.map((e,i)=>`${i+1}. ${e}`).join("\n") + extra
+      shown.map((e,i)=>`${i+1}. ${e.label}: ${e.msg}`).join("\n") + extra
     );
     // เลื่อนไปยังหัวข้อแรกที่มีปัญหา
-    const firstError = errors[0];
-    for(const sec of SECTIONS){
-      for(const ind of sec.indicators){
-        const label = `หัวข้อ ${sec.num} ตัวชี้วัด ${ind.code}`;
-        if(firstError.startsWith(label)){
-          goTo(sec.id);
-          return;
-        }
-      }
-    }
+    goTo(errors[0].secId);
     return;
   }
 
@@ -5818,10 +5809,10 @@ function buildPdfDocument(){
     const descLines = measureWrap(ind.desc, 10, false, innerW);
 
     // สร้าง entriesMeasured[] สำหรับแต่ละ entry ใน STATE[code].entries
-
-    const entries = (st.entries && st.entries.length) ? st.entries : [{detail: st.detail || "", files: st.files || []}];
-
-    const entriesN = entries.length;
+    // ใช้ getScaleCount() เพื่อกำหนดจำนวน entries ที่ถูกต้องตาม qty ที่เลือก
+    const allEntries = (st.entries && st.entries.length) ? st.entries : [{detail: st.detail || "", files: st.files || []}];
+    const entriesN = getScaleCount(code);
+    const entries = allEntries.slice(0, entriesN);
 
     const showEntryLabel = entriesN > 1;
 
@@ -6055,7 +6046,7 @@ function buildPdfDocument(){
 
         setStyle(8.5, true, C.indigo700);
 
-        doc.text("ไฟล์หลักฐานที่แนบ (อยู่ในโฟลเดอร์ Google Drive ของผู้ประเมิน)", M + m.padX, cy);
+        doc.text("ไฟล์หลักฐานที่แนบ", M + m.padX, cy);
 
         cy += 4.4;
 
