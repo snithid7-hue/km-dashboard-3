@@ -1080,6 +1080,22 @@ body{
 
 .nav-text{flex:1}
 
+.nav-pct{
+  flex-shrink:0;
+  font-size:10.5px;
+  font-weight:600;
+  color:rgba(255,255,255,.45);
+  min-width:32px;
+  text-align:right;
+  margin-top:1px;
+  transition:color .2s ease;
+}
+.nav-pct.done{color:#86efac}
+.nav-pct.partial{color:#fde68a}
+.nav a.active .nav-pct{color:rgba(255,255,255,.65)}
+.nav a.active .nav-pct.done{color:#bbf7d0}
+.nav a.active .nav-pct.partial{color:#fef08a}
+
 .nav-divider{
 
   height:1px;
@@ -3584,19 +3600,19 @@ textarea:focus{
 
     <ul class="nav">
 
-      <li><a data-target="s1"><span class="nav-num">๑</span><span class="nav-text">ปฏิบัติตนเป็นต้นแบบในการเรียนรู้อย่างต่อเนื่อง</span></a></li>
+      <li><a data-target="s1"><span class="nav-num">๑</span><span class="nav-text">ปฏิบัติตนเป็นต้นแบบในการเรียนรู้อย่างต่อเนื่อง</span><span class="nav-pct" id="npct-s1">—</span></a></li>
 
-      <li><a data-target="s2"><span class="nav-num">๒</span><span class="nav-text">เป็นต้นแบบในการนำเครื่องมือการจัดการความรู้ฯ</span></a></li>
+      <li><a data-target="s2"><span class="nav-num">๒</span><span class="nav-text">เป็นต้นแบบในการนำเครื่องมือการจัดการความรู้ฯ</span><span class="nav-pct" id="npct-s2">—</span></a></li>
 
-      <li><a data-target="s3"><span class="nav-num">๓</span><span class="nav-text">เป็นต้นแบบในการสร้างจิตสำนึกและทัศนคติที่ดี</span></a></li>
+      <li><a data-target="s3"><span class="nav-num">๓</span><span class="nav-text">เป็นต้นแบบในการสร้างจิตสำนึกและทัศนคติที่ดี</span><span class="nav-pct" id="npct-s3">—</span></a></li>
 
-      <li><a data-target="s4"><span class="nav-num">๔</span><span class="nav-text">มอบนโยบายและทิศทางการดำเนินงาน</span></a></li>
+      <li><a data-target="s4"><span class="nav-num">๔</span><span class="nav-text">มอบนโยบายและทิศทางการดำเนินงาน</span><span class="nav-pct" id="npct-s4">—</span></a></li>
 
-      <li><a data-target="s5"><span class="nav-num">๕</span><span class="nav-text">สื่อสาร ติดตาม สนับสนุน และกำกับดูแล</span></a></li>
+      <li><a data-target="s5"><span class="nav-num">๕</span><span class="nav-text">สื่อสาร ติดตาม สนับสนุน และกำกับดูแล</span><span class="nav-pct" id="npct-s5">—</span></a></li>
 
-      <li><a data-target="s6"><span class="nav-num">๖</span><span class="nav-text">สร้างการมีส่วนร่วมและส่งเสริมวัฒนธรรม KM</span></a></li>
+      <li><a data-target="s6"><span class="nav-num">๖</span><span class="nav-text">สร้างการมีส่วนร่วมและส่งเสริมวัฒนธรรม KM</span><span class="nav-pct" id="npct-s6">—</span></a></li>
 
-      <li><a data-target="s7"><span class="nav-num">๗</span><span class="nav-text">สร้างแรงจูงใจและยกย่องชมเชยบุคลากร</span></a></li>
+      <li><a data-target="s7"><span class="nav-num">๗</span><span class="nav-text">สร้างแรงจูงใจและยกย่องชมเชยบุคลากร</span><span class="nav-pct" id="npct-s7">—</span></a></li>
 
     </ul>
 
@@ -4970,7 +4986,42 @@ function computeScores(){
 
    =========================================================== */
 
+/* อัปเดต % ความก้าวหน้าของแต่ละหัวข้อใน sidebar */
+/* คืนค่า true เมื่อ indicator นั้นกรอกครบทุกช่อง (result + detail ทุก entry + file ทุก entry) */
+function indicatorComplete(code){
+  const st = STATE[code];
+  if(!st || st.result === null || st.result === undefined) return false;
+  if(st.result === "no") return true; // เลือกไม่มี — ถือว่าครบ ไม่ต้องกรอกอื่น
+  // result === "yes" — ต้องกรอก detail และแนบไฟล์ทุก entry
+  const n = getScaleCount(code);
+  for(let i = 0; i < n; i++){
+    const entry = st.entries[i];
+    if(!entry) return false;
+    if(!entry.detail || !entry.detail.trim()) return false;
+    if(!entry.files || entry.files.length === 0) return false;
+  }
+  return true;
+}
+
+function updateNavPct(){
+  SECTIONS.forEach(sec=>{
+    const el = document.getElementById("npct-"+sec.id);
+    if(!el) return;
+    const total = sec.indicators.length;
+    if(!total){ el.textContent="—"; el.className="nav-pct"; return; }
+    let complete = 0;
+    sec.indicators.forEach(ind=>{
+      if(indicatorComplete(ind.code)) complete++;
+    });
+    const pct = Math.round(complete / total * 100);
+    el.textContent = pct + "%";
+    el.className = "nav-pct" + (pct === 100 ? " done" : pct > 0 ? " partial" : "");
+  });
+}
+
 function renderSpider(){
+
+  updateNavPct();
 
   const data = computeScores();
 
@@ -5276,7 +5327,68 @@ let _previewDoc = null;
 
 let _previewBlobUrl = null;
 
+function validateAll(){
+  const errors = [];
+  SECTIONS.forEach(sec=>{
+    sec.indicators.forEach(ind=>{
+      const st = STATE[ind.code];
+      const label = `หัวข้อ ${sec.num} ตัวชี้วัด ${ind.code}`;
+
+      // ยังไม่ได้เลือก มี/ไม่มี
+      if(!st || st.result === null || st.result === undefined){
+        errors.push(`${label}: ยังไม่ได้เลือกผลการดำเนินการ (มี / ไม่มี)`);
+        return;
+      }
+      if(st.result === "no") return; // เลือกไม่มี — ไม่ต้องกรอกอื่น
+
+      // result === "yes" — ต้องมี qty (ถ้ามี scale), detail, file ทุก entry
+      const sc = SCALE_BY_CODE[ind.code];
+      if(sc && !st.qty){
+        errors.push(`${label}: ยังไม่ได้ระบุระดับ/จำนวนครั้ง`);
+        return;
+      }
+
+      const n = getScaleCount(ind.code);
+      for(let i = 0; i < n; i++){
+        const entry = st.entries[i];
+        const entrySuffix = n > 1 ? ` (ชุดที่ ${i+1})` : "";
+        if(!entry || !entry.detail || !entry.detail.trim()){
+          errors.push(`${label}${entrySuffix}: ยังไม่ได้กรอกรายละเอียด`);
+        }
+        if(!entry || !entry.files || entry.files.length === 0){
+          errors.push(`${label}${entrySuffix}: ยังไม่ได้แนบไฟล์หลักฐาน`);
+        }
+      }
+    });
+  });
+  return errors;
+}
+
 function openPreviewModal(){
+
+  // ตรวจสอบข้อมูลครบถ้วนก่อน
+  const errors = validateAll();
+  if(errors.length > 0){
+    const MAX_SHOW = 5;
+    const shown = errors.slice(0, MAX_SHOW);
+    const extra = errors.length > MAX_SHOW ? `\n\n... และอีก ${errors.length - MAX_SHOW} รายการ` : "";
+    alert(
+      `⚠ กรุณากรอกข้อมูลให้ครบก่อนบันทึก\n\nพบปัญหา ${errors.length} รายการ:\n\n` +
+      shown.map((e,i)=>`${i+1}. ${e}`).join("\n") + extra
+    );
+    // เลื่อนไปยังหัวข้อแรกที่มีปัญหา
+    const firstError = errors[0];
+    for(const sec of SECTIONS){
+      for(const ind of sec.indicators){
+        const label = `หัวข้อ ${sec.num} ตัวชี้วัด ${ind.code}`;
+        if(firstError.startsWith(label)){
+          goTo(sec.id);
+          return;
+        }
+      }
+    }
+    return;
+  }
 
   try{
 
