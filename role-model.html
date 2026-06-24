@@ -2508,6 +2508,59 @@ textarea:focus{
 
 .btn-next svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2}
 
+
+/* ===========================================================
+   CUSTOM ALERT MODAL
+   =========================================================== */
+.alert-overlay{
+  position:fixed;inset:0;background:rgba(15,23,42,.45);
+  backdrop-filter:blur(3px);
+  z-index:9999;display:flex;align-items:center;justify-content:center;
+  animation:fadeIn .15s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.alert-box{
+  background:#fff;border-radius:var(--radius);
+  box-shadow:0 20px 60px rgba(15,23,42,.18),0 4px 16px rgba(15,23,42,.1);
+  max-width:480px;width:calc(100% - 32px);
+  padding:28px 28px 24px;
+  animation:slideUp .2s ease;
+  position:relative;
+}
+@keyframes slideUp{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+.alert-icon{
+  width:44px;height:44px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:14px;font-size:22px;
+}
+.alert-icon.warn{background:#fef3c7;color:#d97706}
+.alert-icon.error{background:#fee2e2;color:#dc2626}
+.alert-icon.success{background:#dcfce7;color:#16a34a}
+.alert-icon.info{background:#eff6ff;color:#2563eb}
+.alert-title{
+  font-size:16px;font-weight:700;color:var(--indigo-900);
+  margin:0 0 8px;
+}
+.alert-body{
+  font-size:14px;color:var(--ink-soft);line-height:1.65;
+  margin:0 0 20px;white-space:pre-line;
+}
+.alert-body ul{margin:8px 0 0;padding-left:18px}
+.alert-body li{margin-bottom:4px}
+.alert-actions{display:flex;gap:10px;justify-content:flex-end}
+.btn-alert-ok{
+  padding:9px 22px;background:var(--indigo-900);color:#fff;
+  border:none;border-radius:var(--radius-sm);font-size:14px;
+  font-weight:600;cursor:pointer;font-family:inherit;
+  transition:background .15s;
+}
+.btn-alert-ok:hover{background:var(--indigo-800)}
+.btn-alert-ok.warn{background:#d97706}
+.btn-alert-ok.warn:hover{background:#b45309}
+.btn-alert-ok.error{background:#dc2626}
+.btn-alert-ok.error:hover{background:#b91c1c}
+
+
 /* ===========================================================
 
    PRINT STYLES — A4 Portrait
@@ -4949,6 +5002,52 @@ function setupNav(){
 
 }
 
+
+/* ===========================================================
+   CUSTOM ALERT — แทนที่ browser alert()
+   =========================================================== */
+function showAlert(message, {type='warn', title=null, onOk=null}={}){
+  // แยก title auto ถ้าไม่ระบุ
+  if(!title){
+    if(type==='warn') title = '⚠ กรุณาตรวจสอบข้อมูล';
+    else if(type==='error') title = 'เกิดข้อผิดพลาด';
+    else if(type==='success') title = 'สำเร็จ';
+    else title = 'แจ้งเตือน';
+  }
+  // ปิด modal เก่าถ้ามี
+  const old = document.getElementById('customAlertOverlay');
+  if(old) old.remove();
+
+  const icons = {warn:'⚠',error:'✕',success:'✓',info:'ℹ'};
+  const overlay = document.createElement('div');
+  overlay.id = 'customAlertOverlay';
+  overlay.className = 'alert-overlay';
+  overlay.innerHTML = `
+    <div class="alert-box">
+      <div class="alert-icon ${type}">${icons[type]||'ℹ'}</div>
+      <div class="alert-title">${title}</div>
+      <div class="alert-body">${message}</div>
+      <div class="alert-actions">
+        <button class="btn-alert-ok ${type}" onclick="closeAlert()">ตกลง</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) closeAlert(onOk); });
+  overlay.querySelector('.btn-alert-ok').focus();
+  // เก็บ callback
+  overlay._onOk = onOk;
+}
+
+function closeAlert(cb){
+  const overlay = document.getElementById('customAlertOverlay');
+  if(overlay){
+    const fn = cb !== undefined ? cb : overlay._onOk;
+    overlay.remove();
+    if(typeof fn === 'function') fn();
+  }
+}
+
+
 function goTo(id){
 
   document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
@@ -5516,17 +5615,13 @@ function openPreviewModal(){
 
     const extra = errors.length > MAX_SHOW ? `\n\n... และอีก ${errors.length - MAX_SHOW} รายการ` : "";
 
-    alert(
+    showAlert(
 
-      `⚠ กรุณากรอกข้อมูลให้ครบก่อนบันทึก\n\nพบปัญหา ${errors.length} รายการ:\n\n` +
+      `พบปัญหา ${errors.length} รายการ:\n\n` + shown.map((e,i)=>`${i+1}. ${e.label}: ${e.msg}`).join("\n") + extra,
 
-      shown.map((e,i)=>`${i+1}. ${e.label}: ${e.msg}`).join("\n") + extra
+      {type:"warn", title:"กรุณากรอกข้อมูลให้ครบก่อนบันทึก", onOk: ()=>goTo(errors[0].secId)}
 
     );
-
-    // เลื่อนไปยังหัวข้อแรกที่มีปัญหา
-
-    goTo(errors[0].secId);
 
     return;
 
@@ -5556,7 +5651,7 @@ function openPreviewModal(){
 
   } catch(err){
 
-    alert("ไม่สามารถสร้างตัวอย่างเอกสารได้: " + err.message);
+    showAlert("ไม่สามารถสร้างตัวอย่างเอกสารได้: " + err.message, {type:"error"});
 
   }
 
@@ -6646,7 +6741,7 @@ async function confirmSaveAndExport(){
 
         if(attachments.length && data.attachmentsSaved != null && data.attachmentsSaved < attachments.length){
 
-          alert("⚠ มีไฟล์แนบบางไฟล์บันทึกไม่สำเร็จ (" + th(data.attachmentsSaved) + " จาก " + th(attachments.length) + " ไฟล์) โปรดตรวจสอบในโฟลเดอร์ Google Drive อีกครั้ง");
+          showAlert("มีไฟล์แนบบางไฟล์บันทึกไม่สำเร็จ (" + th(data.attachmentsSaved) + " จาก " + th(attachments.length) + " ไฟล์) โปรดตรวจสอบในโฟลเดอร์ Google Drive อีกครั้ง", {type:"warn"});
 
         }
 
@@ -6656,7 +6751,7 @@ async function confirmSaveAndExport(){
 
       } else {
 
-        alert("ดาวน์โหลดไฟล์ PDF ไว้ในเครื่องแล้ว แต่ส่งขึ้น Google Drive ไม่สำเร็จ: " + (data && data.message ? data.message : "ไม่ทราบสาเหตุ"));
+        showAlert("ดาวน์โหลดไฟล์ PDF ไว้ในเครื่องแล้ว แต่ส่งขึ้น Google Drive ไม่สำเร็จ: " + (data && data.message ? data.message : "ไม่ทราบสาเหตุ"), {type:"warn"});
 
       }
 
@@ -6666,13 +6761,13 @@ async function confirmSaveAndExport(){
 
       openSuccessModal("ดาวน์โหลดไฟล์เรียบร้อย");
 
-      alert("หมายเหตุ: ยังไม่ได้ตั้งค่า Apps Script URL (ตัวแปร APPS_SCRIPT_URL ในโค้ด) จึงยังไม่ได้ส่งไฟล์ขึ้น Google Drive โดยอัตโนมัติ");
+      showAlert("ยังไม่ได้ตั้งค่า Apps Script URL จึงยังไม่ได้ส่งไฟล์ขึ้น Google Drive โดยอัตโนมัติ", {type:"info", title:"หมายเหตุ"});
 
     }
 
   } catch(err){
 
-    alert("เกิดข้อผิดพลาดระหว่างสร้าง/ส่งไฟล์ PDF: " + err.message);
+    showAlert("เกิดข้อผิดพลาดระหว่างสร้าง/ส่งไฟล์ PDF: " + err.message, {type:"error"});
 
   } finally {
 
