@@ -2470,6 +2470,44 @@ textarea:focus{
 
 }
 
+.btn-next{
+
+  display:inline-flex;
+
+  align-items:center;
+
+  gap:8px;
+
+  margin-top:12px;
+
+  padding:10px 24px;
+
+  background:var(--indigo-900);
+
+  color:#fff;
+
+  border:none;
+
+  border-radius:var(--radius-sm);
+
+  font-size:14px;
+
+  font-weight:600;
+
+  cursor:pointer;
+
+  font-family:inherit;
+
+  transition:background .15s;
+
+}
+
+.btn-next:hover{background:var(--indigo-800)}
+
+.btn-next:active{transform:translateY(1px)}
+
+.btn-next svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2}
+
 /* ===========================================================
 
    PRINT STYLES — A4 Portrait
@@ -3752,7 +3790,12 @@ textarea:focus{
 
       </div>
 
-      <div class="section-foot">— เลือกหัวข้อประเมินจากเมนูด้านซ้าย —</div>
+      <div class="section-foot">— เลือกหัวข้อประเมินจากเมนูด้านซ้าย —
+        <br><button class="btn-next" onclick="goTo('s1')">
+          ข้อถัดไป: หัวข้อที่ ๑ ปฏิบัติตนเป็นต้นแบบในการเรียนรู้
+          <svg viewBox="0 0 24 24"><path d="M5 12h14m0 0l-6-6m6 6l-6 6"/></svg>
+        </button>
+      </div>
 
     </section>
 
@@ -4418,7 +4461,23 @@ function renderIndicatorSections(){
 
       ${sec.indicators.map(ind=>indicatorHTML(ind, perItem)).join("")}
 
-      <div class="section-foot">— สิ้นสุดหัวข้อที่ ${sec.num} —</div>
+      <div class="section-foot">
+        ${(()=>{
+          const idx = SECTIONS.findIndex(s=>s.id===sec.id);
+          const next = SECTIONS[idx+1];
+          if(next){
+            return `<button class="btn-next" onclick="goTo('${next.id}')">
+              ข้อถัดไป: หัวข้อที่ ${next.num} ${next.title.slice(0,30)}${next.title.length>30?'…':''}
+              <svg viewBox="0 0 24 24"><path d="M5 12h14m0 0l-6-6m6 6l-6 6"/></svg>
+            </button>`;
+          } else {
+            return `<button class="btn-next" onclick="goTo('spider')">
+              ดูสรุปคะแนน Spider Chart
+              <svg viewBox="0 0 24 24"><path d="M5 12h14m0 0l-6-6m6 6l-6 6"/></svg>
+            </button>`;
+          }
+        })()}
+      </div>
 
     </section>`;
 
@@ -4924,7 +4983,12 @@ function goTo(id){
 
   if(id==="spider") renderSpider();
 
-  window.scrollTo({top:0,behavior:"smooth"});
+  // scroll ไปที่ด้านบนสุดของ section นั้น
+  if(sec){
+    sec.scrollIntoView({behavior:"smooth", block:"start"});
+  } else {
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
 
 }
 
