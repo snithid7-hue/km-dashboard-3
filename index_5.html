@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>แผนสื่อสารโดยผู้บริหารระดับสูงของสายงานเพื่อยกระดับด้านการจัดการความรู้</title>
+<title>ระบบกรอกแผนการจัดการความรู้ของสายงาน</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -193,8 +193,12 @@ textarea:focus,.txt:focus{border-color:var(--c1);box-shadow:0 0 0 3px rgba(123,1
 }
 .doc h2{text-align:center;font-size:21px;font-weight:700;margin:0 0 4px;color:#111}
 .doc .doc-div{text-align:center;font-size:18px;font-weight:600;margin-bottom:22px;color:#16325c}
-.doc table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:14px;table-layout:fixed}
-.doc th,.doc td{border:1px solid #9aa3b2;padding:8px 10px;vertical-align:top;text-align:left;overflow-wrap:break-word;word-break:break-word;overflow:hidden}
+.doc .doc-cover{min-height:1050px;display:flex;align-items:center;justify-content:center;margin:0;padding:0}
+.doc .doc-cover .cover-inner{text-align:center;width:100%}
+.doc .doc-cover h2{font-size:28px;margin-bottom:18px}
+.doc .doc-cover .doc-div{font-size:22px;margin-bottom:0}
+.doc table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:14px;table-layout:fixed;line-height:2}
+.doc th,.doc td{border:1px solid #9aa3b2;padding:10px 11px;vertical-align:top;text-align:left;overflow-wrap:break-word;word-break:break-word;overflow:hidden}
 .doc thead th{background:#dfe6ef;color:#16325c;font-weight:700;text-align:center}
 .doc .cat{font-weight:700;text-align:center;width:30%}
 .doc .cat-note{font-weight:400;font-size:12px;color:#5a6678;display:block;margin-top:4px}
@@ -205,6 +209,15 @@ textarea:focus,.txt:focus{border-color:var(--c1);box-shadow:0 0 0 3px rgba(123,1
 .doc .empty{color:#9aa3b2;font-style:italic}
 .doc .att-line{font-size:13px;color:#333;padding:2px 0}
 .doc .secband{background:#16325c;color:#fff;font-weight:700;padding:7px 12px;border-radius:6px;margin:22px 0 10px;font-size:15px}
+.doc .s2-card{margin-bottom:14px;border:1px solid #9aa3b2;border-radius:6px;overflow:hidden;page-break-inside:avoid;break-inside:avoid}
+.doc .s2-first{border:1px solid #16325c}
+.doc .s2-first .secband-inline{margin:0;border-radius:0}
+.doc .secband-inline{margin:0}
+.doc .s2-head{background:#fbf2da;color:#7a5b13;font-weight:700;padding:6px 12px;font-size:14px;border-bottom:1px solid #9aa3b2}
+.doc .s2-tbl{margin:0;border:none}
+.doc .s2-tbl td{border:none;border-bottom:1px solid #e0e0e0;padding:7px 12px}
+.doc .s2-tbl tr:last-child td{border-bottom:none}
+.doc .s2-tbl td.s2lab{width:36%;background:#f7f4ec;font-weight:600;color:#16325c;vertical-align:top}
 
 /* signature block */
 .sigwrap{margin-top:34px;display:flex;justify-content:flex-end}
@@ -253,7 +266,7 @@ textarea:focus,.txt:focus{border-color:var(--c1);box-shadow:0 0 0 3px rgba(123,1
 
   <div class="mast">
     <div class="kicker">Knowledge Management Plan</div>
-    <h1>แผนสื่อสารโดยผู้บริหารระดับสูงของสายงานเพื่อยกระดับด้านการจัดการความรู้</h1>
+    <h1>ระบบกรอกแผนการจัดการความรู้ของสายงาน</h1>
     <p>กรอกข้อมูลตามหัวข้อด้านล่าง ระบบจะแสดงหน้าตัวอย่างให้ตรวจทานก่อนบันทึก สามารถส่งข้อมูลเข้าฐานข้อมูลกลางและส่งออกเป็นไฟล์ PDF พร้อมช่องลงนามผู้อำนวยการใหญ่</p>
     <div class="seal">เอกสารสำหรับสายงาน</div>
   </div>
@@ -279,7 +292,7 @@ textarea:focus,.txt:focus{border-color:var(--c1);box-shadow:0 0 0 3px rgba(123,1
         <label><span class="num">7.</span>หลักฐาน / รูปภาพ / รายงาน</label>
         <div class="attach" id="dropZone">
           <div class="att-cta">＋ แนบไฟล์ (PDF, รูปภาพ, วิดีโอ)</div>
-          <div class="att-note">คลิกเพื่อเลือกไฟล์ — เพิ่มได้มากกว่า 1</div>
+          <div class="att-note">คลิกเพื่อเลือกไฟล์ — เพิ่มได้เรื่อย ๆ</div>
           <input type="file" id="fileInput" multiple style="display:none" accept=".pdf,image/*,video/*">
         </div>
         <div class="file-list" id="fileList"></div>
@@ -308,13 +321,13 @@ textarea:focus,.txt:focus{border-color:var(--c1);box-shadow:0 0 0 3px rgba(123,1
       <div class="sec-no">3</div>
       <div>
         <div class="sec-title">วัฒนธรรมการจัดการความรู้ของสายงาน</div>
-        <div class="sec-sub">กำหนดวัฒนธรรมและวิธีการประเมิน — เพิ่มหัวข้อได้มากกว่า 1</div>
+        <div class="sec-sub">กำหนดวัฒนธรรมและวิธีการประเมิน — เพิ่มหัวข้อได้เรื่อย ๆ</div>
       </div>
     </div>
     <div class="sec-body">
       <div class="subblock">
-        <div class="sub-h">3.1 กำหนดวัฒนธรรมการจัดการความรู้ของสายงาน</div>
-        <div class="sub-eg">ตัวอย่าง: ทุกโครงการ/กิจกรรมสำคัญ ต้องมีการจัดทำ AAR, จัดให้มีวาระการถ่ายทอดความรู้ในการประชุมสายงาน</div>
+        <div class="sub-h">3.1 กำหนดวัฒนธรรมการจัดการความรู้ของหน่วยงาน</div>
+        <div class="sub-eg">ตัวอย่าง: ทุกโครงการ/กิจกรรมสำคัญ ต้องมีการจัดทำ AAR, จัดให้มีวาระการถ่ายทอดความรู้ในการประชุมหน่วยงาน</div>
         <div id="cultureList"></div>
         <button class="btn btn-add" data-add="culture">＋ เพิ่มหัวข้อวัฒนธรรม</button>
       </div>
@@ -426,11 +439,11 @@ function knTemplate(idx){
     <div class="kn-grid">
       <div class="full"><label>กำหนด Critical Knowledge / Case</label>
         <textarea data-kn="${idx}" data-f="ck" placeholder="ระบุองค์ความรู้สำคัญหรือกรณีศึกษา"></textarea></div>
-      <div><label>กระบวนการ (Value Chain) ที่เกี่ยวข้องคือกระบวนการใด และหน่วยงานใดเป็นผู้รับผิดชอบ</label>
+      <div><label>อยู่ที่กระบวนการ (Value Chain) ใด / ของหน่วยไหน</label>
         <textarea data-kn="${idx}" data-f="vc"></textarea></div>
-      <div><label>อธิบายรายละเอียดและลำดับขั้นตอนของกระบวนการที่เลือก</label>
+      <div><label>ดำเนินการอะไร</label>
         <textarea data-kn="${idx}" data-f="act"></textarea></div>
-      <div><label>มีการใช้เครื่องมือหรือองค์ความรู้ด้านการจัดการความรู้ (KM) ใดบ้าง</label>
+      <div><label>ใช้เครื่องมือ / องค์ความรู้ KM อะไร</label>
         <textarea data-kn="${idx}" data-f="tool"></textarea></div>
       <div><label>ผลลัพธ์ / สิ่งที่ได้กลับมา (ลดขั้นตอน / ลดเวลา / เพิ่มกำไร ฯลฯ)</label>
         <textarea data-kn="${idx}" data-f="result"></textarea></div>
@@ -527,46 +540,56 @@ function buildDoc(d){
       : `<span class="empty">— ยังไม่มีไฟล์แนบ —</span>`;
   const s1files = `<tr><td class="topic">7. หลักฐาน / รูปภาพ / รายงาน</td><td>${filesCell}</td></tr>`;
 
-  // Section 2 table
-  let s2;
-  if(d.sec2.length){
-    const body = d.sec2.map((r,i)=>`<tr>
-        <td>${i+1}. ${cellOrEmpty(r.ck)}</td>
-        <td>${cellOrEmpty(r.vc)}</td>
-        <td>${cellOrEmpty(r.act)}</td>
-        <td>${cellOrEmpty(r.tool)}</td>
-        <td>${cellOrEmpty(r.result)}</td></tr>`).join("");
-    s2 = `<table><thead><tr>
-        <th>กำหนด Critical Knowledge / Case</th>
-        <th>กระบวนการ (Value Chain) ที่เกี่ยวข้องคือกระบวนการใด และหน่วยงานใดเป็นผู้รับผิดชอบ</th>
-        <th>อธิบายรายละเอียดและลำดับขั้นตอนของกระบวนการที่เลือก</th>
-        <th>มีการใช้เครื่องมือหรือองค์ความรู้ด้านการจัดการความรู้ (KM) ใดบ้าง</th>
-        <th>ผลลัพธ์ / สิ่งที่ได้กลับมา</th></tr></thead><tbody>${body}</tbody></table>`;
-  } else { s2 = `<p class="empty" style="padding:6px 2px">— ยังไม่มีรายการ —</p>`; }
+  // Section 2 — แนวบนลงล่าง (แต่ละรายการเป็นการ์ดเดี่ยว ตัดหน้าได้สวย)
+  const s2FieldDef = [
+    {k:"ck",    label:"กำหนด Critical Knowledge / Case"},
+    {k:"vc",    label:"อยู่ที่กระบวนการ (Value Chain) ใด / หน่วยไหน"},
+    {k:"act",   label:"ดำเนินการอะไร"},
+    {k:"tool",  label:"ใช้เครื่องมือ / องค์ความรู้ KM อะไร"},
+    {k:"result",label:"ผลลัพธ์ / สิ่งที่ได้กลับมา"},
+  ];
+  const SEC2_BAND = `<div class="secband secband-inline">2. การนำไปใช้ในสายงาน — ผลลัพธ์ของการจัดการความรู้สำคัญ</div>`;
+  const s2Cards = d.sec2.length
+    ? d.sec2.map((r,i)=>{
+        const rows = s2FieldDef.map(f=>`
+          <tr>
+            <td class="s2lab">${f.label}</td>
+            <td>${cellOrEmpty(r[f.k])}</td>
+          </tr>`).join("");
+        // รวมหัวข้อ 2 (band) เข้ากับ "การ์ดแรก" — เพื่อให้อยู่หน้าเดียวกันเสมอ
+        return `<div class="pdf-block s2-card${i===0?' s2-first':''}"${i===0?' data-newpage="true"':''}>
+          ${i===0 ? SEC2_BAND : ''}
+          <div class="s2-head">รายการที่ ${i+1}</div>
+          <table class="s2-tbl"><tbody>${rows}</tbody></table>
+        </div>`;
+      }).join("")
+    : `<div class="pdf-block" data-newpage="true">
+        ${SEC2_BAND}
+        <p class="empty" style="padding:6px 2px">— ยังไม่มีรายการ —</p>
+      </div>`;
 
   const liList = arr => arr.length
     ? `<table><tbody>${arr.map((t,i)=>`<tr><td style="width:34px;text-align:center;font-weight:600">${i+1}</td><td>${esc(t)}</td></tr>`).join("")}</tbody></table>`
     : `<p class="empty" style="padding:4px 2px">— ยังไม่มีหัวข้อ —</p>`;
 
   return `<div class="doc" id="docPaper">
-    <div class="pdf-block" data-keep="head">
-      <h2>แผนการจัดการความรู้ของสายงาน</h2>
-      <div class="doc-div">${esc(divName)}</div>
+    <div class="pdf-block doc-cover">
+      <div class="cover-inner">
+        <h2>แผนการจัดการความรู้ของสายงาน</h2>
+        <div class="doc-div">${esc(divName)}</div>
+      </div>
     </div>
 
-    <div class="pdf-block">
+    <div class="pdf-block" data-newpage="true">
       <table><thead><tr><th style="width:30%">หมวด</th><th style="width:30%">ประเด็น</th><th>ข้อมูล / รายละเอียด</th></tr></thead>
         <tbody>${s1rows}${s1files}</tbody></table>
     </div>
 
-    <div class="pdf-block">
-      <div class="secband">2. การนำไปใช้ในสายงาน — ผลลัพธ์ของการจัดการความรู้สำคัญ</div>
-      ${s2}
-    </div>
+    ${s2Cards}
 
     <div class="pdf-block">
       <div class="secband">3. วัฒนธรรมการจัดการความรู้ของสายงาน</div>
-      <p style="font-weight:600;margin:6px 0 4px">3.1 กำหนดวัฒนธรรมการจัดการความรู้ของสายงาน</p>
+      <p style="font-weight:600;margin:6px 0 4px">3.1 กำหนดวัฒนธรรมการจัดการความรู้ของหน่วยงาน</p>
       ${liList(d.culture)}
       <p style="font-weight:600;margin:14px 0 4px">3.2 การประเมิน</p>
       ${liList(d.evals)}
@@ -652,7 +675,7 @@ function toast(msg,kind=""){
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.className="toast",3200);
 }
 
-/* ---------- export PDF (แต่ละหัวข้อไม่ถูกตัดข้ามหน้า) ---------- */
+/* ---------- export PDF (แต่ละหัวข้อไม่ถูกตัดข้ามหน้า + ไม่ตัดกลางบรรทัด) ---------- */
 async function doExportPdf(){
   const paper=$("#docPaper"); if(!paper) return;
   try{ if(document.fonts && document.fonts.ready) await document.fonts.ready; }catch(e){}
@@ -662,40 +685,137 @@ async function doExportPdf(){
   const pw=210, ph=297, margin=10, iw=pw-margin*2, usableH=ph-margin*2;
 
   const blocks=[...paper.querySelectorAll(".pdf-block")];
-  let cursorY=margin;   // ตำแหน่งแนวตั้งปัจจุบันบนหน้า (mm)
+  let cursorY=margin;
   let firstOnPage=true;
 
   for(const block of blocks){
     const canvas=await html2canvas(block,{scale:2,useCORS:true,backgroundColor:"#ffffff"});
     const pxToMm=iw/canvas.width;
     const hmm=canvas.height*pxToMm;
-    const img=canvas.toDataURL("image/jpeg",0.95);
+
+    // บล็อกที่ขอขึ้นหน้าใหม่เสมอ (เช่น หัวข้อ 2)
+    if(block.dataset && block.dataset.newpage==="true" && !firstOnPage){
+      pdf.addPage(); cursorY=margin; firstOnPage=true;
+    }
 
     if(hmm<=usableH){
-      // บล็อกพอดีหนึ่งหน้า: ถ้าที่เหลือไม่พอ ยกทั้งบล็อกขึ้นหน้าใหม่
+      // บล็อกพอดีหนึ่งหน้า → ถ้าเหลือที่ไม่พอ ขึ้นหน้าใหม่ทั้งบล็อก
       if(!firstOnPage && cursorY+hmm>margin+usableH+0.5){
         pdf.addPage(); cursorY=margin; firstOnPage=true;
       }
-      pdf.addImage(img,"JPEG",margin,cursorY,iw,hmm);
-      cursorY+=hmm+4;          // เว้นช่องว่างระหว่างบล็อกเล็กน้อย
+      pdf.addImage(canvas.toDataURL("image/jpeg",0.95),"JPEG",margin,cursorY,iw,hmm);
+      cursorY+=hmm+4;
       firstOnPage=false;
     }else{
-      // บล็อกสูงเกินหนึ่งหน้า (เช่น ตารางยาวมาก): เริ่มหน้าใหม่แล้วไหลข้ามหน้าเฉพาะบล็อกนี้
-      if(!firstOnPage){ pdf.addPage(); }
-      let placed=0;          // ส่วนที่วางไปแล้ว (mm)
-      while(placed<hmm-0.5){
-        pdf.addImage(img,"JPEG",margin,margin-placed,iw,hmm);
-        placed+=usableH;
-        if(placed<hmm-0.5) pdf.addPage();
-      }
-      const lastUsed=hmm-(Math.ceil(hmm/usableH)-1)*usableH;
-      cursorY=margin+lastUsed+4;
-      firstOnPage=false;
+      // บล็อกสูงเกินหนึ่งหน้า → ตัดเป็นชิ้น (ตามรอยบรรทัด)
+      if(!firstOnPage){ pdf.addPage(); cursorY=margin; firstOnPage=true; }
+      const lastSliceHmm = await sliceTallCanvasToPdf(canvas, pdf, {margin, iw, usableH, pxToMm});
+      // ให้บล็อกถัดไปวางต่อบนหน้าเดียวกันถ้ามีที่ว่างพอ (ไม่ปล่อยหน้าเปล่า)
+      cursorY = margin + lastSliceHmm + 4;
+      firstOnPage = false;
     }
   }
 
   const name=("แผน_KM_"+($("#division").value.trim()||"สายงาน")).replace(/[\\/:*?"<>|]/g,"_");
   pdf.save(name+".pdf");
+}
+
+/**
+ * ตัด canvas สูงเกินหน้า เป็นชิ้น ๆ หนึ่งหน้าต่อหนึ่งชิ้น
+ * โดย "งับ" รอยตัดไปยังแถวพิกเซลที่เป็นช่องว่างระหว่างบรรทัด (ไม่ตัดกลางตัวอักษร)
+ */
+async function sliceTallCanvasToPdf(srcCanvas, pdf, opts){
+  const {margin, iw, usableH, pxToMm} = opts;
+  const W=srcCanvas.width, H=srcCanvas.height;
+  const pageHpx = Math.floor(usableH/pxToMm);   // ความสูงหนึ่งหน้าในพิกเซลของ canvas
+  const ctx=srcCanvas.getContext("2d");
+  const rowInk = computeRowInk_(ctx, W, H);
+
+  // ระยะค้นหาช่องว่างย้อนขึ้น: ไม่เกิน 20% ของความสูงหน้า
+  const lookback = Math.floor(pageHpx*0.20);
+
+  let y=0;
+  let firstSlice=true;
+  let lastSliceHmm=0;
+  while(y<H-1){
+    let cutTo = Math.min(y+pageHpx, H);
+    if(cutTo<H){
+      cutTo = findGapAbove_(rowInk, cutTo, Math.max(y+Math.floor(pageHpx*0.5), cutTo-lookback));
+    }
+    const sliceH = cutTo - y;
+    const piece = document.createElement("canvas");
+    piece.width = W; piece.height = sliceH;
+    const pctx = piece.getContext("2d");
+    pctx.fillStyle = "#ffffff"; pctx.fillRect(0,0,W,sliceH);
+    pctx.drawImage(srcCanvas, 0, y, W, sliceH, 0, 0, W, sliceH);
+    const sliceHmm = sliceH*pxToMm;
+
+    if(!firstSlice) pdf.addPage();
+    pdf.addImage(piece.toDataURL("image/jpeg",0.95),"JPEG", margin, margin, iw, sliceHmm);
+    firstSlice=false;
+    lastSliceHmm = sliceHmm;
+    y = cutTo;
+  }
+  return lastSliceHmm;
+}
+
+/** ค่า "หมึก" ของแต่ละแถว — ใช้ค่า MAX (ไม่ใช่เฉลี่ย) เพื่อจับสระ/วรรณยุกต์ที่บาง
+ *  ค่าเฉลี่ยจะมองพลาดสระบนเล็ก ๆ ของไทย (ิ ี ึ ื ์ ้) เพราะมันบางแค่ไม่กี่พิกเซลในแถวกว้าง
+ *  ค่า MAX จะจับได้แน่นอน แม้สระบนจะกว้างแค่ 3-5 px
+ *  อ่านเฉพาะคอลัมน์ขวา (40%-100%) เพื่อเลี่ยงพื้นหลังสีของคอลัมน์ป้ายชื่อ
+ */
+function computeRowInk_(ctx, W, H){
+  const data = ctx.getImageData(0,0,W,H).data;
+  const ink = new Float32Array(H);
+  const xStart = Math.floor(W*0.40);
+  for(let y=0;y<H;y++){
+    let maxDark=0; const off=y*W*4;
+    // เก็บสเต็ป 2 px เพื่อความละเอียดสำหรับสระบาง ๆ
+    for(let x=xStart;x<W;x+=2){
+      const i=off+x*4;
+      const r=data[i], g=data[i+1], b=data[i+2];
+      const darkness = 255 - Math.min(r,g,b);
+      if(darkness > maxDark) maxDark = darkness;
+    }
+    ink[y] = maxDark;
+  }
+  return ink;
+}
+
+/** หาแถวที่เป็น "ช่องว่างระหว่างบรรทัดจริง" — ตัด "ใต้ขอบล่างของช่องว่าง"
+ *  เพื่อให้บรรทัดถัดไปบนหน้าใหม่เริ่มสมบูรณ์ (พร้อมสระบน/วรรณยุกต์)
+ *  และบรรทัดสุดท้ายของหน้าก่อนมีหางล่าง/สระล่างครบ
+ */
+function findGapAbove_(rowInk, cutTo, minY){
+  const INK_THRESHOLD = 50;   // MAX > 50 = แถวที่มีหมึก/สระ
+  const MIN_GAP_WIDTH = 6;    // ช่องว่างจริงต้องกว้าง ≥ 6 แถว (เลี่ยงช่องบางในตัวอักษรเดียว)
+  // ไล่ขึ้นหาช่วงว่าง (กลุ่มแถวต่อเนื่องที่หมึก < threshold)
+  let y = cutTo - 1;
+  while(y >= minY){
+    if(rowInk[y] < INK_THRESHOLD){
+      // เจอแถวว่าง — หาขอบบน/ขอบล่างของช่วง gap นี้
+      let bottom = y;
+      while(bottom < rowInk.length-1 && rowInk[bottom+1] < INK_THRESHOLD) bottom++;
+      let top = y;
+      while(top > minY && rowInk[top-1] < INK_THRESHOLD) top--;
+      const gapWidth = bottom - top + 1;
+      if(gapWidth >= MIN_GAP_WIDTH){
+        // ช่องว่างจริง — ตัดใต้ขอบล่างของ gap
+        // ทำให้บรรทัดถัดไปบนหน้าใหม่เริ่มที่ "หมึกแถวแรกของบรรทัดล่าง" พอดี (สระบนติดไปด้วย)
+        return Math.min(bottom + 1, rowInk.length);
+      }
+      // ช่องแคบเกินไป (น่าจะเป็นช่องในบรรทัดเดียว) — ข้ามขึ้นไปหา gap ที่กว้างกว่า
+      y = top - 1;
+    } else {
+      y--;
+    }
+  }
+  // หาไม่เจอ — หา local minimum
+  let bestY = cutTo, bestVal = Infinity;
+  for(let yy = cutTo - 1; yy >= minY; yy--){
+    if(rowInk[yy] < bestVal){ bestVal = rowInk[yy]; bestY = yy; }
+  }
+  return bestY;
 }
 
 /* ---------- send to Google Sheet / Drive ---------- */
