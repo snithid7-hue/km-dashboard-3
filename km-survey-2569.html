@@ -185,22 +185,22 @@ h1,h2,h3,h4,.disp{font-family:'Chakra Petch',sans-serif;}
 /* ===== NAV ===== */
 .nav{
   position:sticky; top:0; z-index:50;
-  background:rgba(245,243,238,0.94);
-  backdrop-filter:blur(8px);
-  border-bottom:1px solid var(--line);
+  background:#FFFFFF;
+  border-bottom:2px solid var(--line);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
-.nav-inner{display:flex; gap:2px; overflow-x:auto; scrollbar-width:none;}
+.nav-inner{display:flex; gap:0; overflow-x:auto; scrollbar-width:none;}
 .nav-inner::-webkit-scrollbar{display:none;}
 .nav-btn{
   font-family:'Chakra Petch',sans-serif;
   background:none; border:none; color:var(--text-dim);
-  padding:15px 18px; font-size:0.85rem; letter-spacing:0.02em;
+  padding:16px 22px; font-size:0.92rem; letter-spacing:0.03em; font-weight:500;
   cursor:pointer; white-space:nowrap;
-  border-bottom:2px solid transparent;
-  transition:color .15s, border-color .15s;
+  border-bottom:3px solid transparent;
+  transition:color .15s, background .15s, border-color .15s;
 }
-.nav-btn:hover{color:var(--text);}
-.nav-btn.active{color:var(--accent); border-bottom-color:var(--accent);}
+.nav-btn:hover{color:var(--text); background:#F5F3EE;}
+.nav-btn.active{color:var(--accent); border-bottom-color:var(--accent); font-weight:700; background:var(--accent-soft);}
 
 /* ===== SECTIONS ===== */
 .view{display:none; padding:36px 0 70px; animation:fadein .3s ease;}
@@ -226,6 +226,7 @@ h1,h2,h3,h4,.disp{font-family:'Chakra Petch',sans-serif;}
 }
 .card h3{font-size:1rem; font-weight:600; margin-bottom:4px; color:#151B22;}
 .card .sub{font-size:0.79rem; color:var(--text-faint); margin-bottom:14px;}
+#chartTierDonut{cursor:pointer;}
 .chart-box{position:relative; height:280px;}
 .chart-box.tall{height:380px;}
 .chart-box.short{height:190px;}
@@ -328,6 +329,19 @@ footer{
 .legend{display:flex; gap:16px; flex-wrap:wrap; font-size:0.78rem; color:var(--text-dim); margin-top:14px;}
 .legend span{display:inline-flex; align-items:center; gap:6px;}
 .dot{width:9px; height:9px; border-radius:50%; display:inline-block;}
+/* insight summary */
+.insight-row{display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap;}
+.insight{flex:1; min-width:200px; border-radius:8px; padding:12px 16px; display:flex; align-items:flex-start; gap:10px;}
+.insight.best{background:#EFF6FF; border:1px solid #BFDBFE;}
+.insight.worst{background:#FEF2F2; border:1px solid #FECACA;}
+.insight-icon{font-size:1.1rem; flex-shrink:0; margin-top:2px;}
+.insight-body .ilabel{font-size:0.68rem; font-family:'Chakra Petch',sans-serif; letter-spacing:0.07em; text-transform:uppercase; font-weight:700; margin-bottom:3px;}
+.insight.best .ilabel{color:#2563EB;}
+.insight.worst .ilabel{color:#EF4444;}
+.insight-body .ival{font-family:'Chakra Petch',sans-serif; font-weight:700; font-size:1rem; margin-bottom:3px;}
+.insight.best .ival{color:#1D4ED8;}
+.insight.worst .ival{color:#DC2626;}
+.insight-body .idesc{font-size:0.82rem; color:var(--text-dim); line-height:1.45;}
 </style>
 </head>
 <body>
@@ -466,22 +480,26 @@ footer{
     <div class="card">
       <h3>หมวดที่ 1 · ความรู้ความเข้าใจเชิงนโยบายและทิศทาง KM (7 ข้อ, สเกล 1–5)</h3>
       <div class="sub">1 = ไม่เห็นด้วยอย่างยิ่ง / เข้าใจน้อยที่สุด · 5 = เห็นด้วยอย่างยิ่ง / เข้าใจมากที่สุด</div>
+      <div class="insight-row" id="insight1"></div>
       <div id="likert1Box"></div>
     </div>
 
     <div class="card">
       <h3>หมวดที่ 2 · การนำ KM ไปใช้ในการปฏิบัติงานจริง (4 ข้อ, สเกล 1–5)</h3>
+      <div class="insight-row" id="insight2"></div>
       <div id="likert2Box"></div>
     </div>
 
     <div class="card">
       <h3>หมวดที่ 3 · แบบทดสอบความเข้าใจข้อเท็จจริงด้าน KM (6 ข้อ, ใช่ / ไม่ใช่)</h3>
       <div class="sub">ข้อความทั้ง 6 ข้อสอดคล้องกับนโยบาย/ข้อเท็จจริงของ บวท. — สัดส่วนผู้ตอบ "ใช่" สะท้อนระดับความเข้าใจที่ถูกต้อง</div>
+      <div class="insight-row" id="insight3"></div>
       <div id="tfBox"></div>
     </div>
 
     <div class="card">
       <h3>หมวดที่ 4 · ประสิทธิผลของช่องทางสื่อสารด้าน KM (5 ช่องทาง, สเกล 1–5)</h3>
+      <div class="insight-row" id="insight4"></div>
       <div class="chart-box"><canvas id="chartChannels"></canvas></div>
     </div>
   </section>
@@ -532,6 +550,10 @@ footer{
 <script>
 const DATA = JSON.parse(document.getElementById('km-data').textContent);
 
+// hoisted state for units table (used by donut click handler)
+let currentTier = 'all';
+let sortKey = 'pct', sortDir = -1;
+
 const COLORS = {
   accent: '#0F6E9E', good:'#16A34A', amber:'#D97706', danger:'#EF4444', gold:'#2563EB',
   line:'#E1DCCF', lineStrong:'#CFC8B4', text:'#20262E', textDim:'#5B6472'
@@ -556,9 +578,8 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
 
 /* ---------- HERO TAGS + KPI ---------- */
 document.getElementById('heroTags').innerHTML = `
-  <span class="tag">${DATA.dept_overview.total_responses.toLocaleString('th-TH')} ผู้ตอบ (ติดตามล่าสุด)</span>
+  <span class="tag">${DATA.overview.total_responses.toLocaleString('th-TH')} ผู้ตอบแบบสำรวจ</span>
   <span class="tag">64 หน่วยงาน</span>
-  <span class="tag">${DATA.overview.total_responses.toLocaleString('th-TH')} ผู้ตอบแบบฟอร์มออนไลน์</span>
 `;
 
 document.getElementById('kpiRow').innerHTML = `
@@ -573,7 +594,8 @@ document.getElementById('demoTotal').textContent = DATA.overview.total_responses
 
 /* ---------- FLIGHT STRIP BOARD (signature hero element) ---------- */
 (function buildStripBoard(){
-  const units = DATA.units_by_no;
+  const tierOrder = { excellent:0, great:1, moderate:2, low:3, none:4 };
+  const units = [...DATA.units_by_no].sort((a,b)=> tierOrder[a.tier] - tierOrder[b.tier]);
   document.getElementById('stripBoardCount').textContent = `${units.length} strips`;
   const grid = document.getElementById('stripGrid');
   grid.innerHTML = units.map(u=>{
@@ -594,10 +616,32 @@ document.getElementById('demoTotal').textContent = DATA.overview.total_responses
 (function(){
   const order = ['excellent','great','moderate','low','none'];
   const counts = order.map(t => DATA.units.filter(u=>u.tier===t).length);
-  new Chart(document.getElementById('chartTierDonut'), {
+  const tierDonut = new Chart(document.getElementById('chartTierDonut'), {
     type:'doughnut',
     data:{ labels: order.map(t=>TIER_LABEL[t]), datasets:[{ data:counts, backgroundColor: order.map(t=>TIER_COLOR[t]), borderColor:'#FFFFFF', borderWidth:3 }]},
-    options:{ plugins:{legend:{display:false}}, cutout:'68%' }
+    options:{
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:(i)=>`${TIER_LABEL[order[i.dataIndex]]}: ${counts[i.dataIndex]} หน่วยงาน`}}
+      },
+      cutout:'68%',
+      onClick:(e, elements)=>{
+        if(!elements.length) return;
+        const tier = order[elements[0].index];
+        // switch to units tab
+        document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+        document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+        document.querySelector('[data-view="units"]').classList.add('active');
+        document.getElementById('view-units').classList.add('active');
+        // apply filter
+        document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+        document.querySelector(`.filter-btn[data-tier="${tier}"]`).classList.add('active');
+        currentTier = tier;
+        renderTable();
+        window.scrollTo({top: document.querySelector('.nav').offsetTop - 1, behavior:'smooth'});
+      },
+      cursor:'pointer'
+    }
   });
   const legendEl = document.getElementById('tierLegend');
   legendEl.innerHTML = order.map((t,i)=>`<span><span class="dot" style="background:${TIER_COLOR[t]}"></span>${TIER_LABEL[t]} (${counts[i]})</span>`).join('');
@@ -655,8 +699,6 @@ function rowHtml(u, rank){
 
 
 /* ---------- UNITS TABLE ---------- */
-let currentTier = 'all';
-let sortKey = 'pct', sortDir = -1;
 function renderTable(){
   const q = document.getElementById('unitSearch').value.trim().toLowerCase();
   let rows = DATA.units.filter(u=>{
@@ -699,7 +741,64 @@ document.querySelectorAll('thead th[data-sort]').forEach(th=>{
 });
 renderTable();
 
-/* ---------- LIKERT BARS (helper) ---------- */
+/* ---------- INSIGHT SUMMARIES ---------- */
+function insightHtml(best, worst, bestVal, worstVal, unit){
+  return `
+    <div class="insight best">
+      <div class="insight-icon">▲</div>
+      <div class="insight-body">
+        <div class="ilabel">สูงสุด</div>
+        <div class="ival">${bestVal}${unit}</div>
+        <div class="idesc">${best}</div>
+      </div>
+    </div>
+    <div class="insight worst">
+      <div class="insight-icon">▼</div>
+      <div class="insight-body">
+        <div class="ilabel">ต่ำสุด</div>
+        <div class="ival">${worstVal}${unit}</div>
+        <div class="idesc">${worst}</div>
+      </div>
+    </div>`;
+}
+
+// Likert 1
+(()=>{
+  const sorted = [...DATA.likert1].sort((a,b)=>b.avg-a.avg);
+  document.getElementById('insight1').innerHTML = insightHtml(
+    sorted[0].q, sorted[sorted.length-1].q,
+    sorted[0].avg, sorted[sorted.length-1].avg, ' / 5'
+  );
+})();
+
+// Likert 2
+(()=>{
+  const sorted = [...DATA.likert2].sort((a,b)=>b.avg-a.avg);
+  document.getElementById('insight2').innerHTML = insightHtml(
+    sorted[0].q, sorted[sorted.length-1].q,
+    sorted[0].avg, sorted[sorted.length-1].avg, ' / 5'
+  );
+})();
+
+// True/False
+(()=>{
+  const sorted = [...DATA.truefalse].sort((a,b)=>b.yes_pct-a.yes_pct);
+  document.getElementById('insight3').innerHTML = insightHtml(
+    sorted[0].q, sorted[sorted.length-1].q,
+    sorted[0].yes_pct+'%', sorted[sorted.length-1].yes_pct+'%', ' ตอบถูกต้อง'
+  );
+})();
+
+// Channels
+(()=>{
+  const sorted = [...DATA.channels].sort((a,b)=>b.avg-a.avg);
+  document.getElementById('insight4').innerHTML = insightHtml(
+    sorted[0].q, sorted[sorted.length-1].q,
+    sorted[0].avg, sorted[sorted.length-1].avg, ' / 5'
+  );
+})();
+
+
 const LIKERT_SEG_COLORS = ['#C6402F','#E0916B','#CFC8B4','#6FBE96','#1E8E5A'];
 function likertBoxHtml(items){
   return items.map(it=>{
