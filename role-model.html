@@ -1918,6 +1918,18 @@ textarea:focus{
 
 .btn-attach svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
 
+.attach-hint{
+
+  flex-basis:100%;
+
+  font-size:11.5px;
+
+  color:var(--gray-500, #6b7280);
+
+  margin-top:-4px;
+
+}
+
 .attach-files{
 
   display:flex;
@@ -4734,6 +4746,8 @@ function renderDetailSets(code){
 
         </label>
 
+        <span class="attach-hint">รองรับไฟล์รูปภาพและ PDF ขนาดไม่เกิน 5MB ต่อไฟล์ (ไฟล์รูปภาพจะถูกบีบอัดให้อัตโนมัติ)</span>
+
         <div class="attach-files" id="entry-files-${escapeHTML(code)}-${i}"></div>
 
       </div>
@@ -4778,9 +4792,27 @@ function renderDetailSets(code){
 
       el.value = "";
 
+      const oversized = [];
+
       for(const f of fileList){
 
         try{
+
+          // ลองบีบอัดถ้าเป็นรูปภาพก่อน (ลด payload ได้มากที่สุด)
+          const compressed = await compressImageFile(f);
+
+          if(compressed){
+            STATE[c].entries[idx].files.push({
+              name: f.name, size: compressed.size, type: compressed.type, base64: compressed.base64
+            });
+            continue;
+          }
+
+          // ไฟล์ที่ไม่ใช่รูป (เช่น PDF) — เช็คขนาดก่อนแนบ
+          if(f.size > MAX_ATTACHMENT_SIZE_MB * 1024 * 1024){
+            oversized.push(`${f.name} (${(f.size/1024/1024).toFixed(1)} MB)`);
+            continue;
+          }
 
           const base64 = await blobToBase64(f);
 
@@ -4788,6 +4820,13 @@ function renderDetailSets(code){
 
         } catch(err){ console.error("อ่านไฟล์ไม่สำเร็จ:", f.name, err); }
 
+      }
+
+      if(oversized.length){
+        showAlert(
+          `ไฟล์ต่อไปนี้มีขนาดเกิน ${MAX_ATTACHMENT_SIZE_MB} MB จึงไม่ถูกแนบ:\n\n${oversized.join("\n")}\n\nกรุณาลดขนาดไฟล์แล้วแนบใหม่อีกครั้ง (รูปภาพจะถูกบีบอัดให้อัตโนมัติแล้ว)`,
+          {type:"warn"}
+        );
       }
 
       // alias entry[0].files → files สำหรับ backward compat
@@ -5445,10 +5484,106 @@ function renderSpider(){
 
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMXRbanFzyjpJ2AOa1gkfBYtuDxUiKFPkQscKDmBE7hqOqNjgkVHCRwjRx2S1csGUb/exec";
 
+// ===== ค่าคงที่สำหรับความเสถียรของการอัปโหลด (ฝั่ง client เท่านั้น ไม่แตะ backend) =====
+const APPS_SCRIPT_TIMEOUT_MS = 60000;      // timeout ต่อคำขอ (60 วิ เพราะ payload อาจใหญ่)
+const APPS_SCRIPT_MAX_RETRIES = 2;         // ลองใหม่กี่ครั้งถ้า fetch ล้มเหลว
+const MAX_ATTACHMENT_SIZE_MB = 5;          // จำกัดไฟล์ที่ไม่ใช่รูป (เช่น PDF)
+const IMAGE_MAX_DIMENSION = 1600;          // ความกว้าง/สูงสูงสุดหลังบีบอัดรูป (px)
+const IMAGE_JPEG_QUALITY = 0.72;           // คุณภาพ JPEG หลังบีบอัด (0-1)
+
 function isAppsScriptConfigured(){
 
   return !!APPS_SCRIPT_URL && APPS_SCRIPT_URL.indexOf("PASTE_") === -1;
 
+}
+
+/* fetch พร้อม timeout ผ่าน AbortController */
+function fetchWithTimeout(url, options, timeoutMs){
+  const controller = new AbortController();
+  const timer = setTimeout(()=>controller.abort(), timeoutMs);
+  return fetch(url, {...options, signal: controller.signal}).finally(()=>clearTimeout(timer));
+}
+
+/* fetch พร้อม retry + timeout + เช็ค res.ok ก่อน parse JSON เสมอ
+   ไม่เปลี่ยนรูปแบบ request/response ใด ๆ เพื่อให้ยังใช้ Apps Script เดิมได้ */
+async function fetchWithRetry(url, options, cfg={}){
+  const retries = cfg.retries ?? APPS_SCRIPT_MAX_RETRIES;
+  const timeoutMs = cfg.timeoutMs ?? APPS_SCRIPT_TIMEOUT_MS;
+  let lastErr;
+
+  for(let attempt = 0; attempt <= retries; attempt++){
+    try{
+      const res = await fetchWithTimeout(url, options, timeoutMs);
+
+      if(!res.ok){
+        const text = await res.text().catch(()=> "");
+        throw new Error(`เซิร์ฟเวอร์ตอบกลับผิดพลาด (HTTP ${res.status})${text ? " — " + text.slice(0,200) : ""}`);
+      }
+
+      let data;
+      try{ data = await res.json(); }
+      catch(e){ throw new Error("เซิร์ฟเวอร์ตอบกลับไม่ใช่ JSON ที่ถูกต้อง"); }
+
+      return data;
+
+    } catch(err){
+      lastErr = err;
+      const isAbort = err.name === "AbortError";
+      const msg = isAbort
+        ? `หมดเวลาการเชื่อมต่อ (เกิน ${(timeoutMs/1000).toFixed(0)} วินาที) — ไฟล์อาจใหญ่เกินไปหรือเน็ตช้า`
+        : err.message;
+
+      console.warn(`[fetchWithRetry] ครั้งที่ ${attempt+1}/${retries+1} ล้มเหลว: ${msg}`);
+
+      if(attempt < retries){
+        await new Promise(r=>setTimeout(r, 1200 * (attempt + 1)));
+        continue;
+      }
+      throw new Error(msg);
+    }
+  }
+  throw lastErr;
+}
+
+/* บีบอัดรูปภาพผ่าน canvas ก่อนแปลงเป็น base64 — ลดขนาด payload ได้มากที่สุด
+   ไฟล์ที่ไม่ใช่รูปภาพจะข้ามการบีบอัดและใช้ blobToBase64 ตามปกติ */
+function compressImageFile(file){
+  return new Promise((resolve, reject)=>{
+    if(!file.type || !file.type.startsWith("image/")){
+      resolve(null);
+      return;
+    }
+    const img = new Image();
+    const objUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      let { width, height } = img;
+      const scale = Math.min(1, IMAGE_MAX_DIMENSION / Math.max(width, height));
+      width = Math.round(width * scale);
+      height = Math.round(height * scale);
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width; canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(blob=>{
+        URL.revokeObjectURL(objUrl);
+        if(!blob){ resolve(null); return; }
+        const reader = new FileReader();
+        reader.onloadend = () => resolve({
+          base64: reader.result.split(",")[1],
+          type: "image/jpeg",
+          size: blob.size
+        });
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      }, "image/jpeg", IMAGE_JPEG_QUALITY);
+    };
+    img.onerror = () => { URL.revokeObjectURL(objUrl); resolve(null); };
+    img.src = objUrl;
+  });
 }
 
 function buildSuggestedFileName(){
@@ -6725,7 +6860,7 @@ async function confirmSaveAndExport(){
 
       const base64 = await blobToBase64(pdfBlob);
 
-      const res = await fetch(APPS_SCRIPT_URL, {
+      const data = await fetchWithRetry(APPS_SCRIPT_URL, {
 
         method: "POST",
 
@@ -6734,8 +6869,6 @@ async function confirmSaveAndExport(){
         body: JSON.stringify({ pdfBase64: base64, fileName: fileName, attachments: attachments })
 
       });
-
-      const data = await res.json();
 
       if(data && data.success){
 
