@@ -5485,7 +5485,7 @@ function renderSpider(){
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMXRbanFzyjpJ2AOa1gkfBYtuDxUiKFPkQscKDmBE7hqOqNjgkVHCRwjRx2S1csGUb/exec";
 
 // ===== ค่าคงที่สำหรับความเสถียรของการอัปโหลด (ฝั่ง client เท่านั้น ไม่แตะ backend) =====
-const APPS_SCRIPT_TIMEOUT_MS = 60000;      // timeout ต่อคำขอ (60 วิ เพราะ payload อาจใหญ่)
+const APPS_SCRIPT_TIMEOUT_MS = 180000;     // timeout ต่อคำขอ (3 นาที เพราะ Apps Script ต้องเขียนไฟล์แนบหลายไฟล์ลง Drive แบบ synchronous ก่อนตอบกลับ)
 const APPS_SCRIPT_MAX_RETRIES = 2;         // ลองใหม่กี่ครั้งถ้า fetch ล้มเหลว
 const MAX_ATTACHMENT_SIZE_MB = 5;          // จำกัดไฟล์ที่ไม่ใช่รูป (เช่น PDF)
 const IMAGE_MAX_DIMENSION = 1600;          // ความกว้าง/สูงสูงสุดหลังบีบอัดรูป (px)
@@ -5530,7 +5530,7 @@ async function fetchWithRetry(url, options, cfg={}){
       lastErr = err;
       const isAbort = err.name === "AbortError";
       const msg = isAbort
-        ? `หมดเวลาการเชื่อมต่อ (เกิน ${(timeoutMs/1000).toFixed(0)} วินาที) — ไฟล์อาจใหญ่เกินไปหรือเน็ตช้า`
+        ? `หมดเวลาการเชื่อมต่อ (เกิน ${(timeoutMs/1000).toFixed(0)} วินาที) — ไฟล์อาจใหญ่เกินไปหรือเน็ตช้า กรุณาตรวจสอบโฟลเดอร์ Google Drive ก่อนกดส่งซ้ำ เผื่อไฟล์ถูกบันทึกไปแล้วฝั่งเซิร์ฟเวอร์`
         : err.message;
 
       console.warn(`[fetchWithRetry] ครั้งที่ ${attempt+1}/${retries+1} ล้มเหลว: ${msg}`);
@@ -6868,7 +6868,7 @@ async function confirmSaveAndExport(){
 
         body: JSON.stringify({ pdfBase64: base64, fileName: fileName, attachments: attachments })
 
-      });
+      }, { retries: 1 }); // retry แค่ 1 ครั้ง (ไม่ใช้ค่า default 2) เพื่อลดความเสี่ยงไฟล์ซ้ำใน Drive หากคำขอแรกทำสำเร็จฝั่งเซิร์ฟเวอร์แต่ client timeout ไปก่อน
 
       if(data && data.success){
 
